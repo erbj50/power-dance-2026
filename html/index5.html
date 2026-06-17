@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Dance 2026</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: rgba(0, 0, 2, 0);
+        }
+
+        #fd {
+            height: 160px;
+            width: 750px;
+            background-color: rgba(0, 0, 5, 0);
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 150%;
+            overflow: hidden;
+            /* Garante que o conteúdo fora do contêiner não seja exibido */
+            position: relative;
+            display: flex;
+            align-items: center;
+            /* Centraliza o conteúdo verticalmente */
+            justify-content: center;
+            /* Centraliza o conteúdo horizontalmente */
+        }
+
+        .scrolling-text {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            /* Garante que o texto não quebre linhas */
+            position: absolute;
+            animation: scroll 16s linear infinite;
+            /* Animação para rolar o conteúdo */
+            font-size: 40px;
+            color: white;
+            text-shadow: 1px 5px 5px #e40707;
+        }
+
+        .MRQ {
+            width: 100px;
+            height: 100px;
+            margin-left: 20px;
+        }
+
+        @keyframes scroll {
+            from {
+                transform: translateX(100%);
+                /* Começa fora do contêiner, à direita */
+            }
+            to {
+                transform: translateX(-100%);
+                /* Sai fora do contêiner, à esquerda */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="fd">
+        <div class="scrolling-text">
+            <h1>
+                POWER&nbsp; DANCE&nbsp; 2026&nbsp;&nbsp;
+                <img class="MRQ" src="../image/LOG-ROTATE.gif" alt="Logo Rotativo"> &nbsp;&nbsp;DJ&nbsp; ROBERT&nbsp; BJ&nbsp; NO&nbsp; COMANDO&nbsp; DA&nbsp; EMOÇÃO!!
+            </h1>
+        </div>
+    </div>
+</body>
+
+</html>

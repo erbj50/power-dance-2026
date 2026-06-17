@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela Principal</title>
+    <link rel="icon" href="data:,">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #t-la {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            max-width: 920px;
+            max-height: 930px;
+            position: absolute;
+            margin-left: 20px;
+            border: 10px solid rgb(3, 0, 0);
+        }
+
+        .if {
+            background-color: black;
+            border: 10px solid rgb(0, 0, 0);
+            width: 100%;
+            height: 100%;
+        }
+
+        #EUDJ {
+            margin: 0;
+            padding: 0;
+            width: 900px;
+            height: 450px;
+            margin-left: 10px;
+            margin-top: 50px;
+        }
+
+        #if-samp {
+            display: none;
+            position: absolute;
+            z-index: 1;
+            margin: 0;
+            padding: 0;
+            left: 10px;
+            margin-top: 50px;
+            top: 920px;
+        }
+
+        #do-samp {
+            height: 250px;
+            width: 250px;
+            border-radius: 50%;
+            border: none;
+            background-color: transparent;
+            position: absolute;
+            z-index: 1;
+            right: 60px;
+            top: 1090px;
+            cursor: pointer;
+        }
+
+        #admin-bt {
+            height: 250px;
+            width: 250px;
+            border-radius: 50%;
+            border: none;
+            background-color: transparent;
+            position: absolute;
+            z-index: 1;
+            left: 60px;
+            top: 1090px;
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="t-la">
+        <iframe class="if" src="https://mtdt-2.netlify.app/"></iframe>
+
+        <img id="EUDJ" src="./image/DJDJ.gif" alt="DJ">
+
+        <iframe id="if-samp" class="samp-iframe" width="895" height="505" src="./samp.html"></iframe>
+
+        <button id="do-samp"></button>
+        <button id="admin-bt"></button>
+    </div>
+
+    <script>
+        // 1. Bloqueios de segurança
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' || e.keyCode === 123) e.preventDefault();
+        });
+
+        // 2. Controle do botão SAMP
+        const btnSamp = document.getElementById('do-samp');
+        const ifSamp = document.getElementById('if-samp');
+
+        btnSamp.addEventListener('click', function() {
+            this.style.display = 'none';
+            ifSamp.style.display = 'block';
+            setTimeout(() => {
+                this.style.display = 'block';
+                ifSamp.style.display = 'none';
+            }, 10000);
+        });
+
+        // 3. Sistema de Cliques para Admin
+        let clickCount = 0;
+
+        document.addEventListener('click', (e) => {
+            // Evita contar cliques nos botões que já têm função
+            if (e.target.id === 'do-samp') return;
+
+            clickCount++;
+
+            if (clickCount >= 10) {
+                clickCount = 0;
+                window.open('./tela-admim.html', '_blank');
+            }
+        });
+    </script>
+
+
+
+
+
+
+
+
+
+
+<script>
+    // Bloqueio de clique direito e F12 para proteção básica do código
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12' || e.keyCode === 123) {
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
+
+
+
+
+</body>
+
+
+
+
+
+
+
+
+
+</html>

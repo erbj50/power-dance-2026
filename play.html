@@ -1,0 +1,773 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Audio Player with VU Meters</title>
+
+    <!-- Adicionando cabeçalhos de segurança através de metatags -->
+
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
+
+
+
+    <style>
+        /* Ajustes gerais */
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.993);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            -webkit-user-select: none;
+            /* Safari */
+            -ms-user-select: none;
+            /* IE 10 e Edge */
+            user-select: none;
+            /* Padrão moderno */
+        }
+
+        #master {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            max-width: 995px;
+            height: 100%;
+            height: auto;
+            background-color: transparent;
+            background-color: #00fd0800;
+            margin-top: -790px;
+        }
+
+        #resolution-info {
+            color: white;
+            text-align: center;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .audio-player {
+            text-align: center;
+        }
+
+        .vu-meter {
+            display: flex;
+        }
+
+        .vu-meter canvas {
+            background-color: rgb(0, 0, 0);
+            background-image: url("./VU7.jpg");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            width: 480px;
+            height: 345px;
+            border: 2px solid #0b42f7;
+            position: relative;
+            margin: -3px;
+            margin-left: 10px;
+            margin-top: 4px;
+        }
+
+        .controls {
+            margin-top: 10px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0);
+        }
+
+        .play-pause-button {
+            width: 943px;
+            height: 368px;
+            background-color: rgba(0, 0, 0, 0);
+            border-radius: 1px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            margin-top: 495px;
+            margin-left: 30px;
+            transition: background-color 0.3s;
+            position: absolute;
+            z-index: 3;
+        }
+
+        .play-icon {
+            width: 280px;
+            height: 280px;
+            fill: rgba(25, 10, 236, 0.582);
+        }
+
+        .pause-icon {
+            width: 280px;
+            height: 280px;
+            fill: rgba(231, 3, 3, 0);
+        }
+
+        audio {
+            display: none;
+        }
+
+        #EQUALIZER {
+            width: 920px;
+            height: 355px;
+            background-color: rgba(31, 28, 32, 0);
+            background-image: url(./image/EQ-layout.jpeg);
+            border: 3px solid rgb(0, 81, 255);
+            background-size: cover;
+            background-repeat: no-repeat;
+            margin-left: 15px;
+            padding: 20px;
+            display: block;
+            margin-top: 6px;
+        }
+
+        .equalizer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .filter-container input[type="range"] {
+            width: 300px;
+            height: 50px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #6f759970, #5f5b86b7);
+            outline: none;
+            transition: background 0.2s;
+            transform: rotate(-90deg);
+            margin-top: 150px;
+            margin-left: -140px;
+            position: absolute;
+            z-index: 1;
+        }
+
+        .filter-container input[type="range"]:hover {
+            background: linear-gradient(90deg, #666, #04b7e4f5);
+        }
+
+        .filter-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 60px;
+            height: 60px;
+            background: url('./image/vol-bg.gif') no-repeat center, #070f3317;
+            background-size: contain;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 15px #ffffff;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .filter-container input[type="range"]::-webkit-slider-thumb:hover {
+            box-shadow: 0 0 25px #ffffff;
+        }
+
+        .filter-container input[type="range"]::-moz-range-thumb {
+            width: 60px;
+            height: 60px;
+            background: url('knob.png') no-repeat center, #00fd0a;
+            background-size: contain;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 15px #00fd0a;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .filter-container input[type="range"]::-moz-range-thumb:hover {
+            transform: rotate(45deg) scale(1.2);
+            box-shadow: 0 0 25px #00ff00;
+        }
+
+        .filter-container label {
+            display: block;
+            margin-bottom: 5px;
+            color: aliceblue;
+            font-size: 23px;
+            font-weight: bold;
+            margin-left: -55px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 150px;
+            height: 5px;
+            border-radius: 5px;
+            background: #dddddd46;
+            outline: none;
+            opacity: 0.8;
+            transition: opacity .2s;
+            margin: 10px 0;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #4ca8af;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            border-radius: 1%;
+            background: #4ca0af;
+            cursor: pointer;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 200%;
+            height: 20px;
+            margin-top: 30px;
+            margin-right: 10%;
+            border-radius: 10px;
+            outline: none;
+            transform: rotate(-90deg);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 40px;
+            height: 90px;
+            background-color: #e5e9e3;
+            border: 1px solid rgb(248, 148, 16);
+            border-radius: 5%;
+            box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            margin-top: -5px;
+        }
+
+        span {
+            width: 100px;
+            margin-top: -15px;
+            margin-left: -30px;
+            color: #f0f8ff;
+            position: absolute;
+            z-index: 1;
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        label {
+            width: 100px;
+            text-align: center;
+            padding: 0%;
+            margin-top: 340px;
+            margin-left: 30px;
+            position: absolute;
+            z-index: 1;
+            color: aliceblue;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        #K7 {
+            margin: 0%;
+            padding: 0%;
+            width: 967px;
+            height: 630px;
+            border-radius: 5%;
+            background-color: rgb(11, 3, 31);
+            background-image: url(./image/base.png);
+            border: 3px solid rgb(0, 119, 255);
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: absolute;
+            z-index: 1;
+            margin-top: 610px;
+            margin-left: 15px;
+        }
+
+        #Rolo1 {
+            margin: 0%;
+            padding: 0%;
+            width: 477px;
+            height: 477px;
+            border-radius: 50%;
+            background-color: rgba(240, 22, 40, 0);
+            background-image: url(./image/cilindro.png);
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: absolute;
+            z-index: 1;
+            margin-top: 10px;
+            margin-left: 6px;
+        }
+
+        #rolo2 {
+            margin: 0%;
+            padding: 0%;
+            width: 477px;
+            height: 477px;
+            border-radius: 50%;
+            background-color: rgba(0, 4, 255, 0);
+            background-image: url(./image/cilindro.png);
+            background-size: cover;
+            background-repeat: no-repeat;
+            margin-left: 50%;
+            position: absolute;
+            z-index: 1;
+            margin-top: 10px;
+        }
+
+        #Rolo3 {
+            margin: 0%;
+            padding: 0%;
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background-color: rgba(128, 255, 0, 0);
+            background-image: url(./image/cilindro.png);
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: absolute;
+            z-index: 1;
+            margin-top: 520px;
+            margin-left: 65px;
+        }
+
+        #rolo4 {
+            margin: 0%;
+            padding: 0%;
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background-color: rgba(128, 255, 0, 0);
+            background-image: url(./image/cilindro.png);
+            background-size: cover;
+            background-repeat: no-repeat;
+            margin-left: 85%;
+            position: absolute;
+            z-index: 1;
+            margin-top: 520px;
+        }
+
+        .rot {
+            animation: none;
+            /* Sem animação inicial */
+        }
+
+        @keyframes rotateLoop {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .rotating {
+            animation: rotateLoop 5s linear infinite;
+            /* Adiciona rotação contínua */
+        }
+
+        #painel-c {
+            margin: 0%;
+            padding: 0%;
+            width: 965px;
+            height: 140px;
+            position: absolute;
+            z-index: 1;
+            margin-left: 10px;
+            background-color: rgba(0, 0, 0, 0.034);
+            background-image: url(./image/leds.gif);
+            background-size: cover;
+            background-repeat: no-repeat;
+            object-position: center;
+            margin-top: 1405px;
+            display: block;
+        }
+
+        #laoutft {
+            padding: 0%;
+            width: 960px;
+            height: 620px;
+            background-image: url(./image/tampa.png);
+            background-size: cover;
+            background-repeat: no-repeat;
+            object-position: center;
+            position: absolute;
+            margin-top: 5px;
+            z-index: 1;
+        }
+
+        h1 {
+            color: #FFFFFF;
+            background: #23232365;
+            text-shadow: 0 0 5px #FFF, 0 0 10px #FFF, 0 0 15px #FFF, 0 0 20px #4aff1865, 0 0 30px #4aff1865, 0 0 40px #4aff1865, 0 0 55px #4aff1865, 0 0 75px #49ff18;
+            font-size: 80px;
+            text-align: center;
+            margin-top: 30px;
+            position: absolute;
+            z-index: 3;
+            margin-left: 200px;
+        }
+
+        #tampa-vuL1 {
+            width: 48px;
+            height: 48px;
+            background-color: #000000;
+            border: 3px solid rgb(0, 81, 255);
+            margin-left: 723px;
+            position: absolute;
+            z-index: 3;
+            margin-top: -66px;
+            border-radius: 50%;
+        }
+
+        #tampa-vuR1 {
+            width: 48px;
+            height: 48px;
+            background-color: #000000;
+            border: 3px solid rgb(0, 110, 255);
+            margin-left: 225px;
+            position: absolute;
+            z-index: 3;
+            margin-top: -66px;
+            border-radius: 50%;
+        }
+
+        .R {
+            color: #fcfcfc;
+            font-size: 40px;
+            margin-top: 2px;
+        }
+
+        .L {
+            color: #ffffff;
+            font-size: 40px;
+            margin-top: 2px;
+        }
+
+        .led {
+            width: 20px;
+            height: 20px;
+            background-color: rgb(31, 1, 1);
+            border-radius: 50%;
+            display: block;
+            position: absolute;
+            z-index: 1;
+            margin-left: 900px;
+            margin-top: -60px;
+        }
+
+        .led1 {
+            width: 20px;
+            height: 20px;
+            background-color: rgb(31, 1, 1);
+            border-radius: 50%;
+            display: block;
+            position: absolute;
+            z-index: 1;
+            margin-left: 410px;
+            margin-top: -60px;
+        }
+
+        .led.on {
+            display: block;
+            background-color: red;
+        }
+
+        .led.off {
+            display: none;
+            background-color: rgb(243, 8, 8);
+        }
+
+        .led1.on {
+            display: block;
+            background-color: red;
+        }
+
+        .led1.off {
+            display: none;
+            background-color: rgb(243, 8, 8);
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+        // Bloqueia o menu de contexto ao clicar com o botão direito
+        document.addEventListener('contextmenu', event => event.preventDefault());
+    </script>
+
+    <div id="master">
+        <div class="audio-player">
+            <audio id="audio" src="https://stm17.voxhd.com.br:7894/.mp3;" controls crossorigin="anonymous"></audio>
+            <div class="vu-meter">
+                <canvas id="vu-meter-left" width="256" height="128"></canvas>
+                <canvas id="vu-meter-right" width="256" height="128"></canvas>
+            </div>
+
+
+            <div id="tampa-vuL1">
+                <h3 class="L">J</h3>
+            </div>
+            <div id="tampa-vuR1">
+                <h3 class="R">B</h3>
+            </div>
+            <!-- LED Indicator -->
+            <div class="led" id="led"></div>
+            <div class="led1" id="led1"></div>
+
+            <div class="play-pause-button" id="play-pause">
+                <!-- Ícone de Play -->
+                <svg id="play-icon" class="play-icon" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"></path>
+            </svg>
+                <!-- Ícone de Pause -->
+                <svg id="pause-icon" class="pause-icon" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 24 24" style="display: none;">
+                <path d="M6 19h4V5H6zm8-14v14h4V5z"></path>
+            </svg>
+            </div>
+        </div>
+
+        <!-- Equalizador -->
+        <div id="EQUALIZER">
+            <div class="equalizer-container">
+                <!-- Configurações de frequência -->
+                <div class="filter-container">
+                    <label>60Hz</label>
+                    <input type="range" id="filter-1" min="-20" max="20" value="0">
+                    <span id="filter-1-value">0 dB</span>
+                </div>
+                <div class="filter-container">
+                    <label>250Hz</label>
+                    <input type="range" id="filter-2" min="-20" max="20" value="0">
+                    <span id="filter-2-value">0 dB</span>
+                </div>
+                <div class="filter-container">
+                    <label>10kHz</label>
+                    <input type="range" id="filter-3" min="-20" max="20" value="0">
+                    <span id="filter-3-value">0 dB</span>
+                </div>
+                <div class="filter-container">
+                    <label>40kHz</label>
+                    <input type="range" id="filter-4" min="-20" max="20" value="0">
+                    <span id="filter-4-value">0 dB</span>
+                </div>
+                <div class="filter-container">
+                    <label>80kHz</label>
+                    <input type="range" id="filter-5" min="-20" max="20" value="0">
+                    <span id="filter-5-value">0 dB</span>
+                </div>
+                <div class="filter-container">
+                    <label>160kHz</label>
+                    <input type="range" id="filter-6" min="-20" max="20" value="0">
+                    <span id="filter-6-value">0 dB</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="k7">
+        <div id="center" style="background-color:rgba(238, 241, 245, 0.356); width: 300px; height:150px; margin-left:335px; position: absolute; z-index:3; margin-top: 190px;"></div>
+        <div id="rolo1" class="rot"></div>
+        <div id="rolo2" class="rot"></div>
+        <div id="rolo3" class="rot"></div>
+        <div id="rolo4" class="rot"></div>
+        <div id="laoutft"></div>
+        <h1>POWER DANCE</h1>
+    </div>
+    <div id="painel-c"></div>
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const audio = document.getElementById('audio');
+            const rotElements = document.querySelectorAll('.rot');
+            const canvasLeft = document.getElementById('vu-meter-left');
+            const canvasRight = document.getElementById('vu-meter-right');
+            const playPauseButton = document.getElementById('play-pause');
+            const playIcon = document.getElementById('play-icon');
+            const pauseIcon = document.getElementById('pause-icon');
+            const EQUALIZER = document.getElementById('EQUALIZER');
+            const led = document.getElementById('led');
+            const led1 = document.getElementById('led1');
+
+            let context;
+            let filters = [];
+            let analyser;
+
+            // Configuração do botão Play/Pause
+            playPauseButton.addEventListener('click', function() {
+                if (!context) {
+                    context = new(window.AudioContext || window.webkitAudioContext)();
+                    const src = context.createMediaElementSource(audio);
+                    analyser = context.createAnalyser();
+
+                    // Configuração de volume e VU meter
+                    const volumeNode = context.createGain();
+                    volumeNode.gain.value = 0.87;
+
+                    const vuMeterGainNode = context.createGain();
+                    vuMeterGainNode.gain.value = 0.02;
+
+                    // Configuração dos filtros do equalizador
+                    filters = [60, 250, 800, 1000, 2000, 3800].map((freq) => {
+                        const filter = context.createBiquadFilter();
+                        filter.type = 'peaking';
+                        filter.frequency.value = freq;
+                        filter.Q.value = Math.sqrt(2);
+                        filter.gain.value = 0;
+                        return filter;
+                    });
+
+                    const canvasCtxLeft = canvasLeft.getContext('2d');
+                    const canvasCtxRight = canvasRight.getContext('2d');
+
+                    // Conexão dos nós
+                    src.connect(filters[0]);
+                    filters.reduce((prev, curr) => prev.connect(curr)).connect(volumeNode);
+                    volumeNode.connect(context.destination);
+                    volumeNode.connect(vuMeterGainNode);
+                    vuMeterGainNode.connect(analyser);
+
+                    analyser.fftSize = 256;
+                    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                    function draw() {
+                        requestAnimationFrame(draw);
+                        analyser.getByteFrequencyData(dataArray);
+
+                        canvasCtxLeft.clearRect(0, 0, canvasLeft.width, canvasLeft.height);
+                        canvasCtxRight.clearRect(0, 0, canvasRight.width, canvasRight.height);
+
+                        const value = (dataArray[0] / 255) * 180;
+                        drawPointer(canvasCtxLeft, value);
+                        drawPointer(canvasCtxRight, value);
+
+                        // Monitorar se o áudio está em estéreo
+                        checkStereo();
+                    }
+
+                    function drawPointer(ctx, value) {
+                        ctx.save();
+                        ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 1.1);
+                        ctx.rotate(((value - 90) * Math.PI) / 180);
+                        ctx.fillStyle = '#a8fe13';
+                        ctx.fillRect(-1.5, -99, 3, 87);
+                        ctx.restore();
+                    }
+
+                    function checkStereo() {
+                        const leftChannel = dataArray.slice(0, dataArray.length / 2);
+                        const rightChannel = dataArray.slice(dataArray.length / 2);
+
+                        const leftAvg = leftChannel.reduce((a, b) => a + b, 0) / leftChannel.length;
+                        const rightAvg = rightChannel.reduce((a, b) => a + b, 0) / rightChannel.length;
+
+                        if (Math.abs(leftAvg - rightAvg) > 10) {
+                            led.classList.add('on');
+                            led1.classList.add('on');
+                        } else {
+                            led.classList.remove('on');
+                            led1.classList.remove('on');
+                        }
+                    }
+
+                    draw();
+                }
+
+                if (audio.paused) {
+                    // Recarrega o áudio antes de reproduzir
+                    audio.src = audio.src;
+                    audio.load();
+                    audio.play();
+                    playIcon.style.display = 'none';
+                    pauseIcon.style.display = 'block';
+                } else {
+                    audio.pause();
+                    playIcon.style.display = 'block';
+                    pauseIcon.style.display = 'none';
+                }
+            });
+
+            // Adicionar ou remover a classe "rotating" ao tocar ou pausar o áudio
+            audio.addEventListener('play', function() {
+                rotElements.forEach(element => {
+                    element.classList.add('rotating');
+                });
+            });
+
+            audio.addEventListener('pause', function() {
+                rotElements.forEach(element => {
+                    element.classList.remove('rotating');
+                });
+            });
+
+            // Configuração dos sliders do equalizador
+            if (EQUALIZER) {
+                const filterInputs = EQUALIZER.querySelectorAll('input[type="range"]');
+                const filterValues = EQUALIZER.querySelectorAll('span');
+
+                filterInputs.forEach((input, index) => {
+                    input.addEventListener('input', () => {
+                        const value = parseInt(input.value, 10);
+                        filters[index].gain.value = value;
+                        filterValues[index].innerText = `${value} dB`;
+                    });
+                });
+            } else {
+                console.error("Elemento EQUALIZER não encontrado.");
+            }
+        });
+    </script>
+
+
+
+
+
+
+
+    </div>
+
+
+
+
+
+    <div id="k7">
+        <div id="center" style="background-color:rgba(238, 241, 245, 0.356); width: 300px; height:150px; margin-left:335px; position: absolute; z-index:3; margin-top: 190px;"></div>
+        <div id="rolo1" class="rot"></div>
+        <div id="rolo2" class="rot"></div>
+        <div id="rolo3" class="rot"></div>
+        <div id="rolo4" class="rot"></div>
+        <div id="laoutft"></div>
+        <h1>POWER DANCE</h1>
+    </div>
+    </div>
+    <div id="painel-c"></div>
+</body>
+
+
+<script>
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12' || e.keyCode === 123) { // Verifica a tecla F12 por key ou keyCode
+            e.preventDefault();
+            return false; // Evita a propagação do evento
+        }
+    });
+</script>
+
+
+
+</html>

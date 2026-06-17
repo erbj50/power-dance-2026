@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Dance 2026</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: rgba(0, 0, 2, 0);
+        }
+
+        #fd {
+            height: 160px;
+            width: 750px;
+            background-color: rgba(0, 0, 5, 0);
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 150%;
+            overflow: hidden;
+            /* Garante que o conteúdo fora do contêiner não seja exibido */
+            position: relative;
+            display: flex;
+            align-items: center;
+            /* Centraliza o conteúdo verticalmente */
+            justify-content: center;
+            /* Centraliza o conteúdo horizontalmente */
+        }
+
+        #dança {
+            margin: 0%;
+            padding: 0%;
+            width: 140px;
+            height: 160px;
+            background-color: rgba(243, 9, 212, 0);
+            background-image: url(../image/DANÇARINO2.gif);
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 86%;
+            overflow: hidden;
+            /* Garante que o conteúdo fora do contêiner não seja exibido */
+            position: relative;
+            display: flex;
+        }
+
+        .scrolling-text {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            /* Garante que o texto não quebre linhas */
+            position: absolute;
+            animation: scroll 48s linear infinite;
+            /* Animação para rolar o conteúdo */
+            font-size: 40px;
+            color: white;
+            text-shadow: 1px 5px 5px #0630e9;
+        }
+
+        .red {
+            color: red;
+        }
+
+        .green {
+            color: rgb(179, 255, 0);
+        }
+
+        .blue {
+            color: rgb(77, 112, 217);
+        }
+
+        .orange {
+            color: rgb(255, 174, 0);
+        }
+
+        .purple {
+            color: purple;
+        }
+
+        .yellow {
+            color: rgb(221, 245, 7);
+        }
+
+        .MRQ {
+            width: 100px;
+            height: 100px;
+            margin-left: 20px;
+        }
+
+        @keyframes scroll {
+            from {
+                transform: translateX(100%);
+                /* Começa fora do contêiner, à direita */
+            }
+            to {
+                transform: translateX(-100%);
+                /* Sai fora do contêiner, à esquerda */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="fd">
+        <div id="dança"></div>
+        <div class="scrolling-text">
+            <h1>
+                &nbsp;&nbsp;&nbsp;
+                <span class="red">BEM VINDOS</span> &nbsp;&nbsp;
+                <span class="orange">A</span> &nbsp;
+                <span class="blue">POWER</span>&nbsp;&nbsp;
+                <span class="green">DANCE</span> &nbsp;&nbsp;&nbsp;
+                <span class="yellow">COMECE</span> &nbsp;&nbsp;
+                <span class="purple">SEU</span> &nbsp; &nbsp;
+                <span class="red">DIA</span>&nbsp;&nbsp;&nbsp; &nbsp;
+                <span class="orange">COM</span> &nbsp;&nbsp;
+                <span class="blue">MUITA</span>&nbsp;&nbsp;
+                <span class="green">MÚSICA</span>&nbsp;&nbsp;
+                <span class="purple">NOSTALGIA</span>&nbsp;&nbsp;&nbsp;
+                <span class="red">ALEGRIA</span>&nbsp;&nbsp;&nbsp;
+                <span class="orange">ENERGIA</span>&nbsp;
+                <span class="blue">E</span> &nbsp;
+                <span class="green">ENTRETENIMENTO</span> &nbsp;.&nbsp;&nbsp;
+                <span class="purple">E SÓ CLICAR</span>&nbsp;
+                <span class="red">NOS</span>&nbsp;
+                <span class="orange">MENUS</span>&nbsp;&nbsp;
+                <span class="blue">NAS</span> &nbsp;
+                <span class="green">BAILARINAS</span> &nbsp;
+                <span class="purple">ACESSE</span>&nbsp;&nbsp;
+                <span class="red">AO</span>&nbsp;&nbsp;
+                <span class="orange">CHAT</span>&nbsp;
+                <span class="blue">DEIXE</span> &nbsp;
+                <span class="green">O</span>&nbsp;
+                <span class="purple">RECADO</span>&nbsp;
+                <span class="red">E</span> &nbsp;
+                <span class="orange">FAÇA</span> &nbsp;
+                <span class="blue">O</span>&nbsp;
+                <span class="green">SEU</span>&nbsp;
+                <span class="purple">PEDIDO</span>.&nbsp;&nbsp;
+                <span class="red">MUSICAL</span>&nbsp;&nbsp;&nbsp;
+                <span class="blue">DE</span>&nbsp;&nbsp;&nbsp;
+                <span class="orange">VOLTA</span>&nbsp;
+                <span class="blue">AO</span>&nbsp;
+                <span class="green">PASSADO</span>&nbsp;&nbsp;&nbsp;
+                <span class="purple">POWER</span> &nbsp;
+                <span class="red">DANCE</span> &nbsp;&nbsp;
+                <span class="orange">NA</span>&nbsp;
+                <span class="blue">BATIDA</span>&nbsp;
+                <span class="green">DO</span> &nbsp;
+                <span class="red">FLASH BACK</span>
+            </h1>
+        </div>
+    </div>
+</body>
+
+</html>

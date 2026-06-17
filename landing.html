@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Entrar no Chat</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(to right, #17083d84, #0e0b48c6);
+            font-family: Arial, sans-serif;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(15, 3, 58, 0.383);
+        }
+
+        .login-box h1 {
+            margin-bottom: 20px;
+            color: #0a1b3667;
+        }
+
+        .login-box button {
+            padding: 35px 30px;
+            font-size: 130px; /* Nota: Esse tamanho de fonte está extremamente grande, ajuste se necessário */
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            color: white;
+            background-color: #db4437;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .login-box button:hover {
+            background-color: #c1351d;
+        }
+
+        #popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgb(8, 0, 0);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        #popup h2 {
+            margin-bottom: 20px;
+            color: #005bea;
+        }
+
+        #popup button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 86px; /* Nota: Também está bem grande */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #adminBtn {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        #muralBtn {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        h1 {
+            color: goldenrod;
+            display: block;
+            margin-top: -550px;
+            font-size: 80px;
+            position: absolute;
+        }
+
+        .ent {
+            color: azure;
+            margin-top: -350px;
+            position: absolute;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Bem-vindo ao Chat</h1>
+    <h1 class="ent">Entrar com</h1>
+    <div class="login-box">
+        <button id="loginBtn">Google</button>
+    </div>
+
+    <div id="popup">
+        <h2>Escolha onde deseja entrar</h2>
+        <button id="adminBtn">Admin</button>
+        <button id="muralBtn">Mural</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"; 
+        import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"; 
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js"; 
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyDDMNEQL0Cj6eXtAISqtBpYiYbkEOoLkqM", 
+            authDomain: "recados-fca7e.firebaseapp.com", 
+            projectId: "recados-fca7e", 
+            databaseURL: "https://recados-fca7e-default-rtdb.firebaseio.com",
+            storageBucket: "recados-fca7e.appspot.com", 
+            messagingSenderId: "637659136101", 
+            appId: "1:637659136101:web:ac2db24f4c9eef2efe068c" 
+        }; 
+
+        const app = initializeApp(firebaseConfig); 
+        const auth = getAuth(app); 
+        const provider = new GoogleAuthProvider();
+        const database = getDatabase(app); 
+
+        // Evento de Login
+        document.getElementById('loginBtn').addEventListener('click', async () => { 
+            try { 
+                const result = await signInWithPopup(auth, provider); 
+                const user = result.user; 
+                
+                // Verifica se o UID está na lista de admins 
+                const adminRef = ref(database, 'admins/' + user.uid); 
+                const snapshot = await get(adminRef); 
+                
+                if (snapshot.exists()) { 
+                    // Mostrar popup de escolha (admin ou mural) 
+                    document.getElementById('popup').style.display = 'block'; 
+                } else { 
+                    // Usuário comum: ir direto para o mural 
+                    window.location.href = "mural.html"; 
+                } 
+            } catch (error) { 
+                alert("Erro ao fazer login: " + error.message); 
+            } 
+        }); 
+
+        // Botões do popup - CORRIGIDO "admin.html" conforme seu projeto
+        document.getElementById('adminBtn').addEventListener('click', () => { 
+            window.location.href = "admin_m.html"; 
+        }); 
+
+        document.getElementById('muralBtn').addEventListener('click', () => { 
+            window.location.href = "mm.html"; 
+        });
+    </script>
+
+    <script>
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || e.keyCode === 123) { 
+                e.preventDefault();
+                return false; 
+            }
+        });
+    </script>
+</body>
+
+</html>

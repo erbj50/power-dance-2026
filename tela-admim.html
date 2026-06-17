@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title  >ADMIN - ERBJ</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            
+        }
+
+body {                
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #000;
+  color: white;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-image: url('https://i.pinimg.com/originals/dd/dd/22/dddd220b1458dc3124516aa02528eecb.gif');
+  background-size: cover;
+  background-position: center;
+margin-left: 15px;
+  /* Zoom fixo de 25% */
+  zoom: 0.93; 
+}
+
+
+h1{
+font-size:10px;
+color: chartreuse;
+font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+
+}
+
+        .admin-container {
+            width: 98%;
+            max-width: 1800px;
+            height: 97vh;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .preview-container {
+            width: 360px;
+            height: 350px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 2px dashed rgba(0, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            background: transparent;
+        }
+
+        .form-group {
+            width: 100%;
+            max-width: 400px;
+            margin: 10px 0;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+        }
+
+        input, select {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        button {
+            background: rgba(0, 100, 255, 0.7);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: rgba(0, 100, 255, 0.9);
+        }
+
+    .form-group{
+     margin-top: 5px;
+      }
+
+
+
+        .gallery {
+            width: 100%;
+            height: 30vh;
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            margin-top: 5px;
+        }
+
+        .gallery-item {
+            min-width: 150px;
+            height: 150px;
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .gallery-id {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        #status {
+            margin-top: 10px;
+            color: lime;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>ADMIN - ERBJ</h1>
+
+        <div class="preview-container" id="preview" onclick="document.getElementById('imgInput').click()">
+            <img id="previewImg" class="hidden" />
+        </div>
+
+        <input type="file" id="imgInput" accept="image/*" class="hidden" />
+
+        <div class="form-group">
+            <input type="text" id="urlInput" placeholder="URL ou Número do WhatsApp (ex: 5567992072689)" />
+        </div>
+
+        <div class="form-group">
+            <select id="idSelect">
+                <option value="">Selecione um ID (1 a 100)</option>
+                <script>
+                    for (let i = 1; i <= 100; i++) {
+                        document.write(`<option value="${i}">${i}</option>`);
+                    }
+                </script>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <button onclick="salvar()">Salvar / Atualizar</button>
+        </div>
+
+        <div id="status"></div>
+
+        <div class="gallery" id="gallery"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+    <script>
+        // Configuração do Firebase com as novas credenciais
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNChOQgMaJcGVJ8e9WPWRH_XSrSInvPiY",
+            authDomain: "power-adm-galery.firebaseapp.com",
+            databaseURL: "https://power-adm-galery-default-rtdb.firebaseio.com",
+            projectId: "power-adm-galery",
+            storageBucket: "power-adm-galery.appspot.com",
+            messagingSenderId: "530702563824",
+            appId: "1:530702563824:web:d4b9458c33593ba78dc535"
+        };
+
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let imageData = ""; // Armazena a imagem (GIF ou WebP)
+        let isGif = false; // Flag para identificar se é um GIF animado
+
+        // Pré-visualização da imagem
+        document.getElementById('imgInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const fileName = file.name.toLowerCase();
+            isGif = fileName.endsWith('.gif');
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                if (isGif) {
+                    // Se for um GIF, mantém o formato original para preservar a animação
+                    document.getElementById('previewImg').src = event.target.result;
+                    document.getElementById('previewImg').classList.remove('hidden');
+                    imageData = event.target.result; // Armazena o GIF original
+                } else {
+                    // Se não for GIF, converte para WebP
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement("canvas");
+                        canvas.width = 360;
+                        canvas.height = 360;
+                        const ctx = canvas.getContext("2d");
+                        ctx.clearRect(0, 0, 360, 360); // Fundo transparente (Memory n°2)
+                        const scale = Math.min(360 / img.width, 360 / img.height);
+                        const dx = (360 - img.width * scale) / 2;
+                        const dy = (360 - img.height * scale) / 2;
+                        ctx.drawImage(img, dx, dy, img.width * scale, img.height * scale);
+                        document.getElementById('previewImg').src = canvas.toDataURL("image/webp", 0.8); // WebP (Memory n°3)
+                        document.getElementById('previewImg').classList.remove('hidden');
+                        imageData = canvas.toDataURL("image/webp", 0.8); // Armazena o WebP
+                    };
+                    img.src = event.target.result;
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Função para carregar dados no formulário
+        function carregarDadosNoFormulario(id, img, url) {
+            document.getElementById('idSelect').value = id;
+            if (img) {
+                document.getElementById('previewImg').src = img;
+                document.getElementById('previewImg').classList.remove('hidden');
+                imageData = img;
+            } else {
+                document.getElementById('previewImg').classList.add('hidden');
+                imageData = "";
+            }
+            document.getElementById('urlInput').value = url || "";
+        }
+
+        // Salvar no Firebase
+        function salvar() {
+            const id = document.getElementById('idSelect').value;
+            let url = document.getElementById('urlInput').value.trim();
+
+            if (!id) return alert("Selecione um ID.");
+            if (!imageData && !url) return alert("Selecione uma imagem ou digite uma URL.");
+
+            // Formata número de WhatsApp
+            const apenasNumeros = url.replace(/[^\d]+/g, "");
+            if (apenasNumeros.length >= 10 && apenasNumeros.length <= 15) {
+                url = `__whatsapp__${btoa(`+${apenasNumeros}`)}`;
+            }
+
+            db.ref(`dados/${id}`).set({
+                img: imageData || "", // GIF ou WebP
+                url: url || ""
+            }).then(() => {
+                document.getElementById('status').textContent = "✅ Salvo com sucesso!";
+                carregarGaleria();
+            }).catch(error => {
+                document.getElementById('status').textContent = "❌ Erro ao salvar.";
+                console.error(error);
+            });
+        }
+
+        // Carregar galeria
+        function carregarGaleria() {
+            const gallery = document.getElementById("gallery");
+            gallery.innerHTML = "";
+
+            // Carrega todos os IDs de 1 a 100
+            for (let id = 1; id <= 100; id++) {
+                const galleryItem = document.createElement("div");
+                galleryItem.className = "gallery-item";
+
+                const idSpan = document.createElement("span");
+                idSpan.className = "gallery-id";
+                idSpan.textContent = id;
+
+                const img = document.createElement("img");
+                img.src = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22150%22%20height%3D%22150%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20150%20150%22%3E%3Crect%20width%3D%22150%22%20height%3D%22150%22%20fill%3D%22%23333%22%2F%3E%3Ctext%20x%3D%2275%22%20y%3D%2275%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-size%3D%2212%22%3EVazio%3C%2Ftext%3E%3C%2Fsvg%3E";
+                img.style.opacity = "0.5";
+
+                // Adiciona evento de clique para carregar os dados no formulário
+                galleryItem.onclick = function() {
+                    db.ref(`dados/${id}`).once("value").then(snapshot => {
+                        const data = snapshot.val();
+                        if (data) {
+                            carregarDadosNoFormulario(id, data.img, data.url);
+                            document.getElementById('status').textContent = `✅ Dados do ID ${id} carregados!`;
+                        } else {
+                            carregarDadosNoFormulario(id, "", "");
+                            document.getElementById('status').textContent = `⚠️ ID ${id} vazio. Preencha os dados.`;
+                        }
+                    }).catch(error => {
+                        console.error("Erro ao carregar dados:", error);
+                        document.getElementById('status').textContent = `❌ Erro ao carregar dados do ID ${id}.`;
+                    });
+                };
+
+                galleryItem.appendChild(idSpan);
+                galleryItem.appendChild(img);
+                gallery.appendChild(galleryItem);
+            }
+
+            // Carrega os dados do Firebase e atualiza os IDs existentes
+            db.ref("dados/").once("value").then(snapshot => {
+                snapshot.forEach(childSnapshot => {
+                    const id = parseInt(childSnapshot.key);
+                    if (id >= 1 && id <= 100) {
+                        const data = childSnapshot.val();
+                        const galleryItem = gallery.querySelector(`.gallery-item:nth-child(${id})`);
+                        if (galleryItem && data.img) {
+                            const img = galleryItem.querySelector("img");
+                            img.src = data.img;
+                            img.style.opacity = "1";
+                        }
+                    }
+                });
+            }).catch(error => {
+                console.error("Erro ao carregar galeria:", error);
+            });
+        }
+
+        // Abrir link associado
+        function openLink(url) {
+            if (!url) {
+                alert("Este ID não possui um link associado.");
+                return;
+            }
+            const link = url.startsWith("__whatsapp__") ? atob(url.replace("__whatsapp__", "")) : url;
+            window.open(link.startsWith('http') ? link : `https://${link}`, '_blank');
+        }
+
+        // Inicializar
+        carregarGaleria();
+    </script>
+</body>
+</html>

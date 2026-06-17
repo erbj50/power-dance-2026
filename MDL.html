@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <body style="background-image:url(https://i.pinimg.com/originals/c5/72/c9/c572c9861cf79a7e2a71d05e1c3a48a4.gif) ;">
+  <title>3D Slider | Pure CSS</title>
+  <style>
+/* 3D Slideshow */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  background-color: #040808;
+  background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+
+}
+
+#slideshow {
+  margin: 0 auto;
+  padding-top: 50px;
+  height: 600px;
+  width: 100%;
+  background-color: #ffffff00;
+  
+  box-sizing: border-box;
+  margin-top:800px ;
+}
+
+.slideshow-title {
+  font-family: 'Allerta Stencil';
+  font-size: 62px;
+  color: #fff;
+  margin: 0 auto;
+  text-align: center;
+  margin-top: 25%;
+  letter-spacing: 3px;
+  font-weight: 300;
+}
+
+.sub-heading {
+  padding-top: 50px;
+  font-size: 18px;
+}
+.sub-heading-two {
+  font-size: 15px;
+}
+.sub-heading-three {
+  font-size: 13px;
+}
+.sub-heading-four {
+  font-size: 11px;
+}
+.sub-heading-five {
+  font-size: 9px;
+}
+.sub-heading-six {
+  font-size: 7px;
+}
+.sub-heading-seven {
+  font-size: 5px;
+}
+.sub-heading-eight {
+  font-size: 3px;
+}
+.sub-heading-nine {
+  font-size: 1px;
+}
+
+.entire-content {
+  margin: auto;
+  width: 300px; /* Aumenta a largura do contêiner para abrir mais o carrossel */
+  perspective: 1500px; /* Aumenta a perspectiva para afastar mais da linha do observador */
+  position: relative;
+  padding-top: 80px;
+}
+
+.content-carrousel {
+  width: 100%;
+  position: absolute;
+  float: right;
+  animation: rotar 60s infinite linear; /* Aumenta o tempo de rotação para uma animação mais suave */
+  transform-style: preserve-3d;
+}
+
+.content-carrousel:hover {
+  animation-play-state: paused;
+  cursor: pointer;
+}
+
+.content-carrousel figure {
+  width: 180px; /* Largura das figuras */
+  height: 200px; /* Altura das figuras */
+  border: 1px solid #3b444b00;
+  overflow: hidden;
+  position: absolute;
+}
+
+.content-carrousel figure:nth-child(1) {
+  transform: rotateY(0deg) translateZ(700px); /* Aumenta a distância de tradução no eixo Z */
+}
+.content-carrousel figure:nth-child(2) {
+  transform: rotateY(12deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(3) {
+  transform: rotateY(24deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(4) {
+  transform: rotateY(36deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(5) {
+  transform: rotateY(48deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(6) {
+  transform: rotateY(60deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(7) {
+  transform: rotateY(72deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(8) {
+  transform: rotateY(84deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(9) {
+  transform: rotateY(96deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(10) {
+  transform: rotateY(108deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(11) {
+  transform: rotateY(120deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(12) {
+  transform: rotateY(132deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(13) {
+  transform: rotateY(144deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(14) {
+  transform: rotateY(156deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(15) {
+  transform: rotateY(168deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(16) {
+  transform: rotateY(180deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(17) {
+  transform: rotateY(192deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(18) {
+  transform: rotateY(204deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(19) {
+  transform: rotateY(216deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(20) {
+  transform: rotateY(228deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(21) {
+  transform: rotateY(240deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(22) {
+  transform: rotateY(252deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(23) {
+  transform: rotateY(264deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(24) {
+  transform: rotateY(276deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(25) {
+  transform: rotateY(288deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(26) {
+  transform: rotateY(300deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(27) {
+  transform: rotateY(312deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(28) {
+  transform: rotateY(324deg) translateZ(700px);
+}
+.content-carrousel figure:nth-child(29) {
+  transform: rotateY(336deg) translateZ(750px);
+}
+.content-carrousel figure:nth-child(30) {
+  transform: rotateY(348deg) translateZ(800px);
+}
+
+.shadow {
+  position: absolute;
+  box-shadow: 0px 0px 20px 0px #000;
+  border-radius: 1px;
+}
+
+.content-carrousel img {
+  image-rendering: auto;
+  transition: all 300ms;
+  width: 100%;
+  height: 100%;
+}
+
+.content-carrousel img:hover {
+  transform: scale(1.2);
+  transition: all 300ms;
+}
+
+@keyframes rotar {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+
+#alado{
+background-color: rgba(128, 255, 0, 0);
+
+padding: 0%;
+
+width:450px ;
+height: 250px;
+margin-left:250px ;
+margin-top:-1000px ;
+position: absolute;
+z-index: 1;
+
+}
+
+.coração{
+width: 600px;
+margin-left: -30px;
+
+}
+
+
+
+
+
+h1{
+  color: red;
+  margin-left: 170px;
+  font-size: 80px;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  margin-top: -1400px;
+  position: absolute;
+
+}
+
+
+
+  </style>
+</head>
+
+<img translate="no">
+  <!-- 3D Slideshow Section -->
+
+
+
+
+  <section id="slideshow">
+    <div class="entire-content">
+      <div class="content-carrousel">
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/f2/0d/04/f20d043becf2653a7a098f5d8b55ff26.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/564x/6b/dc/a9/6bdca9cac9f73fed0a7c37a3c6c4d444.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/736x/ef/95/31/ef9531a17b83b5cac5a1194207c9225e.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/736x/1e/9a/a1/1e9aa195715921fb96925ce1db918634.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/736x/00/0f/cb/000fcbd62b494b07a377906adf971869.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/e7/1b/94/e71b94825552cd74fcf145a6ea933002.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/564x/91/be/a7/91bea76407a699dff635af894d400610.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/564x/90/09/86/900986472c904a37ca5342dc05214551.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/564x/90/e6/ee/90e6ee6b9fda17aa21bf241d706ee66a.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/65/9d/d3/659dd384bf803d31f20f0a1c8666a136.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/564x/0f/91/a8/0f91a82b8d58e1a44da0b15552bde227.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/1a/32/2e/1a322e0fac74257d8d2f1283ced056c3.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/736x/23/74/48/237448b7c90465d55b34de2e0e2e8348.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/1b/94/27/1b942760ff0add02ccb470d3612adfa4.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/736x/cc/51/39/cc5139523f0a27348da5b69a9aed7e20.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/6c/62/05/6c6205119ab38febcf6df3bec4308a71.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/bd/c0/f1/bdc0f1757d41c048344e5ffc3ef6533d.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/c1/c3/40/c1c3401501a71eb17459f3d95dd7fd2f.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/564x/90/8e/25/908e2588e5dc73c1d3a0573c1daf064b.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/ec/b3/00/ecb3006e8dbcb740ea7ce93b93eef9cf.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/564x/c1/3f/e5/c13fe5d2e7124aeffe56c8ad1619579e.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/79/3e/2a/793e2a8dffa70dc5273111301bf4f7b0.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/ec/c1/b5/ecc1b5f2e9975302e866c6a41bb30ddb.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/aa/ac/48/aaac48a59becee962b606d4cfcc96e2d.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/e2/24/f5/e224f58662d37e0c5253252be3356d53.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/ee/45/d2/ee45d287092ee4bb1ce26d03b619e540.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/fd/f4/45/fdf44515805d80ab180d3157ce742739.gif" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/78/ca/fd/78cafdbd0b84351b62fd7339783c0789.gif" /></figure>
+        <figure class="shadow"><img src="https://i.imgur.com/lKj8WeV.jpg" /></figure>
+        <figure class="shadow"><img src="https://i.pinimg.com/originals/bd/c0/f1/bdc0f1757d41c048344e5ffc3ef6533d.gif" /></figure>
+      </div>
+    </div>
+    
+  </section>
+
+  <h1>MADRUGADA LOVE</h1>
+  <div id="alado" ><img class="coração"  src="./cor.gif" alt="width=600px"></div>
+
+
+
+
+
+
+  </script>
+
+
+
+
+<script>document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'F12' || e.keyCode === 123) { // Verifica a tecla F12 por key ou keyCode
+      e.preventDefault();
+      return false; // Evita a propagação do evento
+  }
+});</script>
+
+
+
+
+
+</body>
+
+
+</html>
