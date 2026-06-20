@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN - ERBJ</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #000;
+            color: white;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-image: url('https://i.pinimg.com/originals/dd/dd/22/dddd220b1458dc3124516aa02528eecb.gif');
+            background-size: cover;
+            background-position: center;
+            margin-left: 15px;
+            zoom: 0.93; 
+        }
+
+        h1 {
+            font-size: 18px;
+            color: chartreuse;
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .admin-container {
+            width: 100%;
+            max-width: 995px;
+            height: 105vh;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .preview-container {
+            width: 360px;
+            height: 350px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 2px dashed rgba(0, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            background: transparent;
+        }
+
+        .form-group {
+            width: 100%;
+            max-width: 400px;
+            margin: 3px 0;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 9px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+        }
+
+        input, select {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        button {
+            background: rgba(0, 100, 255, 0.7);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: rgba(0, 100, 255, 0.9);
+        }
+
+        .btn-migrar {
+            background: rgba(255, 165, 0, 0.7);
+            border: 1px solid orange;
+            margin-bottom: 5px;
+        }
+        .btn-migrar:hover {
+            background: rgba(255, 165, 0, 0.9);
+        }
+
+        .gallery {
+            width: 100%;
+            height: 25vh;
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            margin-top: 5px;
+        }
+
+        .gallery-item {
+            min-width: 150px;
+            height: 150px;
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .gallery-id {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        #status {
+            margin-top: 5px;
+            color: lime;
+            font-weight: bold;
+        }
+
+        /* CONTAINER DOS MONITORES DE SISTEMA NA PARTE INFERIOR */
+        .monitor-panel {
+            width: 100%;
+            height: 200px;
+            margin-top: 350px;
+            padding: 3px;
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: absolute;
+            display: block;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .countdown {
+            position: absolute;
+            top: 10px;
+            right: 50px;
+            font-size: 44px;
+            color: #ff0000;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .monitor-row {
+            margin: 8px 0;
+        }
+
+        .monitor-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            margin-bottom: 24px;
+            color: #aaa;
+        }
+
+        .monitor-label span strong {
+            color: #fff;
+        }
+
+        /* DIV DA BARRA FINA E INTELIGENTE */
+        .progress-bar-bg {
+            width: 100%;
+            height: 48px;
+            background: #222;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease-in-out, background-color 0.5s;
+        }
+
+        /* Cores Neon Dinâmicas */
+        #fill-storage { background-color: #00ffcc; box-shadow: 0 0 8px #00ffcc; }
+        #fill-slots { background-color: #ff00ff; box-shadow: 0 0 8px #ff00ff; }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>ADMIN - ERBJ (Gerenciador Inteligente)</h1>
+
+        <div class="preview-container" id="preview" onclick="document.getElementById('imgInput').click()">
+            <img id="previewImg" class="hidden" />
+        </div>
+
+        <input type="file" id="imgInput" accept="image/*" class="hidden" />
+
+        <div class="form-group">
+            <input type="text" id="urlInput" placeholder="URL ou Número do WhatsApp" />
+        </div>
+
+        <div class="form-group">
+            <select id="idSelect">
+                <option value="">Selecione um ID (1 a 100)</option>
+                <script>
+                    for (let i = 1; i <= 100; i++) {
+                        document.write(`<option value="${i}">${i}</option>`);
+                    }
+                </script>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <button onclick="salvar()">Salvar / Atualizar</button>
+            <button class="btn-migrar" onclick="iniciarMigracaoEmLote()">🔄 Otimizar </button>
+        </div>
+
+        <div id="status"></div>
+
+        <div class="gallery" id="gallery"></div>
+
+        <div class="monitor-panel" id="monitorPanel">
+            <div class="countdown" id="countdown">30</div>
+            <div class="monitor-row">
+                <div class="monitor-label">
+                    <span>Espaço em Base64 ocupado no Firebase:</span>
+                    <span id="txt-storage">Calculando... / 1024.00 MB (0%)</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="fill-storage"></div>
+                </div>
+            </div>
+
+            <div class="monitor-row">
+                <div class="monitor-label">
+                    <span>Painel de IDs Utilizados:</span>
+                    <span id="txt-slots">Calculando... / 100 slots (0%)</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="fill-slots"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNChOQgMaJcGVJ8e9WPWRH_XSrSInvPiY",
+            authDomain: "power-adm-galery.firebaseapp.com",
+            databaseURL: "https://power-adm-galery-default-rtdb.firebaseio.com",
+            projectId: "power-adm-galery",
+            storageBucket: "power-adm-galery.appspot.com",
+            messagingSenderId: "530702563824",
+            appId: "1:530702563824:web:d4b9458c33593ba78dc535"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let imageData = ""; 
+        
+        let cacheUrlsLocais = {};
+        const CACHE_KEY = "user_urls_json_v7";
+        const imgVaziaSVG = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22150%22%20height%3D%22150%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20150%20150%22%3E%3Crect%20width%3D%22150%22%20height%3D%22150%22%20fill%3D%22%23333%22%2F%3E%3Ctext%20x%3D%2275%22%20y%3D%2275%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-size%3D%2212%22%3EVazio%3C%2Ftext%3E%3C%2Fsvg%3E";
+
+        // Função para o contador regressivo
+        function iniciarContador() {
+            let tempoRestante = 30;
+            const countdownElement = document.getElementById('countdown');
+            const monitorPanel = document.getElementById('monitorPanel');
+
+            const intervalo = setInterval(() => {
+                tempoRestante--;
+                countdownElement.textContent = tempoRestante;
+
+                if (tempoRestante <= 0) {
+                    clearInterval(intervalo);
+                    monitorPanel.style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        // Inicia o contador assim que a página carrega
+        window.onload = function() {
+            iniciarContador();
+        };
+
+        document.getElementById('imgInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            processarImagem(file);
+        });
+
+        function processarImagem(file) {
+            const fileName = file.name.toLowerCase();
+            const isGif = fileName.endsWith('.gif') || file.type === 'image/gif';
+            const isWebp = fileName.endsWith('.webp') || file.type === 'image/webp';
+            
+            document.getElementById('status').textContent = "⌛ Analisando e compactando arquivo...";
+
+            if (isGif || isWebp) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    definirImagemPreview(event.target.result, isGif ? "✨ GIF Animado Carregado!" : "✨ WebP Preservado!");
+                };
+                reader.readAsDataURL(file);
+            } else {
+                const opcoesOtimizacao = {
+                    maxSizeMB: 0.15,
+                    maxWidthOrHeight: 400,
+                    useWebWorker: true,
+                    fileType: 'image/webp',
+                    initialQuality: 0.75
+                };
+
+                imageCompression(file, opcoesOtimizacao)
+                    .then(function(arquivoComprimido) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            definirImagemPreview(event.target.result, "✨ Foto convertida para WebP micro!");
+                        };
+                        reader.readAsDataURL(arquivoComprimido);
+                    })
+                    .catch(function() {
+                        document.getElementById('status').textContent = "❌ Falha ao comprimir imagem.";
+                    });
+            }
+        }
+
+        function definirImagemPreview(stringBase64, mensagemStatus) {
+            document.getElementById('previewImg').src = stringBase64;
+            document.getElementById('previewImg').classList.remove('hidden');
+            imageData = stringBase64;
+            document.getElementById('status').textContent = mensagemStatus;
+        }
+
+        function converteWebpEstatico(base64Original, callback) {
+            fetch(base64Original)
+                .then(res => res.blob())
+                .then(blob => {
+                    const opcoesOtimizacao = { maxSizeMB: 0.15, maxWidthOrHeight: 400, useWebWorker: true, fileType: 'image/webp', initialQuality: 0.75 };
+                    return imageCompression(blob, opcoesOtimizacao);
+                })
+                .then(arquivoComprimido => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => callback(reader.result);
+                    reader.readAsDataURL(arquivoComprimido);
+                })
+                .catch(() => callback(base64Original));
+        }
+
+        // FUNÇÃO INTELIGENTE QUE ATUALIZA AS DUAS BARRAS DE PROGRESSO DE CORES EM TEMPO REAL
+        function atualizarBarrasMonitoramento(snapshotBanco) {
+            if (!snapshotBanco.exists()) return;
+            const todosOsDados = snapshotBanco.val();
+            
+            let totalCaracteresTexto = 0;
+            let slotsOcupadosContador = 0;
+
+            Object.keys(todosOsDados).forEach(id => {
+                const registro = todosOsDados[id];
+                if (registro) {
+                    if (registro.img) {
+                        totalCaracteresTexto += registro.img.length;
+                        slotsOcupadosContador++;
+                    }
+                    if (registro.url) {
+                        totalCaracteresTexto += registro.url.length;
+                    }
+                }
+            });
+
+            // Regra matemática: cada caractere Base64 padrão = 1 Byte na memória JSON
+            const totalBytes = totalCaracteresTexto;
+            const totalMegabytes = totalBytes / (1024 * 1024);
+            const limiteMaximoFirebaseMB = 1024; // 1 GB limite plano Spark gratuito
+
+            // Cálculos de porcentagem
+            const porcetagemArmazenamento = Math.min((totalMegabytes / limiteMaximoFirebaseMB) * 100, 100);
+            const porcentagemSlots = (slotsOcupadosContador / 100) * 100;
+
+            // Altera visualmente a Barra de Armazenamento (Cian/Verde-água Neon)
+            document.getElementById('fill-storage').style.width = `${porcetagemArmazenamento}%`;
+            document.getElementById('txt-storage').innerHTML = `<strong>${totalMegabytes.toFixed(2)} MB</strong> ocupados / 1024.00 MB (${porcetagemArmazenamento.toFixed(2)}%)`;
+            
+            // Altera a cor do texto do storage se chegar perto do limite crítico (Segurança de infraestrutura)
+            if (porcetagemArmazenamento > 85) {
+                document.getElementById('fill-storage').style.backgroundColor = "#ff3333";
+            } else if (porcetagemArmazenamento > 60) {
+                document.getElementById('fill-storage').style.backgroundColor = "#ffcc00";
+            } else {
+                document.getElementById('fill-storage').style.backgroundColor = "#00ffcc";
+            }
+
+            // Altera visualmente a Barra de Slots Ocupados (Rosa/Magenta Neon)
+            document.getElementById('fill-slots').style.width = `${porcentagemSlots}%`;
+            document.getElementById('txt-slots').innerHTML = `<strong>${slotsOcupadosContador}</strong> de 100 slots em uso (${porcentagemSlots}%)`;
+        }
+
+        function carregarDadosNoFormulario(id) {
+            document.getElementById('idSelect').value = id;
+            document.getElementById('status').textContent = `⌛ Buscando ID ${id}...`;
+
+            db.ref(`dados/${id}`).once("value").then(snapshot => {
+                const data = snapshot.val();
+                if (data && data.img) {
+                    document.getElementById('previewImg').src = data.img;
+                    document.getElementById('previewImg').classList.remove('hidden');
+                    imageData = data.img;
+                    document.getElementById('urlInput').value = data.url || "";
+                    document.getElementById('status').textContent = `✅ ID ${id} carregado!`;
+                } else {
+                    document.getElementById('previewImg').classList.add('hidden');
+                    imageData = "";
+                    document.getElementById('urlInput').value = "";
+                    document.getElementById('status').textContent = `⚠️ ID ${id} está vazio.`;
+                }
+            }).catch(() => {
+                document.getElementById('status').textContent = "❌ Erro ao buscar dados.";
+            });
+        }
+
+        function salvar() {
+            const id = document.getElementById('idSelect').value;
+            let url = document.getElementById('urlInput').value.trim();
+
+            if (!id) return alert("Selecione um ID.");
+            if (!imageData && !url) return alert("Selecione uma imagem ou digite uma URL.");
+
+            const apenasNumeros = url.replace(/[^\d]+/g, "");
+            if (apenasNumeros.length >= 10 && apenasNumeros.length <= 15) {
+                url = `__whatsapp__${btoa(`+${apenasNumeros}`)}`;
+            }
+
+            document.getElementById('status').textContent = "💾 Enviando ao Realtime Database...";
+            const dadosParaSalvar = { img: imageData || "", url: url || "" };
+
+            db.ref(`dados/${id}`).set(dadosParaSalvar).then(() => {
+                document.getElementById('status').textContent = "✅ Salvo com sucesso!";
+                cacheUrlsLocais[id] = url || "tem_imagem";
+                try { localStorage.setItem(CACHE_KEY, JSON.stringify(cacheUrlsLocais)); } catch(e) {}
+                atualizarMiniaturaNaTela(id, dadosParaSalvar.img);
+                
+                // Dispara recalculo imediato pós salvamento para atualizar as barras neon
+                db.ref("dados/").once("value").then(atualizarBarrasMonitoramento);
+            }).catch(() => {
+                document.getElementById('status').textContent = "❌ Erro ao salvar.";
+            });
+        }
+
+        function atualizarMiniaturaNaTela(id, imgBase64) {
+            const galleryItem = document.getElementById(`item-${id}`);
+            if (galleryItem && imgBase64) {
+                const imgNode = galleryItem.querySelector("img");
+                imgNode.src = imgBase64;
+                imgNode.style.opacity = "1";
+            }
+        }
+
+        async function iniciarMigracaoEmLote() {
+            if (!confirm("Deseja organizar o banco de dados? Fotos normais viram WebP leve, enquanto GIFs Animados e WebPs Animados serão mantidos intactos.")) return;
+            
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = "🌐 Conectando ao Firebase...";
+            
+            try {
+                const snapshot = await db.ref("dados/").once("value");
+                if (!snapshot.exists()) return alert("Nenhum registro encontrado.");
+                
+                const todosOsDados = snapshot.val();
+                const idsParaOtimizar = Object.keys(todosOsDados).filter(id => todosOsDados[id].img && todosOsDados[id].img.startsWith("data:image"));
+                
+                let processados = 0;
+
+                for (const id of idsParaOtimizar) {
+                    statusDiv.textContent = `🔄 Otimizando item [${processados + 1}/${idsParaOtimizar.length}] (ID ${id})...`;
+                    const dadoOriginal = todosOsDados[id];
+                    let novaImagemOtimizada = dadoOriginal.img;
+
+                    await new Promise(r => setTimeout(r, 60));
+
+                    if (dadoOriginal.img.includes("image/gif") || dadoOriginal.img.includes("image/webp")) {
+                        novaImagemOtimizada = dadoOriginal.img; 
+                    } else {
+                        novaImagemOtimizada = await new Promise(resolve => converteWebpEstatico(dadoOriginal.img, resolve));
+                    }
+
+                    await db.ref(`dados/${id}`).update({ img: novaImagemOtimizada });
+                    cacheUrlsLocais[id] = dadoOriginal.url || "tem_imagem";
+                    atualizarMiniaturaNaTela(id, novaImagemOtimizada);
+                    
+                    processados++;
+                }
+
+                try { localStorage.setItem(CACHE_KEY, JSON.stringify(cacheUrlsLocais)); } catch(e){}
+                statusDiv.textContent = `✅ Banco de dados otimizado e protegido pelo motor novo!`;
+                
+                // Atualiza o monitoramento geral pós compressão
+                db.ref("dados/").once("value").then(atualizarBarrasMonitoramento);
+                alert("Concluído com sucesso!");
+
+            } catch (error) {
+                console.error(error);
+                statusDiv.textContent = "❌ Falha no processamento em lote.";
+            }
+        }
+
+        function inicializarSistema() {
+            const gallery = document.getElementById("gallery");
+            gallery.innerHTML = "";
+
+            for (let id = 1; id <= 100; id++) {
+                const galleryItem = document.createElement("div");
+                galleryItem.className = "gallery-item";
+                galleryItem.id = `item-${id}`;
+
+                const idSpan = document.createElement("span");
+                idSpan.className = "gallery-id";
+                idSpan.textContent = id;
+
+                const img = document.createElement("img");
+                img.src = imgVaziaSVG;
+                img.style.opacity = "0.5";
+
+                galleryItem.onclick = function() {
+                    carregarDadosNoFormulario(id);
+                };
+
+                galleryItem.appendChild(idSpan);
+                galleryItem.appendChild(img);
+                gallery.appendChild(galleryItem);
+            }
+
+            document.getElementById('status').textContent = "🌐 Carregando galeria do Firebase...";
+            db.ref("dados/").once("value").then(snapshot => {
+                if (snapshot.exists()) {
+                    snapshot.forEach(childSnapshot => {
+                        const id = childSnapshot.key;
+                        const item = childSnapshot.val();
+                        if (item && item.img) {
+                            atualizarMiniaturaNaTela(id, item.img);
+                            cacheUrlsLocais[id] = item.url || "tem_imagem";
+                        }
+                    });
+                    try { localStorage.setItem(CACHE_KEY, JSON.stringify(cacheUrlsLocais)); } catch(e){}
+                    
+                    // Dispara a leitura inicial para desenhar as barras pela primeira vez
+                    atualizarBarrasMonitoramento(snapshot);
+                }
+                document.getElementById('status').textContent = "✅ Painel Pronto com Monitor de Sistema!";
+            }).catch(err => console.error(err));
+        }
+
+        inicializarSistema();
+    </script>
+</body>
+</html>

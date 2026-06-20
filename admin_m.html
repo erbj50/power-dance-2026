@@ -115,24 +115,40 @@
   <div class="scroll-container" id="cardContainer"></div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getDatabase, ref, onChildAdded, remove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  // CORREÇÃO: Adicionado o 'update' nas importações do database
+  import { getDatabase, ref, onChildAdded, remove, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+  // Adicionado 'onAuthStateChanged' para proteger a página
+  import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDDMNEQL0Cj6eXtAISqtBpYiYbkEOoLkqM",
-      authDomain: "recados-fca7e.firebaseapp.com",
-      projectId: "recados-fca7e",
-      databaseURL: "https://recados-fca7e-default-rtdb.firebaseio.com",
-      storageBucket: "recados-fca7e.appspot.com",
-      messagingSenderId: "637659136101",
-      appId: "1:637659136101:web:ac2db24f4c9eef2efe068c"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDDMNEQL0Cj6eXtAISqtBpYiYbkEOoLkqM",
+    authDomain: "recados-fca7e.firebaseapp.com",
+    projectId: "recados-fca7e",
+    databaseURL: "https://recados-fca7e-default-rtdb.firebaseio.com",
+    storageBucket: "recados-fca7e.appspot.com",
+    messagingSenderId: "637659136101",
+    appId: "1:637659136101:web:ac2db24f4c9eef2efe068c"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-    const messagesRef = ref(database, 'messages');
-    const container = document.getElementById('cardContainer');
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+  const auth = getAuth(app);
+  const messagesRef = ref(database, 'messages');
+  const container = document.getElementById('cardContainer');
 
+  // SEGURANÇA: Verifica se o usuário está logado antes de carregar os dados
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // Se não houver usuário logado, chuta de volta para a tela inicial/login
+      window.location.href = 'landing.html';
+    } else {
+      // Se estiver logado, inicializa o carregamento dos recados
+      carregarMensagens();
+    }
+  });
+
+  function carregarMensagens() {
     onChildAdded(messagesRef, (snapshot) => {
       const data = snapshot.val();
       const key = snapshot.key;
@@ -160,42 +176,41 @@
         }
       });
 
-      // Botão Editar (simples prompt)
+      // Botão Editar (com a função update corrigida e atualizando o DOM na hora)
       card.querySelector('.btn-editar').addEventListener('click', async () => {
         const novoTexto = prompt("Editar mensagem:", data.message);
         if (novoTexto && novoTexto.trim() !== "") {
-          await update(ref(database, `messages/${key}`), {
-            message: novoTexto
-          });
-          card.querySelector("p:nth-of-type(2)").textContent = `Mensagem: ${novoTexto}`;
+          try {
+            await update(ref(database, `messages/${key}`), {
+              message: novoTexto
+            });
+            // Atualiza visualmente o parágrafo da mensagem
+            card.querySelector("p:nth-of-type(2)").innerHTML = `<strong>Mensagem:</strong> ${novoTexto}`;
+            // Atualiza a variável local caso o usuário clique em editar de novo sem recarregar a página
+            data.message = novoTexto; 
+          } catch (error) {
+            alert("Erro ao atualizar mensagem: " + error.message);
+          }
         }
       });
 
-      // Botão Deslogar (opcional, depende da lógica de login implementada)
+      // Botão Deslogar
       card.querySelector('.btn-deslogar').addEventListener('click', () => {
         alert("Função de deslogar pode ser implementada via UID se necessário.");
       });
 
-
       container.prepend(card);
     });
+  }
 
-//botao voltar
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-const auth = getAuth(app);
-
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  signOut(auth).then(() => {
-    window.location.href = 'landing.html';
-  }).catch((error) => {
-    alert("Erro ao sair: " + error.message);
+  // Botão Sair do topo
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    signOut(auth).then(() => {
+      window.location.href = 'landing.html';
+    }).catch((error) => {
+      alert("Erro ao sair: " + error.message);
+    });
   });
-});
-
-
-
-
-
-  </script>
+</script>
 </body>
 </html>

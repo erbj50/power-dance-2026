@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUPER TELA - ERBJ</title>
+    <style>
+        body {
+            background-color: rgb(0, 0, 0);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #divturbo {
+            width: 900px;
+            height: 900px;
+            background-color: rgba(104, 103, 51, 0.027);
+            position: relative;
+            object-position: center;
+            overflow: hidden;
+        }
+
+        #div-master {
+            width: 100%;
+            height: 100%;
+            background-image: url("https://i.pinimg.com/originals/dd/dd/22/dddd220b1458dc3124516aa02528eecb.gif");
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        #div-tela {
+            padding: 0%;
+            margin: 0%;
+            width: 100px;
+            height: 100px;
+            background-color: rgba(255, 0, 0, 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            cursor: pointer;
+            position: absolute;
+            overflow: hidden;
+        }
+
+        iframe {
+            padding: none;
+            margin: none;
+            width: 106%;
+            height: 100%;
+            border: none;
+            display: block;
+            margin-left: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="divturbo">
+        <div id="div-master">
+            <div id="div-tela" onclick="openAssociatedLink()"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gifuct-js@0.3.1/dist/gifuct-js.min.js"></script>
+
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCNChOQgMaJcGVJ8e9WPWRH_XSrSInvPiY",
+            authDomain: "power-adm-galery.firebaseapp.com",
+            databaseURL: "https://power-adm-galery-default-rtdb.firebaseio.com",
+            projectId: "power-adm-galery",
+            storageBucket: "power-adm-galery.appspot.com",
+            messagingSenderId: "530702563824",
+            appId: "1:530702563824:web:d4b9458c33593ba78dc535"
+        };
+
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Variáveis globais
+        const divTela = document.getElementById('div-tela');
+        const maxWidth = 899;
+        const maxHeight = 899;
+        const interval = -20;
+        const delay = 2000;
+        const pause = 4000;
+        const CACHE_KEY = "user_urls_json_v7"; // Mantém consistência com o Admin
+
+        // Arrays para armazenar imagens e links associados aos IDs
+        let iframeSources = Array(100).fill("");
+        let linkSources = Array(100).fill("");
+
+        // FUNÇÃO DE ARMAZENAMENTO LOCAL (JSON)
+        function carregarDadosLocais() {
+            try {
+                const dadosLocais = localStorage.getItem(CACHE_KEY);
+                if (dadosLocais) {
+                    const dados = JSON.parse(dadosLocais);
+                    // Mapeia o objeto estruturado {img, url} ou o dicionário simples para os arrays de exibição
+                    for (let id = 1; id <= 100; id++) {
+                        if (dados[id]) {
+                            iframeSources[id - 1] = dados[id].img || "";
+                            linkSources[id - 1] = dados[id].url || "";
+                        }
+                    }
+                    return true;
+                }
+            } catch (e) {
+                console.error("Falha ao ler cache local:", e);
+            }
+            return false;
+        }
+
+        function salvarDadosLocais(objetoDados) {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(objetoDados));
+            } catch (e) {
+                console.error("Falha ao salvar no cache local:", e);
+            }
+        }
+
+        // Sistema híbrido: Carrega o local imediatamente e sincroniza o Firebase por trás
+        function carregarDados() {
+            const temLocal = carregarDadosLocais();
+            
+            if (temLocal) {
+                // Inicia a animação imediatamente se já tiver cache local salvo
+                setTimeout(animateDiv, delay);
+            }
+
+            // Busca as atualizações do Firebase em tempo real/segundo plano
+            db.ref("dados/").once("value").then(snapshot => {
+                if (snapshot.exists()) {
+                    const dadosParaSalvar = {};
+                    
+                    snapshot.forEach(childSnapshot => {
+                        const id = parseInt(childSnapshot.key);
+                        if (id >= 1 && id <= 100) {
+                            const data = childSnapshot.val();
+                            iframeSources[id - 1] = data.img || "";
+                            linkSources[id - 1] = data.url || "";
+                            
+                            // Monta o objeto para o JSON local
+                            dadosParaSalvar[id] = {
+                                img: data.img || "",
+                                url: data.url || ""
+                            };
+                        }
+                    });
+                    
+                    // Sincroniza o armazenamento local para a próxima inicialização
+                    salvarDadosLocais(dadosParaSalvar);
+                }
+                
+                // Se não tinha dados locais antes, inicia a animação agora
+                if (!temLocal) {
+                    setTimeout(animateDiv, delay);
+                }
+            }).catch(error => {
+                console.error("Erro ao sincronizar Firebase:", error);
+                if (!temLocal) setTimeout(animateDiv, delay);
+            });
+        }
+
+        // Animação da div
+        let width = maxWidth;
+        let height = maxHeight;
+        let growing = false;
+        let animationTimer;
+        let iframeIndex = 0;
+
+        function animateDiv() {
+            if (growing) {
+                width++;
+                height++;
+            } else {
+                width--;
+                height--;
+            }
+
+            divTela.style.width = width + 'px';
+            divTela.style.height = height + 'px';
+
+            const centerX = (maxWidth - width) / 2;
+            const centerY = (maxHeight - height) / 2;
+            divTela.style.left = centerX + 'px';
+            divTela.style.top = centerY + 'px';
+
+            if (width <= 1 && height <= 1) {
+                growing = true;
+                clearTimeout(animationTimer);
+                animationTimer = setTimeout(changeIframe, pause);
+            } else if (width === maxWidth && height === maxHeight) {
+                growing = false;
+                clearTimeout(animationTimer);
+                animationTimer = setTimeout(animateDiv, pause);
+            } else {
+                animationTimer = setTimeout(animateDiv, interval);
+            }
+        }
+
+        // Pré-carregador de imagem/animação nativa
+        function loadImage(source, callback) {
+            if (!source) {
+                callback();
+                return;
+            }
+            const img = new Image();
+            img.onload = function() {
+                callback();
+            };
+            img.src = source;
+        }
+
+        // Troca o conteúdo da div (Suporta WebP animado e GIF nativo perfeitamente)
+        function changeIframe() {
+            if (iframeIndex >= iframeSources.length || !iframeSources[iframeIndex]) {
+                iframeIndex = 0;
+            }
+
+            const source = iframeSources[iframeIndex];
+            loadImage(source, function() {
+                if (source && source.includes('https://')) {
+                    divTela.innerHTML = `<iframe src="${source}" frameborder="0"></iframe>`;
+                } else if (source) {
+                    // Injeta a string Base64 diretamente no fundo (funciona com webp animado e gif)
+                    divTela.style.backgroundImage = `url('${source}')`;
+                    divTela.innerHTML = '';
+                } else {
+                    divTela.style.backgroundImage = '';
+                    divTela.innerHTML = '';
+                }
+                iframeIndex++;
+                clearTimeout(animationTimer);
+                animationTimer = setTimeout(animateDiv, delay);
+            });
+        }
+
+        // Abre o link associado ao iframe atual
+        function openAssociatedLink() {
+            if (iframeIndex - 1 >= 0 && linkSources[iframeIndex - 1]) {
+                const link = linkSources[iframeIndex - 1];
+                if (link.startsWith("whatsapp:")) {
+                    window.open(link, '_blank');
+                } else if (link.startsWith("__whatsapp__")) {
+                    const numero = atob(link.replace("__whatsapp__", ""));
+                    const whatsappLink = `https://wa.me/${numero}`;
+                    window.open(whatsappLink, '_blank');
+                } else {
+                    window.open(link.startsWith('http') ? link : `https://${link}`, '_blank');
+                }
+            }
+        }
+
+        // Troca o fundo da div-master
+        const divMaster = document.getElementById('div-master');
+        const imageSources = [
+            'https://i.pinimg.com/originals/dd/dd/22/dddd220b1458dc3124516aa02528eecb.gif',
+            'https://i.pinimg.com/originals/f9/bf/0b/f9bf0b7d6465eeae7d1062542d5dd9f9.gif',
+            'https://i.pinimg.com/originals/32/59/40/325940899507a141f32f294729c8fbe4.gif',
+            'https://i.pinimg.com/originals/f1/e4/9b/f1e49bbba9537591c58f455b179ed0c1.gif',
+            'https://i.pinimg.com/originals/fd/07/c2/fd07c2cb1c4ed45658b2b11181da742d.gif',
+            'https://i.pinimg.com/originals/d8/03/9b/d8039b1ae4983c093f8b291c4412560b.gif',
+            'https://i.pinimg.com/originals/1b/f0/f4/1bf0f46f79bb28466bfcb4d9c4663aba.gif',
+            'https://i.pinimg.com/originals/87/a9/72/87a9729a6665c38f48c15e5f4b2bb165.gif',
+            'https://i.pinimg.com/originals/1c/65/75/1c657551f9c90b09fe7b82e17e4415f0.gif',
+            'https://i.pinimg.com/originals/e1/0c/4e/e10c4e8182ab8de13442d0ac31f3808c.gif',
+            'https://i.pinimg.com/originals/af/f7/dd/aff7dd45a273a8c299d66b41713cbd6b.gif',
+            'https://i.pinimg.com/originals/2c/b8/84/2cb8846794b69ab9b04f844898c5e0ba.gif',
+            'https://i.pinimg.com/originals/aa/49/69/aa4969218654c89ff2da98e4dba8195d.gif',
+            'https://i.pinimg.com/originals/25/83/e6/2583e6790c6e88891f28b63e6762a06b.gif',
+            'https://i.pinimg.com/originals/3a/a3/8d/3aa38d78fd039473d93367877e052d05.gif',
+            'https://i.pinimg.com/originals/e2/83/df/e283dfe6bd5f6bf03fc599311fac41c3.gif',
+            'https://i.pinimg.com/originals/ef/a0/54/efa054d56e674920f862e92445f9a82a.gif',
+            'https://i.pinimg.com/originals/4d/4e/0e/4d4e0e1c89a8c2cbe6325b08176a19fb.gif',
+            'https://i.pinimg.com/originals/3b/5e/61/3b5e61a6944fccbcb9f1d6015c6a3c48.gif',
+            'https://i.pinimg.com/originals/ab/2e/85/ab2e855da799d8c2587fabc789f164fa.gif',
+            'https://i.pinimg.com/originals/6a/7b/4a/6a7b4ac864130c9235416a92d0452914.gif',
+            'https://i.pinimg.com/originals/29/55/fb/2955fb5871aad45d92b815f3ff0856b6.gif',
+            'https://i.pinimg.com/originals/fe/39/db/fe39db75d021fd343569f49f240a86ff.gif',
+            'https://i.pinimg.com/originals/04/6f/f4/046ff4e15b4bf35c8e079f27181e4edf.gif',
+            'https://i.pinimg.com/originals/e6/70/c2/e670c2ebf602b8c93cba58a28e78a91b.gif',
+            'https://i.pinimg.com/originals/6f/97/ec/6f97ecb9b43c1401758d6c94c58142e5.gif',
+            'https://i.pinimg.com/originals/ec/5d/eb/ec5deb5a5d538b1e85a19134087fcb16.gif',
+            'https://i.pinimg.com/originals/33/78/7a/33787a46481989a374f93b867e94e0af.gif',
+            'https://i.pinimg.com/originals/b3/ff/5b/b3ff5bc2d167fc1a78b573c063c8b4d7.gif',
+            'https://i.pinimg.com/originals/2a/43/20/2a4320264dbc6ab4b751916d15c9cfa6.gif',
+            'https://i.pinimg.com/originals/34/74/58/347458746c01ab67ba1ac9c12f3b8192.gif',
+            'https://i.pinimg.com/originals/46/f9/49/46f9496040d93df4d1599bc8be095766.gif',
+            'https://i.pinimg.com/originals/39/5f/b7/395fb7b72cdaa377e7d8c0f7737be256.gif',
+            'https://i.pinimg.com/originals/fb/d6/5d/fbd65d01202bc759bccbf8c94299340d.gif',
+            'https://i.pinimg.com/originals/a5/b2/70/a5b270d8efe3c017d564e95a745c50f5.gif',
+            'https://i.pinimg.com/originals/51/4d/d6/514dd6a3a11100b2ffdc8895aa21a30f.gif',
+            'https://i.pinimg.com/originals/d7/f6/9b/d7f69b5248480ed3a0439049ad416100.gif',
+            'https://i.pinimg.com/originals/70/a1/b7/70a1b7c780e4433c0c13a3d83f07f186.gif',
+            'https://i.pinimg.com/originals/55/80/85/558085edb920d441dd85d009f6693c45.gif',
+            'https://i.pinimg.com/originals/89/88/44/8988440cb5e82da652d4a018882705ca.gif',
+            'https://i.pinimg.com/originals/d9/27/bc/d927bcfbda5123e2038bd9b2d9cc9e25.gif'
+        ];
+        let imageIndex = 0;
+
+        function changeBackgroundImage() {
+            if (imageIndex >= imageSources.length) {
+                imageIndex = 0;
+            }
+            divMaster.style.backgroundImage = `url('${imageSources[imageIndex]}')`;
+            imageIndex++;
+        }
+
+        setInterval(changeBackgroundImage, 180000); // Troca a cada 3 minutos
+
+        // Inicializar aplicação
+        carregarDados();
+    </script>
+
+    <script>
+        // Bloqueio de clique direito e F12 para proteção básica do código
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
