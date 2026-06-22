@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN - ERBJ (Otimizador Corrigido)</title>
+    <title>ADMIN - ERBJ (Otimizado com Cloudinary)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -97,12 +97,6 @@
             background: rgba(0, 100, 255, 0.9);
         }
 
-        .btn-migrar {
-            background: rgba(255, 165, 0, 0.7);
-            border: 1px solid orange;
-            margin-bottom: 5px;
-        }
-
         .gallery {
             width: 100%;
             height: 200px;
@@ -176,7 +170,6 @@
         #fill-slots { background-color: #ff00ff; }
         .hidden { display: none; }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
 </head>
 <body>
     <div class="admin-container">
@@ -205,7 +198,6 @@
 
         <div class="form-group">
             <button onclick="salvar()">Salvar / Atualizar</button>
-            <button class="btn-migrar" onclick="iniciarMigracaoEmLote()">🔄 Otimizar Base</button>
         </div>
 
         <div id="status"></div>
@@ -214,8 +206,8 @@
 
         <div class="monitor-panel" id="monitorPanel">
             <div class="monitor-row">
-                <div>Espaço em Base64 ocupado no Firebase: <span id="txt-storage">0 MB</span></div>
-                <div class="progress-bar-bg"><div class="progress-bar-fill" id="fill-storage"></div></div>
+                <div>Status do Armazenamento no Realtime: <span id="txt-storage">Otimizado (URLs)</span></div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" id="fill-storage" style="width: 100%;"></div></div>
             </div>
             <div class="monitor-row" style="margin-top:10px;">
                 <div>Painel de IDs Utilizados: <span id="txt-slots">0 slots</span></div>
@@ -224,181 +216,193 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
-    <script>
-        // Força a limpeza do localStorage entupido para destravar o navegador imediatamente
-        localStorage.clear();
+<script>
+    localStorage.clear();
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCNChOQgMaJcGVJ8e9WPWRH_XSrSInvPiY",
-            authDomain: "power-adm-galery.firebaseapp.com",
-            databaseURL: "https://power-adm-galery-default-rtdb.firebaseio.com",
-            projectId: "power-adm-galery",
-            storageBucket: "power-adm-galery.appspot.com",
-            messagingSenderId: "530702563824",
-            appId: "1:530702563824:web:d4b9458c33593ba78dc535"
+    const firebaseConfig = {
+        apiKey: "AIzaSyCNChOQgMaJcGVJ8e9WPWRH_XSrSInvPiY",
+        authDomain: "power-adm-galery.firebaseapp.com",
+        databaseURL: "https://power-adm-galery-default-rtdb.firebaseio.com",
+        projectId: "power-adm-galery",
+        storageBucket: "power-adm-galery.appspot.com",
+        messagingSenderId: "530702563824",
+        appId: "1:530702563824:web:d4b9458c33593ba78dc535"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    
+    const CLOUD_NAME = "dtapmxyuq";
+    const UPLOAD_PRESET = "turbo_upload_preset";
+
+    let arquivoSelecionado = null; 
+    let urlImagemExistente = "";  
+    
+    const imgVaziaSVG = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22150%22%20height%3D%22150%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20150%20150%22%3E%3Crect%20width%3D%22150%22%20height%3D%22150%22%20fill%3D%22%23333%22%2F%3E%3Ctext%20x%3D%2275%22%20y%3D%2275%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-size%3D%2212%22%3EVazio%3C%2Ftext%3E%3C%2Fsvg%3E";
+
+    document.getElementById('imgInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            arquivoSelecionado = file;
+            document.getElementById('status').innerHTML = "✨ Arquivo selecionado! Pronto para salvar.";
+            
+            const urlPreviewLocal = URL.createObjectURL(file);
+            document.getElementById('previewImg').src = urlPreviewLocal;
+            document.getElementById('previewImg').classList.remove('hidden');
+        }
+    });
+
+    function carregarDadosNoFormulario(id) {
+        document.getElementById('idSelect').value = id;
+        document.getElementById('status').textContent = `⌛ Buscando ID ${id}...`;
+        arquivoSelecionado = null; 
+
+        db.ref(`dados/${id}`).once("value").then(snapshot => {
+            const data = snapshot.val();
+            if (data && data.img) {
+                document.getElementById('previewImg').src = data.img;
+                document.getElementById('previewImg').classList.remove('hidden');
+                urlImagemExistente = data.img; 
+                
+                let urlTratada = data.url || "";
+                if (urlTratada.startsWith("__whatsapp__")) {
+                    try { urlTratada = atob(urlTratada.replace("__whatsapp__", "")).replace("+", ""); } catch(e){}
+                }
+                document.getElementById('urlInput').value = urlTratada;
+                document.getElementById('status').textContent = `✅ ID ${id} carregado!`;
+            } else {
+                document.getElementById('previewImg').classList.add('hidden');
+                urlImagemExistente = "";
+                document.getElementById('urlInput').value = "";
+                document.getElementById('status').textContent = `⚠️ ID ${id} está vazio.`;
+            }
+        }).catch(() => {
+            document.getElementById('status').textContent = "❌ Erro ao buscar dados.";
+        });
+    }
+
+    function salvar() {
+        const id = document.getElementById('idSelect').value;
+        let urlTexto = document.getElementById('urlInput').value.trim();
+
+        if (!id) return alert("Selecione um ID.");
+
+        if (!arquivoSelecionado && !urlImagemExistente && !urlTexto) {
+            return alert("Insira uma imagem ou uma URL de redirecionamento.");
+        }
+
+        const apenasNumeros = urlTexto.replace(/[^\d]+/g, "");
+        if (apenasNumeros.length >= 10 && apenasNumeros.length <= 15) {
+            urlTexto = `__whatsapp__${btoa(`+${apenasNumeros}`)}`;
+        }
+
+        if (arquivoSelecionado) {
+            document.getElementById('status').textContent = "🚀 Sincronizando mídia no Cloudinary...";
+
+            const formData = new FormData();
+            const blobModificado = arquivoSelecionado.slice(0, arquivoSelecionado.size, arquivoSelecionado.type);
+            formData.append("file", blobModificado, "blob");
+            
+            formData.append("upload_preset", UPLOAD_PRESET);
+            formData.append("public_id", `galeria_3d/midia_id_${id}`);
+
+            fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(cloudinaryData => {
+                if (cloudinaryData.secure_url) {
+                    // Usamos a URL pura gerada nativamente pelo Cloudinary + Quebrador de cache dinâmico (?v=...)
+                    const sufixoCache = `?v=${new Date().getTime()}`;
+                    const linkFinal = cloudinaryData.secure_url + sufixoCache;
+                    
+                    gravarNoFirebase(id, linkFinal, urlTexto);
+                } else {
+                    console.error("Erro Cloudinary:", cloudinaryData);
+                    document.getElementById('status').innerHTML = "<span style='color:red;'>❌ O Cloudinary rejeitou o arquivo.</span>";
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('status').innerHTML = "<span style='color:red;'>❌ Erro de conexão.</span>";
+            });
+
+        } else {
+            document.getElementById('status').textContent = "💾 Atualizando dados no Firebase...";
+            gravarNoFirebase(id, urlImagemExistente, urlTexto);
+        }
+    }
+
+    function gravarNoFirebase(id, linkImagem, linkRedirecionamento) {
+        const payload = {
+            img: linkImagem || "",
+            url: linkRedirecionamento || ""
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        let imageData = ""; 
-        
-        // Mapeamento mantido em memória RAM, sem tocar no localStorage perigoso
-        let cacheUrlsLocais = {}; 
-        const imgVaziaSVG = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22150%22%20height%3D%22150%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20150%20150%22%3E%3Crect%20width%3D%22150%22%20height%3D%22150%22%20fill%3D%22%23333%22%2F%3E%3Ctext%20x%3D%2275%22%20y%3D%2275%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-size%3D%2212%22%3EVazio%3C%2Ftext%3E%3C%2Fsvg%3E";
+        db.ref(`dados/${id}`).set(payload).then(() => {
+            document.getElementById('status').textContent = "✅ Sincronizado com Sucesso!";
+            arquivoSelecionado = null; 
+            document.getElementById('imgInput').value = "";
+            atualizarMiniaturaNaTela(id, payload.img);
+        }).catch(error => {
+            console.error(error);
+            document.getElementById('status').textContent = "❌ Erro ao salvar dados no Firebase.";
+        });
+    }
 
-        document.getElementById('imgInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) processarImagem(file);
+    function atualizarBarrasMonitoramento(snapshotBanco) {
+        if (!snapshotBanco.exists()) return;
+        const todosOsDados = snapshotBanco.val();
+        let slotsOcupadosContador = 0;
+
+        Object.keys(todosOsDados).forEach(id => {
+            const registro = todosOsDados[id];
+            if (registro && registro.img) {
+                slotsOcupadosContador++;
+            }
         });
 
-        async function processarImagem(file) {
-            const fileName = file.name.toLowerCase();
-            const isGif = fileName.endsWith('.gif') || file.type === 'image/gif';
-            
-            document.getElementById('status').innerHTML = "⌛ Analisando arquivo...";
+        document.getElementById('fill-slots').style.width = `${slotsOcupadosContador}%`;
+        document.getElementById('txt-slots').innerHTML = `<strong>${slotsOcupadosContador}</strong> de 100 slots em uso`;
+    }
 
-            // Trava de segurança Realtime contra abusos de arquivos brutos
-            const tamanhoMB = file.size / (1024 * 1024);
-            if (isGif && tamanhoMB > 1.8) {
-                document.getElementById('status').innerHTML = `<span style='color:red;'>❌ GIF bloqueado (${tamanhoMB.toFixed(2)}MB).<br>Como o navegador não reduz GIFs animados sem quebrar a animação, diminua o peso dele para menos de 1.5MB no <strong>ezgif.com</strong> antes de subir!</span>`;
-                imageData = "";
-                document.getElementById('imgInput').value = "";
-                return;
+    function atualizarMiniaturaNaTela(id, imgUrl) {
+        const galleryItem = document.getElementById(`item-${id}`);
+        if (galleryItem) {
+            const imgNode = galleryItem.querySelector("img");
+            imgNode.src = imgUrl || imgVaziaSVG;
+            imgNode.style.opacity = imgUrl ? "1" : "0.5";
+        }
+    }
+
+    function inicializarSistema() {
+        const gallery = document.getElementById("gallery");
+        gallery.innerHTML = "";
+        for (let id = 1; id <= 100; id++) {
+            const galleryItem = document.createElement("div");
+            galleryItem.className = "gallery-item";
+            galleryItem.id = `item-${id}`;
+            galleryItem.innerHTML = `<span class="gallery-id">${id}</span><img src="${imgVaziaSVG}" style="opacity:0.5;">`;
+            galleryItem.onclick = function() { carregarDadosNoFormulario(id); };
+            gallery.appendChild(galleryItem);
+        }
+
+        db.ref("dados/").on("value", snapshot => {
+            for(let i=1; i<=100; i++) atualizarMiniaturaNaTela(i, null);
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    atualizarMiniaturaNaTela(childSnapshot.key, childSnapshot.val().img);
+                });
+                atualizarBarrasMonitoramento(snapshot);
             }
+        });
+    }
 
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                definirImagemPreview(event.target.result, isGif ? "✨ GIF Animado aceito dentro do limite de segurança!" : "✨ Imagem carregada!");
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function definirImagemPreview(stringBase64, mensagemStatus) {
-            document.getElementById('previewImg').src = stringBase64;
-            document.getElementById('previewImg').classList.remove('hidden');
-            imageData = stringBase64;
-            document.getElementById('status').innerHTML = mensagemStatus;
-        }
-
-        // Função corrigida mapeando as variáveis que deram erro no console
-        function carregarDadosNoFormulario(id) {
-            document.getElementById('idSelect').value = id;
-            document.getElementById('status').textContent = `⌛ Buscando ID ${id}...`;
-
-            db.ref(`dados/${id}`).once("value").then(snapshot => {
-                const data = snapshot.val();
-                if (data && data.img) {
-                    document.getElementById('previewImg').src = data.img;
-                    document.getElementById('previewImg').classList.remove('hidden');
-                    imageData = data.img;
-                    let urlTratada = data.url || "";
-                    if (urlTratada.startsWith("__whatsapp__")) {
-                        try { urlTratada = atob(urlTratada.replace("__whatsapp__", "")).replace("+", ""); } catch(e){}
-                    }
-                    document.getElementById('urlInput').value = urlTratada;
-                    document.getElementById('status').textContent = `✅ ID ${id} carregado!`;
-                } else {
-                    document.getElementById('previewImg').classList.add('hidden');
-                    imageData = "";
-                    document.getElementById('urlInput').value = "";
-                    document.getElementById('status').textContent = `⚠️ ID ${id} está vazio.`;
-                }
-            }).catch(() => {
-                document.getElementById('status').textContent = "❌ Erro ao buscar dados.";
-            });
-        }
-
-        function salvar() {
-            const id = document.getElementById('idSelect').value;
-            let url = document.getElementById('urlInput').value.trim();
-
-            if (!id) return alert("Selecione um ID.");
-            if (!imageData && !url) return alert("Selecione uma imagem ou digite uma URL.");
-
-            const apenasNumeros = url.replace(/[^\d]+/g, "");
-            if (apenasNumeros.length >= 10 && apenasNumeros.length <= 15) {
-                url = `__whatsapp__${btoa(`+${apenasNumeros}`)}`;
-            }
-
-            document.getElementById('status').textContent = "💾 Salvando no Realtime Database...";
-            const dadosParaSalvar = { img: imageData || "", url: url || "" };
-
-            db.ref(`dados/${id}`).set(dadosParaSalvar).then(() => {
-                document.getElementById('status').textContent = "✅ Salvo com sucesso!";
-                
-                cacheUrlsLocais[id] = {
-                    url: url || "tem_imagem",
-                    dataInclusao: new Date().toLocaleDateString('pt-BR')
-                };
-                atualizarMiniaturaNaTela(id, dadosParaSalvar.img);
-            }).catch(() => {
-                document.getElementById('status').textContent = "❌ Erro ao salvar.";
-            });
-        }
-
-        function atualizarBarrasMonitoramento(snapshotBanco) {
-            if (!snapshotBanco.exists()) return;
-            const todosOsDados = snapshotBanco.val();
-            let totalCaracteresTexto = 0;
-            let slotsOcupadosContador = 0;
-
-            Object.keys(todosOsDados).forEach(id => {
-                const registro = todosOsDados[id];
-                if (registro && registro.img) {
-                    totalCaracteresTexto += registro.img.length;
-                    slotsOcupadosContador++;
-                }
-            });
-
-            const totalMegabytes = totalCaracteresTexto / (1024 * 1024);
-            const porcetagemArmazenamento = Math.min((totalMegabytes / 1024) * 100, 100);
-            
-            document.getElementById('fill-storage').style.width = `${porcetagemArmazenamento}%`;
-            document.getElementById('txt-storage').innerHTML = `<strong>${totalMegabytes.toFixed(2)} MB</strong> ocupados`;
-            document.getElementById('fill-slots').style.width = `${slotsOcupadosContador}%`;
-            document.getElementById('txt-slots').innerHTML = `<strong>${slotsOcupadosContador}</strong> de 100 em uso`;
-        }
-
-        function atualizarMiniaturaNaTela(id, imgBase64) {
-            const galleryItem = document.getElementById(`item-${id}`);
-            if (galleryItem) {
-                const imgNode = galleryItem.querySelector("img");
-                imgNode.src = imgBase64 || imgVaziaSVG;
-                imgNode.style.opacity = imgBase64 ? "1" : "0.5";
-            }
-        }
-
-        async function iniciarMigracaoEmLote() {
-            alert("Sua base já está operando de forma otimizada na nuvem!");
-        }
-
-        function inicializarSistema() {
-            const gallery = document.getElementById("gallery");
-            gallery.innerHTML = "";
-            for (let id = 1; id <= 100; id++) {
-                const galleryItem = document.createElement("div");
-                galleryItem.className = "gallery-item";
-                galleryItem.id = `item-${id}`;
-                galleryItem.innerHTML = `<span class="gallery-id">${id}</span><img src="${imgVaziaSVG}" style="opacity:0.5;">`;
-                galleryItem.onclick = function() { carregarDadosNoFormulario(id); };
-                gallery.appendChild(galleryItem);
-            }
-
-            db.ref("dados/").on("value", snapshot => {
-                for(let i=1; i<=100; i++) atualizarMiniaturaNaTela(i, null);
-                if (snapshot.exists()) {
-                    snapshot.forEach(childSnapshot => {
-                        atualizarMiniaturaNaTela(childSnapshot.key, childSnapshot.val().img);
-                    });
-                    atualizarBarrasMonitoramento(snapshot);
-                }
-            });
-        }
-
-        inicializarSistema();
-    </script>
+    inicializarSistema();
+</script>
 </body>
 </html>

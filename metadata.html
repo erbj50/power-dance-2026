@@ -75,7 +75,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gifuct-js@0.3.1/dist/gifuct-js.min.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
 
     <script>
@@ -99,16 +98,18 @@
         const maxWidth = 899;
         const maxHeight = 899;
         const interval = -20;
-        const delay = 2000;
-        const pause = 4000;
+        
+        // --- CONFIGURAÇÃO DE TEMPO DINÂMICO MODIFICADA ---
+        const delay = 1000;   // Tempo rápido de transição com a tela recolhida (1 segundo)
+        const pause = 10000;  // Imagem em TELA CHEIA estendida para leitura (10 segundos)
         const CACHE_KEY = "user_urls_json_v8"; 
 
         let iframeSources = Array(100).fill("");
         let linkSources = Array(100).fill("");
-        let temLocal = false; // Corrigido: Variável global declarada para evitar ReferenceError
+        let temLocal = false;
         let animacaoIniciada = false;
 
-        // FUNÇÃO DE ARMAZENAMENTO VIA INDEXEDDB (localForage) - Sem limite de 5MB
+        // FUNÇÃO DE ARMAZENAMENTO VIA INDEXEDDB (localForage)
         function inicializarSistema() {
             localforage.getItem(CACHE_KEY).then(function(dadosLocais) {
                 if (dadosLocais) {
@@ -123,11 +124,10 @@
                         }
                         temLocal = true;
                         animacaoIniciada = true;
-                        setTimeout(animateDiv, delay); // Inicia imediatamente com os dados locais salvos
+                        setTimeout(animateDiv, delay);
                         console.log("Sistema iniciado usando o escudo de dados locais (IndexedDB).");
                     }
                 }
-                // Executa a sincronização com o Firebase em segundo plano após verificar o banco local
                 sincronizarComFirebase();
             }).catch(function(err) {
                 console.error("Falha ao ler o banco local IndexedDB:", err);
@@ -136,7 +136,6 @@
         }
 
         function sincronizarComFirebase() {
-            // Busca atualizações pontuais usando once() para economizar banda
             db.ref("dados/").once("value").then(snapshot => {
                 if (snapshot.exists()) {
                     const dadosParaSalvar = {};
@@ -145,17 +144,20 @@
                         const id = parseInt(childSnapshot.key);
                         if (id >= 1 && id <= 100) {
                             const data = childSnapshot.val();
-                            iframeSources[id - 1] = data.img || "";
-                            linkSources[id - 1] = data.url || "";
+                            
+                            const linkImagem = (data.img && !data.img.startsWith("data:image")) ? data.img : "";
+                            const linkRedirecionamento = data.url || "";
+
+                            iframeSources[id - 1] = linkImagem;
+                            linkSources[id - 1] = linkRedirecionamento;
                             
                             dadosParaSalvar[id] = {
-                                img: data.img || "",
-                                url: data.url || ""
+                                img: linkImagem,
+                                url: linkRedirecionamento
                             };
                         }
                     });
                     
-                    // Salva de forma segura no IndexedDB ignorando a barreira dos 5MB do localStorage
                     localforage.setItem(CACHE_KEY, dadosParaSalvar).then(function() {
                         console.log("Dados do Firebase sincronizados e armazenados localmente com sucesso.");
                     }).catch(function(e) {
@@ -163,7 +165,6 @@
                     });
                 }
                 
-                // Se o usuário não tinha dados no celular ainda, inicia a animação agora que baixou
                 if (!animacaoIniciada) {
                     animacaoIniciada = true;
                     setTimeout(animateDiv, delay);
@@ -177,7 +178,7 @@
             });
         }
 
-        // Lógica de Animação da div
+        // Lógica de Animação Otimizada
         let width = maxWidth;
         let height = maxHeight;
         let growing = false;
@@ -186,12 +187,18 @@
 
         function animateDiv() {
             if (growing) {
-                width++;
-                height++;
+                width += 5; // Abre o zoom mais rápido
+                height += 5;
             } else {
-                width--;
-                height--;
+                width -= 5; // Fecha o zoom mais rápido
+                height -= 5;
             }
+
+            // Garante travas seguras de tamanho máximo e mínimo
+            if (width > maxWidth) width = maxWidth;
+            if (height > maxHeight) height = maxHeight;
+            if (width < 1) width = 1;
+            if (height < 1) height = 1;
 
             divTela.style.width = width + 'px';
             divTela.style.height = height + 'px';
@@ -204,17 +211,16 @@
             if (width <= 1 && height <= 1) {
                 growing = true;
                 clearTimeout(animationTimer);
-                animationTimer = setTimeout(changeIframe, pause);
+                animationTimer = setTimeout(changeIframe, delay); // Troca rápida lá no fundo
             } else if (width === maxWidth && height === maxHeight) {
                 growing = false;
                 clearTimeout(animationTimer);
-                animationTimer = setTimeout(animateDiv, pause);
+                animationTimer = setTimeout(animateDiv, pause); // Segura 10 segundos em tela cheia
             } else {
-                animationTimer = setTimeout(animateDiv, interval);
+                animationTimer = setTimeout(animateDiv, Math.abs(interval));
             }
         }
 
-        // Pré-carregador de imagens e animações
         function loadImage(source, callback) {
             if (!source) {
                 callback();
@@ -225,12 +231,11 @@
                 callback();
             };
             img.onerror = function() {
-                callback(); // Evita travar o loop caso um arquivo falhe
+                callback();
             };
             img.src = source;
         }
 
-        // Realiza a transição dos WebP animados e iframes
         function changeIframe() {
             if (iframeIndex >= iframeSources.length || !iframeSources[iframeIndex]) {
                 iframeIndex = 0;
@@ -238,22 +243,24 @@
 
             const source = iframeSources[iframeIndex];
             loadImage(source, function() {
-                if (source && source.includes('https://')) {
-                    divTela.innerHTML = `<iframe src="${source}" frameborder="0"></iframe>`;
-                } else if (source) {
-                    divTela.style.backgroundImage = `url('${source}')`;
-                    divTela.innerHTML = '';
-                } else {
-                    divTela.style.backgroundImage = '';
-                    divTela.innerHTML = '';
+                divTela.innerHTML = '';
+                divTela.style.backgroundImage = '';
+
+                if (source) {
+                    if (source.includes('https://') && !source.includes('cloudinary.com') && !source.includes('imgur.com')) {
+                        divTela.innerHTML = `<iframe src="${source}" frameborder="0"></iframe>`;
+                    } else {
+                        // Aplica a imagem como background (o navegador gerencia o cache automaticamente aqui)
+                        divTela.style.backgroundImage = `url('${source}')`;
+                    }
                 }
+                
                 iframeIndex++;
                 clearTimeout(animationTimer);
                 animationTimer = setTimeout(animateDiv, delay);
             });
         }
 
-        // Abre o link associado ao item atual
         function openAssociatedLink() {
             if (iframeIndex - 1 >= 0 && linkSources[iframeIndex - 1]) {
                 const link = linkSources[iframeIndex - 1];
@@ -269,7 +276,7 @@
             }
         }
 
-        // Controle do Carrossel de Fundo (Imagens Fixas Estáveis do Pinterest/Netlify)
+        // Controle do Carrossel de Fundo
         const divMaster = document.getElementById('div-master');
         const imageSources = [
             'https://i.pinimg.com/originals/dd/dd/22/dddd220b1458dc3124516aa02528eecb.gif',
@@ -323,9 +330,8 @@
             divMaster.style.backgroundImage = `url('${imageSources[imageIndex]}')`;
             imageIndex++;
         }
-        setInterval(changeBackgroundImage, 180000); // Troca a cada 3 minutos
+        setInterval(changeBackgroundImage, 180000);
 
-        // DISPARO DE INICIALIZAÇÃO CORRIGIDO
         inicializarSistema();
     </script>
 
