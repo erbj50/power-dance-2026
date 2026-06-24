@@ -155,7 +155,7 @@
             }, 10000);
         });
 
-      // Controle do botão Admin (Compatível com PC e Celular)
+   // Controle do botão Admin (Compatível com PC e Celular com o temporizador de segurança)
 const adminButton = document.getElementById('admin-bt');
 const adminPopup = document.getElementById('admin-popup');
 const admin1Button = document.getElementById('admin-1');
@@ -163,11 +163,11 @@ const admin2Button = document.getElementById('admin-2');
 
 let pressTimer;
 
-// Função para iniciar a contagem (20 segundos)
+// Função para iniciar a contagem de SEGURANÇA (20 segundos pressionado)
 function startPress() {
     pressTimer = setTimeout(() => {
-        adminPopup.style.display = 'flex';
-    }, 20000); // 20 segundos
+        adminPopup.style.display = 'flex'; // Abre o painel secreto após 20s
+    }, 20000); // Mantém os 20 segundos exatos que você quer
 }
 
 // Função para cancelar se soltar o botão antes do tempo
@@ -175,12 +175,12 @@ function cancelPress() {
     clearTimeout(pressTimer);
 }
 
-// Eventos para Computador (Mouse)
+// Eventos para Computador (Mouse) - Mantém a segurança do clique longo
 adminButton.addEventListener('mousedown', startPress);
 adminButton.addEventListener('mouseup', cancelPress);
 adminButton.addEventListener('mouseleave', cancelPress);
 
-// Eventos para Celular (Toque na tela)
+// Eventos para Celular (Toque na tela) - Mantém a segurança do toque longo
 adminButton.addEventListener('touchstart', (e) => {
     e.preventDefault(); // Evita zoom ou comportamentos estranhos no celular
     startPress();
@@ -188,14 +188,19 @@ adminButton.addEventListener('touchstart', (e) => {
 adminButton.addEventListener('touchend', cancelPress);
 adminButton.addEventListener('touchcancel', cancelPress);
 
+
+// CLIQUE DOS BOTÕES DE DENTRO DO POPUP (Garantindo funcionamento no celular)
+
 admin1Button.addEventListener('click', () => {
-    window.open('./tela-admin1.html', '_blank');
     adminPopup.style.display = 'none';
+    // Abre na mesma aba para o navegador do celular não bloquear de jeito nenhum
+    window.location.href = './tela-admin1.html'; 
 });
 
 admin2Button.addEventListener('click', () => {
-    window.open('./tela-admin2.html', '_blank');
     adminPopup.style.display = 'none';
+    // Abre na mesma aba para o navegador do celular não bloquear de jeito nenhum
+    window.location.href = './tela-admin2.html'; 
 });
     </script>
 </body>
