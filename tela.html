@@ -69,16 +69,53 @@
         }
 
         #admin-bt {
-            height: 100px;
+            height: 90px;
             width: 650px;
             border-radius: 0%;
             border: none;
-            background-color: transparent;
+            background-color: rgb(0, 162, 255);
             position: absolute;
             z-index: 1;
             left: 160px;
             top: 920px;
-            opacity: 0;
+            opacity: 25%;
+        }
+
+        /* Estilo do Popup */
+        #admin-popup {
+            display: none;
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 2px solid white;
+            z-index: 1000;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #admin-popup button {
+            width: 200px;
+            height: 80px;
+            margin: 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+
+        #admin-1 {
+            background-color: orange;
+        }
+
+        #admin-2 {
+            background-color: purple;
         }
     </style>
 </head>
@@ -86,23 +123,26 @@
 <body>
     <div id="t-la">
         <iframe class="if" src="./metadata.html"></iframe>
-
         <img id="eudj" src="./image/djdj.gif" alt="DJ">
-
         <iframe id="if-samp" class="samp-iframe" width="895" height="505" src="./samp.html"></iframe>
-
         <button id="do-samp"></button>
         <button id="admin-bt"></button>
+
+        <!-- Popup -->
+        <div id="admin-popup">
+            <button id="admin-1">ADMIN 1</button>
+            <button id="admin-2">ADMIN 2</button>
+        </div>
     </div>
 
     <script>
-        // 1. Bloqueios de segurança
+        // Bloqueios de segurança
         document.addEventListener('contextmenu', (e) => e.preventDefault());
         document.addEventListener('keydown', (e) => {
             if (e.key === 'F12' || e.keyCode === 123) e.preventDefault();
         });
 
-        // 2. Controle do botão SAMP
+        // Controle do botão SAMP
         const btnSamp = document.getElementById('do-samp');
         const ifSamp = document.getElementById('if-samp');
 
@@ -115,56 +155,38 @@
             }, 10000);
         });
 
-        // 3. Sistema de Cliques para Admin
-        let clickCount = 0;
+        // Controle do botão Admin
+        const adminButton = document.getElementById('admin-bt');
+        const adminPopup = document.getElementById('admin-popup');
+        const admin1Button = document.getElementById('admin-1');
+        const admin2Button = document.getElementById('admin-2');
 
-        document.addEventListener('click', (e) => {
-            // Evita contar cliques nos botões que já têm função
-            if (e.target.id === 'do-samp') return;
+        let pressTimer;
 
-            clickCount++;
+        adminButton.addEventListener('mousedown', () => {
+            pressTimer = setTimeout(() => {
+                adminPopup.style.display = 'flex';
+            }, 20000); // 20 segundos
+        });
 
-            if (clickCount >= 10) {
-                clickCount = 0;
-                window.open('./tela-admin.html', '_blank');
-            }
+        adminButton.addEventListener('mouseup', () => {
+            clearTimeout(pressTimer);
+        });
+
+        adminButton.addEventListener('mouseleave', () => {
+            clearTimeout(pressTimer);
+        });
+
+        admin1Button.addEventListener('click', () => {
+            window.open('./tela-admin1.html', '_blank');
+            adminPopup.style.display = 'none';
+        });
+
+        admin2Button.addEventListener('click', () => {
+            window.open('./tela-admin2.html', '_blank');
+            adminPopup.style.display = 'none';
         });
     </script>
-
-
-
-
-
-
-
-
-
-
-<script>
-    // Bloqueio de clique direito e F12 para proteção básica do código
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-    });
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'F12' || e.keyCode === 123) {
-            e.preventDefault();
-            return false;
-        }
-    });
-</script>
-
-
-
-
 </body>
-
-
-
-
-
-
-
-
 
 </html>

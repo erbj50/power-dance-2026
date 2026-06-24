@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Power World News Ads</title>
+    <link rel="icon" href="./image/favicon.png" type="image/png">
+    
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #f8f9fa;
+            --card-bg: #1e1e1e;
+            --input-bg: #2d2d2d;
+            --border-color: #444;
+            --primary-color: #ff6b35;
+            --success-color: #22c55e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Container principal moldado em coluna para formato Mobile */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 450px; /* Largura ideal para simular tela de celular */
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+            margin-bottom: 120px; /* Espaço para não cobrir a galeria no rodapé */
+        }
+
+        /* Caixa de Preview Centralizada e Maior no TOPO */
+        .preview-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .ad-preview-box {
+            width: 100%;
+            aspect-ratio: 16 / 13; /* Proporção maior e bem visível */
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .ad-preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-label {
+            align-self: flex-start;
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        /* Seção do Formulário abaixo da imagem */
+        .form-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        /* Fontes maiores para melhor leitura no celular */
+        label {
+            font-weight: bold;
+            color: #ccc;
+            font-size: 1.1rem; 
+        }
+
+        input, select {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 14px; /* Mais alto para facilitar o clique com o dedo */
+            border-radius: 8px;
+            font-size: 1.1rem; /* Fonte maior */
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus {
+            outline: 2px solid var(--primary-color);
+        }
+
+        /* Botão de atualizar grande e destacado */
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 5px;
+            box-shadow: 0 4px 10px rgba(255, 107, 53, 0.2);
+        }
+
+        button:hover {
+            background-color: #e55a2b;
+        }
+
+        /* Barra de Progresso */
+        .progress-container {
+            width: 100%;
+            background-color: #333;
+            border-radius: 6px;
+            display: none;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 25px;
+            background-color: var(--success-color);
+            text-align: center;
+            line-height: 25px;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: bold;
+            transition: width 0.2s;
+        }
+
+        /* Galeria Horizontal Fixada no Rodapé */
+        .gallery-section {
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            background-color: #161616;
+            border-top: 2px solid var(--border-color);
+            padding: 10px 15px;
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        .gallery-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .gallery-grid {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        .gallery-grid::-webkit-scrollbar {
+            height: 6px;
+        }
+        .gallery-grid::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .gallery-item {
+            min-width: 90px;
+            max-width: 90px;
+            height: 110px;
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .gallery-item.active {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 8px rgba(255, 107, 53, 0.6);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 75px;
+            object-fit: cover;
+            background-color: #000;
+        }
+
+        .gallery-badge {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            background: rgba(0,0,0,0.85);
+            color: var(--primary-color);
+            font-weight: bold;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+        }
+
+        .gallery-item .item-title {
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #bbb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="preview-section">
+            
+            <div class="ad-preview-box" id="adPreviewBox">
+                <span style="color:#666; font-size: 1.1rem;">Nenhuma imagem carregada</span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-group">
+                <label for="adId">Selecione o Container (1 a 50):</label>
+                <select id="adId"></select>
+            </div>
+
+            <div class="form-group">
+                <label for="adLink">Link de Afiliado da Shopee:</label>
+                <input type="url" id="adLink" placeholder="https://shope.ee/..." required>
+            </div>
+
+            <div class="form-group">
+                <label for="adTitle">Título / Nome do Produto:</label>
+                <input type="text" id="adTitle" placeholder="Ex: Mini Projetor Portátil" required>
+            </div>
+
+            <div class="form-group">
+                <label for="imageUrl">Cole a URL da Imagem:</label>
+                <input type="url" id="imageUrl" placeholder="https://cf.shopee.com.br/file/...">
+            </div>
+
+            <button type="button" id="btnUpdate">Atualizar Container</button>
+
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="gallery-section">
+        <div class="gallery-title">Lista de Containers Ativos (1 a 50)</div>
+        <div class="gallery-grid" id="galleryGrid">
+            </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+        // Configurações do seu Firebase Realtime Database
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVHhRAdxIW2p0vWZuWsILrXzsIuLJmd08",
+            authDomain: "pwn-afiliados-urls.firebaseapp.com",
+            projectId: "pwn-afiliados-urls",
+            storageBucket: "pwn-afiliados-urls.firebasestorage.app",
+            messagingSenderId: "228959052596",
+            appId: "1:228959052596:web:36ea4e83a9ca6ece293b61"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let adsData = {};
+
+        // Referências do DOM
+        const adIdSelect = document.getElementById('adId');
+        const adLinkInput = document.getElementById('adLink');
+        const adTitleInput = document.getElementById('adTitle');
+        const imageUrlInput = document.getElementById('imageUrl');
+        const btnUpdate = document.getElementById('btnUpdate');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const adPreviewBox = document.getElementById('adPreviewBox');
+        const galleryGrid = document.getElementById('galleryGrid');
+
+        // 1. Inicializa o Select de 1 a 50 e a Galeria do Rodapé
+        for (let i = 1; i <= 50; i++) {
+            let opt = document.createElement('option');
+            opt.value = i;
+            opt.innerText = `Container #${i}`;
+            adIdSelect.appendChild(opt);
+
+            let item = document.createElement('div');
+            item.className = 'gallery-item';
+            item.id = `gallery-item-${i}`;
+            item.innerHTML = `
+                <div class="gallery-badge">#${i}</div>
+                <img src="" alt="" id="img-gal-${i}" style="display:none;">
+                <div style="height:75px; display:flex; align-items:center; justify-content:center; background:#000;" id="placeholder-gal-${i}">
+                    <span style="font-size:0.6rem; color:#444;">Vazio</span>
+                </div>
+                <div class="item-title" id="title-gal-${i}">Sem produto</div>
+            `;
+            
+            item.addEventListener('click', () => selectContainerFromGallery(i));
+            galleryGrid.appendChild(item);
+        }
+
+        // 2. Escuta mudanças no Realtime Database e atualiza a galeria/formulário em tempo real
+        const adsRef = ref(db, 'shopee_ads');
+        onValue(adsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                adsData = data;
+                Object.keys(data).forEach(id => {
+                    const ad = data[id];
+                    const imgTag = document.getElementById(`img-gal-${id}`);
+                    const placeholder = document.getElementById(`placeholder-gal-${id}`);
+                    const titleTag = document.getElementById(`title-gal-${id}`);
+
+                    if (ad.image) {
+                        imgTag.src = ad.image;
+                        imgTag.style.display = 'block';
+                        placeholder.style.display = 'none';
+                    } else {
+                        imgTag.style.display = 'none';
+                        placeholder.style.display = 'flex';
+                    }
+                    if (ad.title) {
+                        titleTag.innerText = ad.title;
+                    }
+                });
+                
+                updateFormAndPreview(adIdSelect.value);
+            }
+        });
+
+        // 3. Função disparada ao selecionar um container na galeria inferior
+        function selectContainerFromGallery(id) {
+            adIdSelect.value = id;
+            document.querySelectorAll('.gallery-item').forEach(el => el.classList.remove('active'));
+            const currentItem = document.getElementById(`gallery-item-${id}`);
+            if (currentItem) {
+                currentItem.classList.add('active');
+                // Auto-scroll horizontal suave na galeria para manter o item focado visível
+                currentItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+            
+            updateFormAndPreview(id);
+        }
+
+        // 4. Atualiza os campos do formulário e a caixa de Preview
+        function updateFormAndPreview(id) {
+            const currentAd = adsData[id];
+            if (currentAd) {
+                adLinkInput.value = currentAd.link || '';
+                adTitleInput.value = currentAd.title || '';
+                imageUrlInput.value = currentAd.image || '';
+                
+                if (currentAd.image) {
+                    adPreviewBox.innerHTML = `<img src="${currentAd.image}" alt="Preview">`;
+                } else {
+                    adPreviewBox.innerHTML = `<span style="color:#666; font-size:1.1rem;">Nenhuma imagem carregada</span>`;
+                }
+            } else {
+                adLinkInput.value = '';
+                adTitleInput.value = '';
+                imageUrlInput.value = '';
+                adPreviewBox.innerHTML = `<span style="color:#666; font-size:1.1rem;">Nenhuma imagem carregada</span>`;
+            }
+        }
+
+        // Monitora troca manual de ID via o Select do topo
+        adIdSelect.addEventListener('change', (e) => {
+            selectContainerFromGallery(e.target.value);
+        });
+
+        // Atualiza o preview de imagem em tempo real enquanto você digita/cola a URL
+        imageUrlInput.addEventListener('input', (e) => {
+            if (e.target.value.trim()) {
+                adPreviewBox.innerHTML = `<img src="${e.target.value.trim()}" alt="Preview">`;
+            } else {
+                adPreviewBox.innerHTML = `<span style="color:#666; font-size:1.1rem;">Nenhuma imagem carregada</span>`;
+            }
+        });
+
+        // 5. Envia os links estruturados direto pro Realtime Database
+        btnUpdate.addEventListener('click', () => {
+            const id = adIdSelect.value;
+            const link = adLinkInput.value.trim();
+            const title = adTitleInput.value.trim();
+            const finalUrl = imageUrlInput.value.trim();
+
+            if (!link || !title) {
+                alert("Por favor, insira o Link de Afiliado e o Título do produto.");
+                return;
+            }
+
+            // Exibe efeito visual de processamento rápido
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '50%';
+            progressBar.style.backgroundColor = 'var(--primary-color)';
+            progressBar.innerText = 'Gravando...';
+
+            set(ref(db, 'shopee_ads/' + id), {
+                id: parseInt(id),
+                link: link,
+                title: title,
+                image: finalUrl
+            })
+            .then(() => {
+                progressBar.style.width = '100%';
+                progressBar.innerText = "Atualizado com Sucesso! 🎉";
+                progressBar.style.backgroundColor = "#10b981"; 
+                
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                }, 1800);
+            })
+            .catch((error) => {
+                console.error("Erro ao sincronizar dados:", error);
+                alert("Erro ao sincronizar com o banco de dados.");
+                progressContainer.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
