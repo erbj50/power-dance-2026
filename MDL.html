@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#000000">
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('Service Worker registrado com sucesso!', reg))
+        .catch(err => console.error('Falha ao registrar o Service Worker:', err));
+    });
+  }
+</script>
+
+
+
 <head>
   <meta charset="UTF-8">
   <body style="background-image:url(https://i.pinimg.com/originals/c5/72/c9/c572c9861cf79a7e2a71d05e1c3a48a4.gif) ;">
