@@ -155,37 +155,48 @@
             }, 10000);
         });
 
-        // Controle do botão Admin
-        const adminButton = document.getElementById('admin-bt');
-        const adminPopup = document.getElementById('admin-popup');
-        const admin1Button = document.getElementById('admin-1');
-        const admin2Button = document.getElementById('admin-2');
+      // Controle do botão Admin (Compatível com PC e Celular)
+const adminButton = document.getElementById('admin-bt');
+const adminPopup = document.getElementById('admin-popup');
+const admin1Button = document.getElementById('admin-1');
+const admin2Button = document.getElementById('admin-2');
 
-        let pressTimer;
+let pressTimer;
 
-        adminButton.addEventListener('mousedown', () => {
-            pressTimer = setTimeout(() => {
-                adminPopup.style.display = 'flex';
-            }, 20000); // 20 segundos
-        });
+// Função para iniciar a contagem (20 segundos)
+function startPress() {
+    pressTimer = setTimeout(() => {
+        adminPopup.style.display = 'flex';
+    }, 20000); // 20 segundos
+}
 
-        adminButton.addEventListener('mouseup', () => {
-            clearTimeout(pressTimer);
-        });
+// Função para cancelar se soltar o botão antes do tempo
+function cancelPress() {
+    clearTimeout(pressTimer);
+}
 
-        adminButton.addEventListener('mouseleave', () => {
-            clearTimeout(pressTimer);
-        });
+// Eventos para Computador (Mouse)
+adminButton.addEventListener('mousedown', startPress);
+adminButton.addEventListener('mouseup', cancelPress);
+adminButton.addEventListener('mouseleave', cancelPress);
 
-        admin1Button.addEventListener('click', () => {
-            window.open('./tela-admin1.html', '_blank');
-            adminPopup.style.display = 'none';
-        });
+// Eventos para Celular (Toque na tela)
+adminButton.addEventListener('touchstart', (e) => {
+    e.preventDefault(); // Evita zoom ou comportamentos estranhos no celular
+    startPress();
+});
+adminButton.addEventListener('touchend', cancelPress);
+adminButton.addEventListener('touchcancel', cancelPress);
 
-        admin2Button.addEventListener('click', () => {
-            window.open('./tela-admin2.html', '_blank');
-            adminPopup.style.display = 'none';
-        });
+admin1Button.addEventListener('click', () => {
+    window.open('./tela-admin1.html', '_blank');
+    adminPopup.style.display = 'none';
+});
+
+admin2Button.addEventListener('click', () => {
+    window.open('./tela-admin2.html', '_blank');
+    adminPopup.style.display = 'none';
+});
     </script>
 </body>
 

@@ -1,19 +1,39 @@
-const CACHE_NAME = 'powerdance-v1';
-// Adicione aqui os arquivos que você quer que funcionem offline
+const CACHE_NAME = 'powerdance-v4'; // Aumentamos para v4 para forçar o Netlify a atualizar
+
+// Lista corrigida com base EXATA nos arquivos que aparecem no seu VS Code
 const ASSETS = [
   '/',
   '/index.html',
   '/landing.html',
   '/play.html',
+  '/manifest.json',
+  '/samp.html',
+  '/power.html',
+  '/metadata.html',
+  '/mm.html',
+  '/mdl.html',
+  '/tela.html',
+  '/admin_m.html',
+  '/tela-admin1.html',
+  '/tela-admin2.html',
   '/cor.gif',
-  '/raiden.gif'
+  '/raiden.gif',
+  '/eu1.jpg',
+  '/vu7.jpg'
 ];
 
 // Instalação do Service Worker e Cache dos arquivos
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+      // Usamos um mapeamento para carregar os arquivos e evitar que um erro isole o PWA inteiro
+      return Promise.all(
+        ASSETS.map((url) => {
+          return cache.add(url).catch((err) => {
+            console.warn('Aviso: Não foi possível salvar no cache o arquivo: ' + url, err);
+          });
+        })
+      );
     })
   );
 });

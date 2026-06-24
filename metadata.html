@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SUPER TELA - ERBJ</title>
+    
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#000000">
+
     <style>
         body {
             background-color: rgb(0, 0, 0);
@@ -74,8 +78,9 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gifuct-js@0.3.1/dist/gifuct-js.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    
+    <script src="./gifuct-js.min.js"></script>
 
     <script>
         // Configuração do Firebase
@@ -187,14 +192,13 @@
 
         function animateDiv() {
             if (growing) {
-                width += 5; // Abre o zoom mais rápido
+                width += 5; 
                 height += 5;
             } else {
-                width -= 5; // Fecha o zoom mais rápido
+                width -= 5; 
                 height -= 5;
             }
 
-            // Garante travas seguras de tamanho máximo e mínimo
             if (width > maxWidth) width = maxWidth;
             if (height > maxHeight) height = maxHeight;
             if (width < 1) width = 1;
@@ -211,11 +215,11 @@
             if (width <= 1 && height <= 1) {
                 growing = true;
                 clearTimeout(animationTimer);
-                animationTimer = setTimeout(changeIframe, delay); // Troca rápida lá no fundo
+                animationTimer = setTimeout(changeIframe, delay); 
             } else if (width === maxWidth && height === maxHeight) {
                 growing = false;
                 clearTimeout(animationTimer);
-                animationTimer = setTimeout(animateDiv, pause); // Segura 10 segundos em tela cheia
+                animationTimer = setTimeout(animateDiv, pause); 
             } else {
                 animationTimer = setTimeout(animateDiv, Math.abs(interval));
             }
@@ -250,7 +254,6 @@
                     if (source.includes('https://') && !source.includes('cloudinary.com') && !source.includes('imgur.com')) {
                         divTela.innerHTML = `<iframe src="${source}" frameborder="0"></iframe>`;
                     } else {
-                        // Aplica a imagem como background (o navegador gerencia o cache automaticamente aqui)
                         divTela.style.backgroundImage = `url('${source}')`;
                     }
                 }
@@ -333,6 +336,16 @@
         setInterval(changeBackgroundImage, 180000);
 
         inicializarSistema();
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('PWA ativo nesta tela!', reg))
+                    .catch(err => console.error('Erro no PWA desta tela:', err));
+            });
+        }
     </script>
 
     <script>

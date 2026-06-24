@@ -3,10 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.1, maximum-scale=1.0, user-scalable=no">
-    <title></title>
-   <script src="https://code.google.com/p/jquery-latest/"></script> 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAUNCHPAD - POWERDANCE</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> 
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/omggif/1.0.10/omggif.min.js"></script>
+
     <link rel="stylesheet prefetch" href="https://fonts.googleapis.com/css?family=Oswald" />
     <style>
         body,
@@ -97,65 +100,57 @@
             border: 3px solid #07b8ee;
         }
 
-        .pad-9,
-        .pad-10,
-        .pad-11,
-        .pad-12 {
-            border: 2px solid #1abc9c;
-        }
-
         .pad-1 {
             background-color: rgb(242, 172, 10);
-            font: bold;
+            font-weight: bold;
             font-size: 60px;
             color: rgba(0, 0, 255, 0.45);
         }
 
         .pad-2 {
             background-color: rgba(18, 36, 237, 0.45);
-            font: bold;
+            font-weight: bold;
             font-size: 40px;
         }
 
         .pad-3 {
             background-color: rgb(240, 8, 8);
-            font: bold;
+            font-weight: bold;
             font-size: 40px;
         }
 
         .pad-4 {
-            color: aliceblue;
             background-color: rgba(167, 21, 21, 0.523);
-            font: bold;
             color: rgba(7, 188, 243, 0.966);
+            font-weight: bold;
             font-size: 40px;
         }
 
         .pad-5 {
             background-color: rgb(18, 237, 80);
-            font: bold;
             color: rgba(255, 8, 140, 0.86);
+            font-weight: bold;
             font-size: 40px;
         }
 
         .pad-6 {
             background-color: rgb(18, 175, 237);
-            font: bold;
             color: rgb(236, 53, 7);
+            font-weight: bold;
             font-size: 40px;
         }
 
         .pad-7 {
             background-color: rgba(199, 6, 247, 0.945);
-            font: bold;
             color: rgb(4, 227, 243);
+            font-weight: bold;
             font-size: 40px;
         }
 
         .pad-8 {
             background-color: rgb(240, 217, 8);
-            font: bold;
             color: rgba(28, 9, 237, 0.668);
+            font-weight: bold;
             font-size: 40px;
         }
     </style>
@@ -174,6 +169,7 @@
             <div class="box pad-8" data-code="74">SIRENE</div>
         </div>
     </div>
+    
     <script type="text/javascript">
         $(document).ready(function() {
             var padOne = new Audio('https://static.wixstatic.com/mp3/4ecd86_c4b0d411a9934c32b9ddb1994896a625.mp3');
@@ -252,7 +248,6 @@
                 var code = e.keyCode;
                 var kc = String.fromCharCode(e.keyCode);
                 $("div[data-code='" + code + "']").addClass("active");
-                console.log(code);
 
                 switch (kc) {
                     case "R":
@@ -287,23 +282,8 @@
                         padEight.load();
                         padEight.play();
                         break;
-                    case "V":
-                        padNine.load();
-                        padNine.play();
-                        break;
-                    case "B":
-                        padTen.load();
-                        padTen.play();
-                        break;
-                    case "N":
-                        padEleven.load();
-                        padEleven.play();
-                        break;
-                    case "M":
-                        padTwelve.load();
-                        padTwelve.play();
-                        break;
                     default:
+                        break;
                 }
             });
 
