@@ -1,4 +1,4 @@
-const CACHE_NAME = 'powerdance-v4'; // Aumentamos para v4 para forçar o Netlify a atualizar
+const CACHE_NAME = 'powerdance-v5'; // Aumentamos para v4 para forçar o Netlify a atualizar
 
 // Lista corrigida com base EXATA nos arquivos que aparecem no seu VS Code
 const ASSETS = [

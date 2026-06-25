@@ -51,7 +51,7 @@
             margin: 0;
             padding: 0;
             left: 10px;
-            margin-top: 50px;
+            margin-top: 10px;
             top: 920px;
         }
 
@@ -69,17 +69,27 @@
         }
 
         #admin-bt {
-            height: 90px;
-            width: 650px;
+            height: 140px;
+            width: 670px;
             border-radius: 0%;
             border: none;
-            background-color: rgb(0, 162, 255);
+
             position: absolute;
             z-index: 1;
-            left: 160px;
-            top: 920px;
-            opacity: 25%;
+            left: 140px;
+            top: 925px;
+            opacity: 100%;
         }
+       
+        .bg-gf {
+            background-color: rgba(255, 0, 0, 0.082);
+            background-image: url('./wavv.gif');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+
 
         /* Estilo do Popup */
         #admin-popup {
@@ -124,10 +134,13 @@
     <div id="t-la">
         <iframe class="if" src="./metadata.html"></iframe>
         <img id="eudj" src="./image/djdj.gif" alt="DJ">
-        <iframe id="if-samp" class="samp-iframe" width="895" height="505" src="./samp.html"></iframe>
-        <button id="do-samp"></button>
-        <button id="admin-bt"></button>
 
+        <button class="bg-gf"   id="admin-bt"></button>
+        
+        <iframe id="if-samp" class="samp-iframe" width="895" height="605" src="./samp.html"><h1>SAMPLE PADS</h1></iframe>
+        <button id="do-samp"></button>
+         
+<h1>SAMPLE PADS</h1>
         <!-- Popup -->
         <div id="admin-popup">
             <button id="admin-1">ADMIN 1</button>
