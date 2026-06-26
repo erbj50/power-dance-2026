@@ -4,6 +4,7 @@ const CACHE_NAME = 'powerdance-v8'; // Aumentamos para v8 para forçar a atualiz
 const ASSETS = [
     '/',
     '/index.html',
+    '/image/fav-icon.ico', // Adicionado aqui para o Service Worker carregar em cache
     '/landing.html',
     '/play.html',
     '/manifest.json',
