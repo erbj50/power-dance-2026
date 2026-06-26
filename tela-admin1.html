@@ -191,9 +191,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (arquivoSelecionado) {
             document.getElementById('status').textContent = "🚀 Sincronizando mídia no Cloudinary...";
  
-            // Abordagem com sufixo dinâmico de tempo para burlar a restrição de Overwrite do modo Unsigned
-            const timestampUnico = Date.now();
-            const publicId = `galeria_3d/midia_id_${id}_v_${timestampUnico}`;
+            // ESTRATÉGIA MENSAL: O sufixo de tempo muda apenas 1 vez por mês.
+            // Impede o acúmulo diário de lixo mantendo uploads idênticos no mesmo mês.
+            const dataAtual = new Date();
+            const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+            const ano = dataAtual.getFullYear();
+            const publicId = `galeria_3d/midia_id_${id}_mes_${mes}_${ano}`;
  
             const formData = new FormData();
             formData.append("file", arquivoSelecionado);
@@ -207,8 +210,9 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => res.json())
             .then(cloudinaryData => {
                 if (cloudinaryData && cloudinaryData.secure_url) {
-                    // Salva a nova URL diretamente no Firebase Realtime Database
-                    gravarNoFirebase(id, cloudinaryData.secure_url, urlTexto);
+                    // Força o cache do Firebase e navegador a atualizar visualmente na hora
+                    const urlComCacheBuster = `${cloudinaryData.secure_url.split('?')[0]}?v=${Date.now()}`;
+                    gravarNoFirebase(id, urlComCacheBuster, urlTexto);
                 } else {
                     const msg = cloudinaryData?.error?.message || "Arquivo rejeitado.";
                     console.error("Erro Cloudinary:", cloudinaryData);
