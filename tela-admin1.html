@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN - ERBJ (Otimizado com Cloudinary)</title>
+    <title>ADMIN - ERBJ</title>
+ 
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+ 
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: #000;
@@ -26,202 +25,98 @@
             background-position: center;
             background-attachment: fixed;
             padding: 20px;
-            zoom: 0.93; 
+            zoom: 0.93;
         }
-
         .admin-container {
             width: 100%;
             max-width: 1000px;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0,0,0,0.7);
             border-radius: 16px;
             padding: 5px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            border: 2px solid rgba(0, 255, 255, 0.3);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            border: 2px solid rgba(0,255,255,0.3);
+            box-shadow: 0 0 20px rgba(0,255,255,0.5);
             margin-bottom: 20px;
         }
-
         .preview-container {
-            width: 360px;
-            height: 350px;
-            background: rgba(255, 255, 255, 0.05);
+            width: 360px; height: 350px;
+            background: rgba(255,255,255,0.05);
             border-radius: 12px;
-            border: 2px dashed rgba(0, 255, 255, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 10px 0;
-            cursor: pointer;
-            overflow: hidden;
-            position: relative;
+            border: 2px dashed rgba(0,255,255,0.5);
+            display: flex; align-items: center; justify-content: center;
+            margin: 10px 0; cursor: pointer; overflow: hidden; position: relative;
         }
-
-        .preview-container img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            background: transparent;
-        }
-
-        .form-group {
-            width: 100%;
-            max-width: 400px;
-            margin: 3px 0;
-        }
-
-        input, select, button {
-            width: 100%;
-            padding: 9px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border: none;
-            font-size: 16px;
-        }
-
-        input, select {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(0, 255, 255, 0.3);
-        }
-
-        button {
-            background: rgba(0, 100, 255, 0.7);
-            color: white;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: rgba(0, 100, 255, 0.9);
-        }
-
-        .gallery {
-            width: 100%;
-            height: 200px;
-            display: flex;
-            overflow-x: auto;
-            gap: 10px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 12px;
-            margin-top: 15px;
-        }
-
-        .gallery-item {
-            min-width: 150px;
-            height: 150px;
-            border-radius: 8px;
-            position: relative;
-            cursor: pointer;
-            border: 1px solid rgba(0, 255, 255, 0.3);
-        }
-
-        .gallery-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .gallery-id {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        #status {
-            margin-top: 5px;
-            color: lime;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .monitor-panel {
-            width: 100%;
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(20, 20, 20, 0.9);
-            border-radius: 12px;
-            border: 1px solid rgba(0, 255, 255, 0.2);
-        }
-
-        .progress-bar-bg {
-            width: 100%;
-            height: 20px;
-            background: #222;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            width: 0%;
-            height: 100%;
-            transition: width 0.5s ease-in-out;
-        }
-
+        .preview-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .form-group { width: 100%; max-width: 400px; margin: 3px 0; }
+        input, select, button { width: 100%; padding: 9px; margin: 8px 0; border-radius: 8px; border: none; font-size: 16px; }
+        input, select { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(0,255,255,0.3); }
+        button { background: rgba(0,100,255,0.7); color: white; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: rgba(0,100,255,0.9); }
+        .gallery { width: 100%; height: 200px; display: flex; overflow-x: auto; gap: 10px; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 12px; margin-top: 15px; }
+        .gallery-item { min-width: 150px; height: 150px; border-radius: 8px; position: relative; cursor: pointer; border: 1px solid rgba(0,255,255,0.3); }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+        .gallery-id { position: absolute; top: 5px; left: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+        #status { margin-top: 5px; color: lime; font-weight: bold; text-align: center; }
+        .monitor-panel { width: 100%; margin-top: 20px; padding: 15px; background: rgba(20,20,20,0.9); border-radius: 12px; border: 1px solid rgba(0,255,255,0.2); }
+        .progress-bar-bg { width: 100%; height: 20px; background: #222; border-radius: 6px; overflow: hidden; }
+        .progress-bar-fill { width: 0%; height: 100%; transition: width 0.5s ease-in-out; }
         #fill-storage { background-color: #00ffcc; }
         #fill-slots { background-color: #ff00ff; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <h1>ADMIN - ERBJ</h1>
-
-        <div class="preview-container" id="preview" onclick="document.getElementById('imgInput').click()">
-            <img id="previewImg" class="hidden" />
-        </div>
-
-        <input type="file" id="imgInput" accept="image/*" class="hidden" />
-
-        <div class="form-group">
-            <input type="text" id="urlInput" placeholder="URL ou Número do WhatsApp" />
-        </div>
-
-        <div class="form-group">
-            <select id="idSelect">
-                <option value="">Selecione um ID (1 a 100)</option>
-                <script>
-                    for (let i = 1; i <= 100; i++) {
-                        document.write(`<option value="${i}">${i}</option>`);
-                    }
-                </script>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <button onclick="salvar()">Salvar / Atualizar</button>
-        </div>
-
-        <div id="status"></div>
-
-        <div class="gallery" id="gallery"></div>
-
-        <div class="monitor-panel" id="monitorPanel">
-            <div class="monitor-row">
-                <div>Status do Armazenamento no Realtime: <span id="txt-storage">Otimizado (URLs)</span></div>
-                <div class="progress-bar-bg"><div class="progress-bar-fill" id="fill-storage" style="width: 100%;"></div></div>
-            </div>
-            <div class="monitor-row" style="margin-top:10px;">
-                <div>Painel de IDs Utilizados: <span id="txt-slots">0 slots</span></div>
-                <div class="progress-bar-bg"><div class="progress-bar-fill" id="fill-slots"></div></div>
-            </div>
-        </div>
+<div class="admin-container">
+    <h1>ADMIN - ERBJ</h1>
+ 
+    <div class="preview-container" onclick="document.getElementById('imgInput').click()">
+        <img id="previewImg" class="hidden" />
     </div>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-
+    <input type="file" id="imgInput" accept="image/*" class="hidden" />
+ 
+    <div class="form-group">
+        <input type="text" id="urlInput" placeholder="URL ou Número do WhatsApp" />
+    </div>
+ 
+    <div class="form-group">
+        <select id="idSelect">
+            <option value="">Selecione um ID (1 a 100)</option>
+        </select>
+    </div>
+ 
+    <div class="form-group">
+        <button onclick="salvar()">Salvar / Atualizar</button>
+    </div>
+ 
+    <div id="status"></div>
+    <div class="gallery" id="gallery"></div>
+ 
+    <div class="monitor-panel">
+        <div>Status do Armazenamento no Realtime: <span id="txt-storage">Otimizado (URLs)</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="fill-storage" style="width:100%;"></div></div>
+        <div style="margin-top:10px;">Painel de IDs Utilizados: <span id="txt-slots">0 slots</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="fill-slots"></div></div>
+    </div>
+</div>
+ 
 <script>
-    localStorage.clear();
-
+// Popula o select de IDs sem usar document.write
+(function() {
+    const sel = document.getElementById('idSelect');
+    for (let i = 1; i <= 100; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = i;
+        sel.appendChild(opt);
+    }
+})();
+ 
+// Todo o código dentro do DOMContentLoaded garante que
+// os scripts do Firebase (carregados no <head>) já executaram
+document.addEventListener('DOMContentLoaded', function () {
+ 
     const firebaseConfig = {
         apiKey: "AIzaSyCNChOQgMaJcGVJ8e9WPWRH_XSrSInvPiY",
         authDomain: "power-adm-galery.firebaseapp.com",
@@ -231,45 +126,44 @@
         messagingSenderId: "530702563824",
         appId: "1:530702563824:web:d4b9458c33593ba78dc535"
     };
-
+ 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    
+ 
     const CLOUD_NAME = "dtapmxyuq";
     const UPLOAD_PRESET = "turbo_upload_preset";
-
-    let arquivoSelecionado = null; 
-    let urlImagemExistente = "";  
-    
+ 
+    let arquivoSelecionado = null;
+    let urlImagemExistente = "";
+ 
     const imgVaziaSVG = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22150%22%20height%3D%22150%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20150%20150%22%3E%3Crect%20width%3D%22150%22%20height%3D%22150%22%20fill%3D%22%23333%22%2F%3E%3Ctext%20x%3D%2275%22%20y%3D%2275%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-size%3D%2212%22%3EVazio%3C%2Ftext%3E%3C%2Fsvg%3E";
-
-    document.getElementById('imgInput').addEventListener('change', function(e) {
+ 
+    document.getElementById('imgInput').addEventListener('change', function (e) {
         const file = e.target.files[0];
         if (file) {
             arquivoSelecionado = file;
-            document.getElementById('status').innerHTML = "✨ Arquivo selecionado! Pronto para salvar.";
-            
-            const urlPreviewLocal = URL.createObjectURL(file);
-            document.getElementById('previewImg').src = urlPreviewLocal;
+            document.getElementById('status').textContent = "✨ Arquivo selecionado! Pronto para salvar.";
+            document.getElementById('previewImg').src = URL.createObjectURL(file);
             document.getElementById('previewImg').classList.remove('hidden');
         }
     });
-
-    function carregarDadosNoFormulario(id) {
+ 
+    window.carregarDadosNoFormulario = function (id) {
         document.getElementById('idSelect').value = id;
         document.getElementById('status').textContent = `⌛ Buscando ID ${id}...`;
-        arquivoSelecionado = null; 
-
+        arquivoSelecionado = null;
+ 
         db.ref(`dados/${id}`).once("value").then(snapshot => {
             const data = snapshot.val();
             if (data && data.img) {
-                document.getElementById('previewImg').src = data.img;
+                // Remove travas antigas de query strings antes de injetar o novo timestamp
+                document.getElementById('previewImg').src = data.img.split('?')[0] + '?v=' + Date.now();
                 document.getElementById('previewImg').classList.remove('hidden');
-                urlImagemExistente = data.img; 
-                
+                urlImagemExistente = data.img;
+ 
                 let urlTratada = data.url || "";
                 if (urlTratada.startsWith("__whatsapp__")) {
-                    try { urlTratada = atob(urlTratada.replace("__whatsapp__", "")).replace("+", ""); } catch(e){}
+                    try { urlTratada = atob(urlTratada.replace("__whatsapp__", "")).replace("+", ""); } catch (e) {}
                 }
                 document.getElementById('urlInput').value = urlTratada;
                 document.getElementById('status').textContent = `✅ ID ${id} carregado!`;
@@ -282,127 +176,126 @@
         }).catch(() => {
             document.getElementById('status').textContent = "❌ Erro ao buscar dados.";
         });
-    }
-
-    function salvar() {
+    };
+ 
+    window.salvar = function () {
         const id = document.getElementById('idSelect').value;
         let urlTexto = document.getElementById('urlInput').value.trim();
-
+ 
         if (!id) return alert("Selecione um ID.");
-
         if (!arquivoSelecionado && !urlImagemExistente && !urlTexto) {
             return alert("Insira uma imagem ou uma URL de redirecionamento.");
         }
-
+ 
         const apenasNumeros = urlTexto.replace(/[^\d]+/g, "");
         if (apenasNumeros.length >= 10 && apenasNumeros.length <= 15) {
             urlTexto = `__whatsapp__${btoa(`+${apenasNumeros}`)}`;
         }
-
+ 
         if (arquivoSelecionado) {
             document.getElementById('status').textContent = "🚀 Sincronizando mídia no Cloudinary...";
-
+ 
+            // ID FIXO REESTABELECIDO: Garante que o Cloudinary substitua o arquivo
+            // e NÃO acumule arquivos lixo antigos na sua conta.
+            const publicId = `galeria_3d/midia_id_${id}`;
+ 
             const formData = new FormData();
-            const blobModificado = arquivoSelecionado.slice(0, arquivoSelecionado.size, arquivoSelecionado.type);
-            formData.append("file", blobModificado, "blob");
-            
+            formData.append("file", arquivoSelecionado);
             formData.append("upload_preset", UPLOAD_PRESET);
-            formData.append("public_id", `galeria_3d/midia_id_${id}`);
-
+            formData.append("public_id", publicId);
+            formData.append("invalidate", "true");
+ 
             fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
                 method: "POST",
                 body: formData
             })
             .then(res => res.json())
             .then(cloudinaryData => {
-                if (cloudinaryData.secure_url) {
-                    // Usamos a URL pura gerada nativamente pelo Cloudinary + Quebrador de cache dinâmico (?v=...)
-                    const sufixoCache = `?v=${new Date().getTime()}`;
-                    const linkFinal = cloudinaryData.secure_url + sufixoCache;
-                    
-                    gravarNoFirebase(id, linkFinal, urlTexto);
+                if (cloudinaryData && cloudinaryData.secure_url) {
+                    // Limpa travas de string anteriores e adiciona o carimbo de versão atualizado
+                    const urlComCacheBuster = `${cloudinaryData.secure_url.split('?')[0]}?v=${Date.now()}`;
+                    gravarNoFirebase(id, urlComCacheBuster, urlTexto);
                 } else {
+                    const msg = cloudinaryData?.error?.message || "Arquivo rejeitado.";
                     console.error("Erro Cloudinary:", cloudinaryData);
-                    document.getElementById('status').innerHTML = "<span style='color:red;'>❌ O Cloudinary rejeitou o arquivo.</span>";
+                    document.getElementById('status').innerHTML = `<span style='color:red;'>❌ Cloudinary: ${msg}</span>`;
                 }
             })
             .catch(err => {
                 console.error(err);
-                document.getElementById('status').innerHTML = "<span style='color:red;'>❌ Erro de conexão.</span>";
+                document.getElementById('status').innerHTML = "<span style='color:red;'>❌ Erro de conexão com Cloudinary.</span>";
             });
-
+ 
         } else {
             document.getElementById('status').textContent = "💾 Atualizando dados no Firebase...";
             gravarNoFirebase(id, urlImagemExistente, urlTexto);
         }
-    }
-
+    };
+ 
     function gravarNoFirebase(id, linkImagem, linkRedirecionamento) {
-        const payload = {
-            img: linkImagem || "",
-            url: linkRedirecionamento || ""
-        };
-
-        db.ref(`dados/${id}`).set(payload).then(() => {
+        db.ref(`dados/${id}`).set({ img: linkImagem || "", url: linkRedirecionamento || "" })
+        .then(() => {
             document.getElementById('status').textContent = "✅ Sincronizado com Sucesso!";
-            arquivoSelecionado = null; 
+            arquivoSelecionado = null;
             document.getElementById('imgInput').value = "";
-            atualizarMiniaturaNaTela(id, payload.img);
-        }).catch(error => {
-            console.error(error);
-            document.getElementById('status').textContent = "❌ Erro ao salvar dados no Firebase.";
+            document.getElementById('previewImg').src = linkImagem ? linkImagem.split('?')[0] + '?v=' + Date.now() : imgVaziaSVG;
+            atualizarMiniaturaNaTela(id, linkImagem);
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('status').textContent = "❌ Erro ao salvar no Firebase.";
         });
     }
-
-    function atualizarBarrasMonitoramento(snapshotBanco) {
-        if (!snapshotBanco.exists()) return;
-        const todosOsDados = snapshotBanco.val();
-        let slotsOcupadosContador = 0;
-
-        Object.keys(todosOsDados).forEach(id => {
-            const registro = todosOsDados[id];
-            if (registro && registro.img) {
-                slotsOcupadosContador++;
-            }
-        });
-
-        document.getElementById('fill-slots').style.width = `${slotsOcupadosContador}%`;
-        document.getElementById('txt-slots').innerHTML = `<strong>${slotsOcupadosContador}</strong> de 100 slots em uso`;
-    }
-
+ 
     function atualizarMiniaturaNaTela(id, imgUrl) {
-        const galleryItem = document.getElementById(`item-${id}`);
-        if (galleryItem) {
-            const imgNode = galleryItem.querySelector("img");
-            imgNode.src = imgUrl || imgVaziaSVG;
-            imgNode.style.opacity = imgUrl ? "1" : "0.5";
-        }
+        const item = document.getElementById(`item-${id}`);
+        if (!item) return;
+        const img = item.querySelector("img");
+        img.src = imgUrl ? imgUrl.split('?')[0] + '?t=' + Date.now() : imgVaziaSVG;
+        img.style.opacity = imgUrl ? "1" : "0.5";
     }
-
-    function inicializarSistema() {
-        const gallery = document.getElementById("gallery");
-        gallery.innerHTML = "";
-        for (let id = 1; id <= 100; id++) {
-            const galleryItem = document.createElement("div");
-            galleryItem.className = "gallery-item";
-            galleryItem.id = `item-${id}`;
-            galleryItem.innerHTML = `<span class="gallery-id">${id}</span><img src="${imgVaziaSVG}" style="opacity:0.5;">`;
-            galleryItem.onclick = function() { carregarDadosNoFormulario(id); };
-            gallery.appendChild(galleryItem);
-        }
-
-        db.ref("dados/").on("value", snapshot => {
-            for(let i=1; i<=100; i++) atualizarMiniaturaNaTela(i, null);
-            if (snapshot.exists()) {
-                snapshot.forEach(childSnapshot => {
-                    atualizarMiniaturaNaTela(childSnapshot.key, childSnapshot.val().img);
-                });
-                atualizarBarrasMonitoramento(snapshot);
+ 
+    function atualizarBarrasMonitoramento(snapshot) {
+        if (!snapshot.exists()) return;
+        let count = 0;
+        snapshot.forEach(child => { if (child.val()?.img) count++; });
+        document.getElementById('fill-slots').style.width = `${count}%`;
+        document.getElementById('txt-slots').innerHTML = `<strong>${count}</strong> de 100 slots em uso`;
+    }
+ 
+    // Inicializa a galeria visual estática
+    const gallery = document.getElementById("gallery");
+    for (let id = 1; id <= 100; id++) {
+        const item = document.createElement("div");
+        item.className = "gallery-item";
+        item.id = `item-${id}`;
+        item.innerHTML = `<span class="gallery-id">${id}</span><img src="${imgVaziaSVG}" style="opacity:0.5;">`;
+        item.onclick = () => carregarDadosNoFormulario(id);
+        gallery.appendChild(item);
+    }
+ 
+    // Ouvinte em tempo real inteligente para evitar travamentos visuais
+    db.ref("dados/").on("value", snapshot => {
+        if (snapshot.exists()) {
+            const idsAtivos = new Set();
+            snapshot.forEach(child => {
+                idsAtivos.add(Number(child.key));
+                atualizarMiniaturaNaTela(child.key, child.val().img);
+            });
+            
+            // Limpa apenas os slots que foram deletados e não existem no nó de dados
+            for (let i = 1; i <= 100; i++) {
+                if (!idsAtivos.has(i)) {
+                    atualizarMiniaturaNaTela(i, null);
+                }
             }
-        });
-    }
-
-    inicializarSistema();
+            atualizarBarrasMonitoramento(snapshot);
+        } else {
+            for (let i = 1; i <= 100; i++) atualizarMiniaturaNaTela(i, null);
+        }
+    });
+ 
+}); // fim DOMContentLoaded
 </script>
 </body>
 </html>
