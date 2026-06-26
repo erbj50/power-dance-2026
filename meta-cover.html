@@ -105,87 +105,96 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // LINK DA SUA RÁDIO NOVA
-            const novaRadioUrl = 'http://voxhd.com.br/api-json/Nzg5NCsx';
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // LINK DA SUA RÁDIO NOVA
+        const novaRadioUrl = 'http://voxhd.com.br/api-json/Nzg5NCsx';
 
-            
-            
-            // COLOQUE A URL DA SUA API DO VERCEL AQUI (EX: 'https://seu-proxy.vercel.app/')
-            // Se sua API exigir que o link venha depois da barra, mantenha como está abaixo.
-            
-            const vercelProxy = 'https://metadapower.vercel.app/api/player?url=';
+        // URL DA SUA API DO VERCEL
+        const vercelProxy = 'https://metadapower.vercel.app/api/player?url=';
 
-            // Se houver uma URL na Vercel, ele junta as duas para evitar o erro de CORS. Se não houver, usa o link direto.
-            const apiURL = vercelProxy ? vercelProxy + novaRadioUrl : novaRadioUrl;
+        // Junta as duas para evitar o erro de CORS
+        const apiURL = vercelProxy ? vercelProxy + novaRadioUrl : novaRadioUrl;
 
-            function isValidUrl(url) {
-                try {
-                    new URL(url);
-                    return url.startsWith('http://') || url.startsWith('https://');
-                } catch (e) {
-                    return false;
-                }
+        function isValidUrl(url) {
+            try {
+                new URL(url);
+                return url.startsWith('http://') || url.startsWith('https://');
+            } catch (e) {
+                return false;
             }
+        }
 
-            function atualizarInfo() {
-                $.getJSON(apiURL)
-                    .done(function(data) {
-                        // O painel novo usa 'musica_atual'
-                        const musica = data.musica_atual || "Desconhecido - Desconhecido";
-                        const [artista, titulo] = musica.split(" - ") || ["Desconhecido", "Desconhecido"];
-                        const genero = data.genero || "Sem gênero";
-                        const capa = data.capa_musica;
+        function atualizarInfo() {
+            $.getJSON(apiURL)
+                .done(function(data) {
+                    // BLINDAGEM CONTRA O ERRO DE SPLIT: Garante que o dado seja tratado estritamente como texto
+                    let musica = "WEB RADIO POWER DANCE - Campo Grande MS";
+                    if (data && data.musica_atual) {
+                        musica = String(data.musica_atual);
+                    }
 
-                        // Se o artista vier indefinido após o split, ajusta a exibição
-                        const artistaFormatado = artista ? artista.trim() : "Desconhecido";
-                        const tituloFormatado = titulo ? titulo.trim() : "Desconhecido";
+                    // Valores padrão de exibição
+                    let artista = "WEB RADIO POWER DANCE";
+                    let titulo = "Campo Grande MS";
 
-                        const infoHtml = `
-                            <i class="fa-solid fa-microphone"></i> ${artistaFormatado} &nbsp;&nbsp;
-                            <i class="fa-solid fa-music"></i> ${tituloFormatado} &nbsp;&nbsp;
-                            <i class="fa-solid fa-headphones"></i> ${genero} &nbsp;&nbsp;
-                            <strong>WEB RADIO POWER DANCE Campo Grande MS</strong>
-                        `;
-                        $('#infoText').html(infoHtml);
+                    // Divide o Artista e o Título com segurança se houver o separador
+                    if (musica.includes(" - ")) {
+                        const partes = musica.split(" - ");
+                        artista = partes[0] ? partes[0].trim() : artista;
+                        titulo = partes[1] ? partes[1].trim() : titulo;
+                    } else {
+                        artista = musica;
+                    }
 
-                        if (isValidUrl(capa)) {
-                            const img = new Image();
-                            img.onload = () => {
-                                $('#coverImage').fadeOut(200, function() {
-                                    $(this).attr('src', capa).fadeIn(200);
-                                });
-                            };
-                            img.onerror = () => {
-                                $('#coverImage').fadeOut(200, function() {
-                                    $(this).attr('src', 'https://via.placeholder.com/650x650?text=Sem+Capa').fadeIn(200);
-                                });
-                            };
-                            img.src = capa;
-                        } else {
+                    const genero = data.genero || "Sem gênero";
+                    const capa = data.capa_musica;
+
+                    const infoHtml = `
+                        <i class="fa-solid fa-microphone"></i> ${artista} &nbsp;&nbsp;
+                        <i class="fa-solid fa-music"></i> ${titulo} &nbsp;&nbsp;
+                        <i class="fa-solid fa-headphones"></i> ${genero} &nbsp;&nbsp;
+                        <strong>WEB RADIO POWER DANCE Campo Grande MS</strong>
+                    `;
+                    $('#infoText').html(infoHtml);
+
+                    // Atualiza a imagem com preloading para evitar o efeito "pisca-pisca"
+                    if (isValidUrl(capa)) {
+                        const img = new Image();
+                        img.onload = () => {
                             $('#coverImage').fadeOut(200, function() {
-                                $(this).attr('src', 'https://via.placeholder.com/650x650?text=Sem+Capa').fadeIn(200);
+                                $(this).attr('src', capa).fadeIn(200);
                             });
-                        }
-                    })
-                    .fail(function(jqXHR, textStatus, errorThrown) {
-                        console.error("Erro na API:", textStatus, errorThrown);
-                        $('#infoText').html(`
-                            <i class="fa-solid fa-exclamation-triangle"></i> 
-                            Erro ao carregar informações [DJ ROBERT BJ] - ${textStatus}
-                        `);
+                        };
+                        img.onerror = () => {
+                            $('#coverImage').fadeOut(200, function() {
+                                $(this).attr('src', './logodj.gif').fadeIn(200);
+                            });
+                        };
+                        img.src = capa;
+                    } else {
                         $('#coverImage').fadeOut(200, function() {
-                            $(this).attr('src', 'https://via.placeholder.com/650x650?text=Erro+na+API').fadeIn(200);
+                            $(this).attr('src', './logodj.gif').fadeIn(200);
                         });
+                    }
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    console.error("Erro na API:", textStatus, errorThrown);
+                    $('#infoText').html(`
+                        <i class="fa-solid fa-exclamation-triangle"></i> 
+                        Erro ao carregar informações [DJ ROBERT BJ] - ${textStatus}
+                    `);
+                    $('#coverImage').fadeOut(200, function() {
+                        $(this).attr('src', './logodj.gif').fadeIn(200);
                     });
-            }
+                });
+        }
 
-            atualizarInfo();
-            setInterval(atualizarInfo, 5000); // Atualiza a cada 5 segundos
-        });
-    </script>
+        atualizarInfo();
+        setInterval(atualizarInfo, 5000); // Atualiza a cada 5 segundos
+    });
+</script>
 </body>
 
 </html>
