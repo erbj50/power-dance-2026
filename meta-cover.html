@@ -1,200 +1,101 @@
 <!DOCTYPE html>
-<html lang="pt">
-
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="data:,">
-    <title>meta cover</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta Cover - Apenas Texto</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
     <style>
         body {
             margin: 0;
             padding: 0;
-            background: transparent;
-            font-family: Arial, sans-serif;
+            background: transparent; /* Permite ver a imagem que já está no carrossel */
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            color: #ffffff;
             overflow: hidden;
+            font-family: Arial, sans-serif;
         }
-
-        .album-box {
+        .carousel-meta-container {
             width: 100%;
             max-width: 650px;
             height: 650px;
-            background-color: transparent;
-            background-image: url('./images/logodj.gif');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            border-radius: 12px;
-            overflow: hidden;
             position: relative;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            margin-top: 60px;
-            display: block;
         }
-
-        .cover-image {
+        #metaCanvas {
             width: 100%;
             height: 100%;
             display: block;
-            object-fit: cover;
-            background-color: transparent;
-        }
-
-        .info-footer {
-            background: rgba(0, 0, 0, 0.7);
-            color: #ffffff;
-            font-size: 16px;
-            text-align: center;
-            padding: 10px;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            overflow: hidden;
-        }
-
-        .scroll-text {
-            white-space: nowrap;
-            display: inline-block;
-            animation: slideText 15s linear infinite;
-            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-        }
-
-        @keyframes slideText {
-            0% {
-                transform: translateX(100%);
-            }
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-
-        @media (max-width: 400px) {
-            .album-box {
-                max-width: 100%;
-                height: auto;
-                aspect-ratio: 1/1;
-            }
-            .info-footer {
-                font-size: 14px;
-            }
         }
     </style>
 </head>
-
 <body>
-    <div class="album-box">
-        <img 
-            id="coverImage" 
-            src="./logodj.gif"
-            alt="Capa do álbum" 
-            class="cover-image"
-            loading="lazy"
-        >
-        <div id="infoFooter" class="info-footer">
-            <div id="infoText" class="scroll-text">
-                <i class="fa-solid fa-microphone"></i> Carregando... &nbsp;&nbsp;
-                <i class="fa-solid fa-headphones"></i> WEB RADIO POWER DANCE Campo Grande MS
-            </div>
-        </div>
+
+    <div class="carousel-meta-container">
+        <canvas id="metaCanvas" width="650" height="650"></canvas>
     </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function() {
-        // LINK DA SUA RÁDIO NOVA
-        const novaRadioUrl = 'http://voxhd.com.br/api-json/Nzg5NCsx';
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const apiURL = 'https://metadapower.vercel.app/api/player?url=http://voxhd.com.br/api-json/Nzg5NCsx';
+            const canvas = document.getElementById('metaCanvas');
+            const ctx = canvas.getContext('2d');
 
-        // URL DA SUA API DO VERCEL
-        const vercelProxy = 'https://metadapower.vercel.app/api/player?url=';
+            // Função focada APENAS em desenhar o texto e a barra inferior
+            function drawMetaToCanvas(artista, titulo) {
+                // Limpa o canvas mantendo a transparência para revelar o fundo real do carrossel
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Junta as duas para evitar o erro de CORS
-        const apiURL = vercelProxy ? vercelProxy + novaRadioUrl : novaRadioUrl;
+                // Barra inferior semi-transparente para dar leitura ao texto
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+                ctx.fillRect(0, canvas.height - 110, canvas.width, 110);
 
-        function isValidUrl(url) {
-            try {
-                new URL(url);
-                return url.startsWith('http://') || url.startsWith('https://');
-            } catch (e) {
-                return false;
+                // Texto do Artista
+                ctx.fillStyle = '#00ffcc';
+                ctx.font = "bold 24px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(artista.toUpperCase(), canvas.width / 2, canvas.height - 65);
+
+                // Texto da Música
+                ctx.fillStyle = '#ffffff';
+                ctx.font = "18px Arial";
+                ctx.fillText(titulo, canvas.width / 2, canvas.height - 30);
             }
-        }
 
-        function atualizarInfo() {
-            $.getJSON(apiURL)
-                .done(function(data) {
-                    // BLINDAGEM CONTRA O ERRO DE SPLIT: Garante que o dado seja tratado estritamente como texto
-                    let musica = "WEB RADIO POWER DANCE - Campo Grande MS";
-                    if (data && data.musica_atual) {
-                        musica = String(data.musica_atual);
-                    }
+            function verificarEAtualizar() {
+                $.getJSON(apiURL)
+                    .done(function(data) {
+                        let musica = "WEB RADIO POWER DANCE - Campo Grande MS";
+                        if (data && data.musica_atual) {
+                            musica = String(data.musica_atual);
+                        }
 
-                    // Valores padrão de exibição
-                    let artista = "WEB RADIO POWER DANCE";
-                    let titulo = "Campo Grande MS";
+                        let artista = "POWER DANCE";
+                        let titulo = "Campo Grande MS";
 
-                    // Divide o Artista e o Título com segurança se houver o separador
-                    if (musica.includes(" - ")) {
-                        const partes = musica.split(" - ");
-                        artista = partes[0] ? partes[0].trim() : artista;
-                        titulo = partes[1] ? partes[1].trim() : titulo;
-                    } else {
-                        artista = musica;
-                    }
+                        if (musica.includes(" - ")) {
+                            const partes = musica.split(" - ");
+                            artista = partes[0].trim();
+                            titulo = partes[1].trim();
+                        } else {
+                            artista = musica;
+                        }
 
-                    const genero = data.genero || "Sem gênero";
-                    const capa = data.capa_musica;
-
-                    const infoHtml = `
-                        <i class="fa-solid fa-microphone"></i> ${artista} &nbsp;&nbsp;
-                        <i class="fa-solid fa-music"></i> ${titulo} &nbsp;&nbsp;
-                        <i class="fa-solid fa-headphones"></i> ${genero} &nbsp;&nbsp;
-                        <strong>WEB RADIO POWER DANCE Campo Grande MS</strong>
-                    `;
-                    $('#infoText').html(infoHtml);
-
-                    // Atualiza a imagem com preloading para evitar o efeito "pisca-pisca"
-                    if (isValidUrl(capa)) {
-                        const img = new Image();
-                        img.onload = () => {
-                            $('#coverImage').fadeOut(200, function() {
-                                $(this).attr('src', capa).fadeIn(200);
-                            });
-                        };
-                        img.onerror = () => {
-                            $('#coverImage').fadeOut(200, function() {
-                                $(this).attr('src', './logodj.gif').fadeIn(200);
-                            });
-                        };
-                        img.src = capa;
-                    } else {
-                        $('#coverImage').fadeOut(200, function() {
-                            $(this).attr('src', './logodj.gif').fadeIn(200);
-                        });
-                    }
-                })
-                .fail(function(jqXHR, textStatus, errorThrown) {
-                    console.error("Erro na API:", textStatus, errorThrown);
-                    $('#infoText').html(`
-                        <i class="fa-solid fa-exclamation-triangle"></i> 
-                        Erro ao carregar informações [DJ ROBERT BJ] - ${textStatus}
-                    `);
-                    $('#coverImage').fadeOut(200, function() {
-                        $(this).attr('src', './logodj.gif').fadeIn(200);
+                        // Desenha direto o texto no Canvas, sem carregar nenhuma imagem externa aqui!
+                        drawMetaToCanvas(artista, titulo);
+                    })
+                    .fail(function() {
+                        // Plano B caso a API falhe: mostra os dados padrões da rádio
+                        drawMetaToCanvas("POWER DANCE", "Sincronizando sinal...");
                     });
-                });
-        }
+            }
 
-        atualizarInfo();
-        setInterval(atualizarInfo, 5000); // Atualiza a cada 5 segundos
-    });
-</script>
+            // Inicializa e define o loop de 5 segundos
+            verificarEAtualizar();
+            setInterval(verificarEAtualizar, 5000);
+        });
+    </script>
 </body>
-
 </html>
