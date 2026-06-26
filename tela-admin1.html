@@ -102,7 +102,6 @@
 </div>
  
 <script>
-// Popula o select de IDs sem usar document.write
 (function() {
     const sel = document.getElementById('idSelect');
     for (let i = 1; i <= 100; i++) {
@@ -113,8 +112,6 @@
     }
 })();
  
-// Todo o código dentro do DOMContentLoaded garante que
-// os scripts do Firebase (carregados no <head>) já executaram
 document.addEventListener('DOMContentLoaded', function () {
  
     const firebaseConfig = {
@@ -156,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function () {
         db.ref(`dados/${id}`).once("value").then(snapshot => {
             const data = snapshot.val();
             if (data && data.img) {
-                // Remove travas antigas de query strings antes de injetar o novo timestamp
                 document.getElementById('previewImg').src = data.img.split('?')[0] + '?v=' + Date.now();
                 document.getElementById('previewImg').classList.remove('hidden');
                 urlImagemExistente = data.img;
@@ -195,15 +191,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (arquivoSelecionado) {
             document.getElementById('status').textContent = "🚀 Sincronizando mídia no Cloudinary...";
  
-            // ID FIXO REESTABELECIDO: Garante que o Cloudinary substitua o arquivo
-            // e NÃO acumule arquivos lixo antigos na sua conta.
-            const publicId = `galeria_3d/midia_id_${id}`;
+            // Abordagem com sufixo dinâmico de tempo para burlar a restrição de Overwrite do modo Unsigned
+            const timestampUnico = Date.now();
+            const publicId = `galeria_3d/midia_id_${id}_v_${timestampUnico}`;
  
             const formData = new FormData();
             formData.append("file", arquivoSelecionado);
             formData.append("upload_preset", UPLOAD_PRESET);
             formData.append("public_id", publicId);
-            formData.append("invalidate", "true");
  
             fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
                 method: "POST",
@@ -212,9 +207,8 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => res.json())
             .then(cloudinaryData => {
                 if (cloudinaryData && cloudinaryData.secure_url) {
-                    // Limpa travas de string anteriores e adiciona o carimbo de versão atualizado
-                    const urlComCacheBuster = `${cloudinaryData.secure_url.split('?')[0]}?v=${Date.now()}`;
-                    gravarNoFirebase(id, urlComCacheBuster, urlTexto);
+                    // Salva a nova URL diretamente no Firebase Realtime Database
+                    gravarNoFirebase(id, cloudinaryData.secure_url, urlTexto);
                 } else {
                     const msg = cloudinaryData?.error?.message || "Arquivo rejeitado.";
                     console.error("Erro Cloudinary:", cloudinaryData);
@@ -263,7 +257,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('txt-slots').innerHTML = `<strong>${count}</strong> de 100 slots em uso`;
     }
  
-    // Inicializa a galeria visual estática
     const gallery = document.getElementById("gallery");
     for (let id = 1; id <= 100; id++) {
         const item = document.createElement("div");
@@ -274,7 +267,6 @@ document.addEventListener('DOMContentLoaded', function () {
         gallery.appendChild(item);
     }
  
-    // Ouvinte em tempo real inteligente para evitar travamentos visuais
     db.ref("dados/").on("value", snapshot => {
         if (snapshot.exists()) {
             const idsAtivos = new Set();
@@ -283,7 +275,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 atualizarMiniaturaNaTela(child.key, child.val().img);
             });
             
-            // Limpa apenas os slots que foram deletados e não existem no nó de dados
             for (let i = 1; i <= 100; i++) {
                 if (!idsAtivos.has(i)) {
                     atualizarMiniaturaNaTela(i, null);
@@ -295,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
  
-}); // fim DOMContentLoaded
+});
 </script>
 </body>
 </html>
