@@ -1,28 +1,30 @@
-const CACHE_NAME = 'powerdance-v7'; // Aumentamos para v7 para forçar o Netlify a atualizar
+const CACHE_NAME = 'powerdance-v8'; // Aumentamos para v8 para forçar a atualização e limpar o bug anterior
 
-// Lista corrigida com base EXATA nos arquivos que aparecem no seu VS Code
+// Lista limpa com o que realmente existe na raiz do seu projeto atual
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/landing.html',
-  '/play.html',
-  '/manifest.json',
-  '/samp.html',
-  '/power.html',
-  '/tela-carrossel.html',
-  '/mm.html',
-  '/mdl.html',
-  '/tela.html',
-  '/admin_m.html',
-  '/tela-admin1.html',
-  '/tela-admin2.html',
-  '/meta-cover.html',
-  '/cor.gif',
-  '/raiden.gif',
-  '/eu1.jpg',
-  '/logodj.gif',
-  '/vu7.jpg'
+    '/',
+    '/index.html',
+    '/landing.html',
+    '/play.html',
+    '/manifest.json',
+    '/samp.html',
+    '/power.html',
+    '/tela-carrossel.html',
+    '/mm.html',
+    '/mdl.html',
+    '/tela.html',
+    '/admin_m.html',
+    '/tela-admin1.html',
+    '/tela-admin2.html',
+    '/meta-cover.html',
+    '/cor.gif',
+    '/raiden.gif',
+    '/eu1.jpg',
+    '/logodj.gif',
+    '/vu7.jpg'
 ];
+
+
 
 // Instalação do Service Worker e Cache dos arquivos
 self.addEventListener('install', (e) => {
