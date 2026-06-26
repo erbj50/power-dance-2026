@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:,">
+    <title>meta cover</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .album-box {
+            width: 100%;
+            max-width: 650px;
+            height: 650px;
+            background-color: transparent;
+            background-image: url('./images/logodj.gif');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            margin-top: 60px;
+            display: block;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            background-color: transparent;
+        }
+
+        .info-footer {
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+            font-size: 16px;
+            text-align: center;
+            padding: 10px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .scroll-text {
+            white-space: nowrap;
+            display: inline-block;
+            animation: slideText 15s linear infinite;
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        }
+
+        @keyframes slideText {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .album-box {
+                max-width: 100%;
+                height: auto;
+                aspect-ratio: 1/1;
+            }
+            .info-footer {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="album-box">
+        <img 
+            id="coverImage" 
+            src="./images/logodj.gif"
+            alt="Capa do álbum" 
+            class="cover-image"
+            loading="lazy"
+        >
+        <div id="infoFooter" class="info-footer">
+            <div id="infoText" class="scroll-text">
+                <i class="fa-solid fa-microphone"></i> Carregando... &nbsp;&nbsp;
+                <i class="fa-solid fa-headphones"></i> WEB RADIO POWER DANCE Campo Grande MS
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // LINK DA SUA RÁDIO NOVA
+            const novaRadioUrl = 'http://voxhd.com.br/api-json/Nzg5NCsx';
+
+            
+            
+            // COLOQUE A URL DA SUA API DO VERCEL AQUI (EX: 'https://seu-proxy.vercel.app/')
+            // Se sua API exigir que o link venha depois da barra, mantenha como está abaixo.
+            
+            const vercelProxy = 'https://metadapower.vercel.app/api/player?url=';
+
+            // Se houver uma URL na Vercel, ele junta as duas para evitar o erro de CORS. Se não houver, usa o link direto.
+            const apiURL = vercelProxy ? vercelProxy + novaRadioUrl : novaRadioUrl;
+
+            function isValidUrl(url) {
+                try {
+                    new URL(url);
+                    return url.startsWith('http://') || url.startsWith('https://');
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            function atualizarInfo() {
+                $.getJSON(apiURL)
+                    .done(function(data) {
+                        // O painel novo usa 'musica_atual'
+                        const musica = data.musica_atual || "Desconhecido - Desconhecido";
+                        const [artista, titulo] = musica.split(" - ") || ["Desconhecido", "Desconhecido"];
+                        const genero = data.genero || "Sem gênero";
+                        const capa = data.capa_musica;
+
+                        // Se o artista vier indefinido após o split, ajusta a exibição
+                        const artistaFormatado = artista ? artista.trim() : "Desconhecido";
+                        const tituloFormatado = titulo ? titulo.trim() : "Desconhecido";
+
+                        const infoHtml = `
+                            <i class="fa-solid fa-microphone"></i> ${artistaFormatado} &nbsp;&nbsp;
+                            <i class="fa-solid fa-music"></i> ${tituloFormatado} &nbsp;&nbsp;
+                            <i class="fa-solid fa-headphones"></i> ${genero} &nbsp;&nbsp;
+                            <strong>WEB RADIO POWER DANCE Campo Grande MS</strong>
+                        `;
+                        $('#infoText').html(infoHtml);
+
+                        if (isValidUrl(capa)) {
+                            const img = new Image();
+                            img.onload = () => {
+                                $('#coverImage').fadeOut(200, function() {
+                                    $(this).attr('src', capa).fadeIn(200);
+                                });
+                            };
+                            img.onerror = () => {
+                                $('#coverImage').fadeOut(200, function() {
+                                    $(this).attr('src', 'https://via.placeholder.com/650x650?text=Sem+Capa').fadeIn(200);
+                                });
+                            };
+                            img.src = capa;
+                        } else {
+                            $('#coverImage').fadeOut(200, function() {
+                                $(this).attr('src', 'https://via.placeholder.com/650x650?text=Sem+Capa').fadeIn(200);
+                            });
+                        }
+                    })
+                    .fail(function(jqXHR, textStatus, errorThrown) {
+                        console.error("Erro na API:", textStatus, errorThrown);
+                        $('#infoText').html(`
+                            <i class="fa-solid fa-exclamation-triangle"></i> 
+                            Erro ao carregar informações [DJ ROBERT BJ] - ${textStatus}
+                        `);
+                        $('#coverImage').fadeOut(200, function() {
+                            $(this).attr('src', 'https://via.placeholder.com/650x650?text=Erro+na+API').fadeIn(200);
+                        });
+                    });
+            }
+
+            atualizarInfo();
+            setInterval(atualizarInfo, 5000); // Atualiza a cada 5 segundos
+        });
+    </script>
+</body>
+
+</html>
