@@ -44,7 +44,8 @@
             margin-top: 50px;
         }
 
-        #if-samp {
+        /* IFRAMES - Posicionados em locais diferentes para não sobrepor */
+        #if-samp1 {
             display: none;
             position: absolute;
             z-index: 1;
@@ -55,16 +56,41 @@
             top: 920px;
         }
 
-        #do-samp {
-            height: 250px;
+        #if-samp2 {
+            display: none;
+            position: absolute;
+            z-index: 1;
+            margin: 0;
+            padding: 0;
+            left: 10px;
+            margin-top: 10px;
+            top: 920px;
+        }
+
+        /* BOTÕES - Separados para que cada um tenha seu espaço de clique */
+        #do-samp1 {
+            height: 80px;
             width: 250px;
-            border-radius: 50%;
+            border-radius: 0%;
             border: none;
-            background-color: transparent;
+            background-color: rgba(255, 0, 0, 0);
+            position: absolute;
+            z-index: 1;
+            left: 60px; /* Ajustado para dar espaço ao samp2 */
+            top: 1430px;
+            cursor: pointer;
+        }
+
+        #do-samp2 {
+            height: 80px;
+            width: 250px;
+            border-radius: 0%;
+            border: none;
+            background-color: rgba(172, 255, 47, 0);
             position: absolute;
             z-index: 1;
             right: 60px;
-            top: 1090px;
+            top: 1430px;
             cursor: pointer;
         }
 
@@ -73,7 +99,6 @@
             width: 670px;
             border-radius: 0%;
             border: none;
-
             position: absolute;
             z-index: 1;
             left: 140px;
@@ -88,8 +113,6 @@
             background-position: center;
             background-repeat: no-repeat;
         }
-
-
 
         /* Estilo do Popup */
         #admin-popup {
@@ -135,13 +158,16 @@
         <iframe class="if" src="./tela-carrossel.html"></iframe>
         <img id="eudj" src="./image/djdj.gif" alt="DJ">
 
-        <button class="bg-gf"   id="admin-bt"></button>
+        <button class="bg-gf" id="admin-bt"></button>
         
-        <iframe id="if-samp" class="samp-iframe" width="895" height="605" src="./samp.html"><h1>SAMPLE PADS</h1></iframe>
-        <button id="do-samp"></button>
+        <iframe id="if-samp1" class="samp-iframe1" width="895" height="605" src="./samp1.html"></iframe>
+        <iframe id="if-samp2" class="samp-iframe2" width="895" height="605" src="./samp2.html"></iframe>
+        
+        <button id="do-samp1"></button>
+        <button id="do-samp2"></button>
          
-<h1>SAMPLE PADS</h1>
-        <!-- Popup -->
+        <h1>SAMPLE PADS</h1>
+        
         <div id="admin-popup">
             <button id="admin-1">ADMIN 1</button>
             <button id="admin-2">ADMIN 2</button>
@@ -155,66 +181,75 @@
             if (e.key === 'F12' || e.keyCode === 123) e.preventDefault();
         });
 
-        // Controle do botão SAMP
-        const btnSamp = document.getElementById('do-samp');
-        const ifSamp = document.getElementById('if-samp');
+        // Mapeamento das Variáveis do SAMP 1
+        const btnSamp1 = document.getElementById('do-samp1');
+        const ifSamp1 = document.getElementById('if-samp1');
+        
+        // Mapeamento das Variáveis do SAMP 2
+        const btnSamp2 = document.getElementById('do-samp2');
+        const ifSamp2 = document.getElementById('if-samp2');
 
-        btnSamp.addEventListener('click', function() {
+        // Logica Funcional Independente do SAMP 1
+        btnSamp1.addEventListener('click', function() {
             this.style.display = 'none';
-            ifSamp.style.display = 'block';
+            ifSamp1.style.display = 'block';
             setTimeout(() => {
                 this.style.display = 'block';
-                ifSamp.style.display = 'none';
+                ifSamp1.style.display = 'none';
             }, 10000);
         });
 
-   // Controle do botão Admin (Compatível com PC e Celular com o temporizador de segurança)
-const adminButton = document.getElementById('admin-bt');
-const adminPopup = document.getElementById('admin-popup');
-const admin1Button = document.getElementById('admin-1');
-const admin2Button = document.getElementById('admin-2');
+        // Logica Funcional Independente do SAMP 2
+        btnSamp2.addEventListener('click', function() {
+            this.style.display = 'none';
+            ifSamp2.style.display = 'block';
+            setTimeout(() => {
+                this.style.display = 'block';
+                ifSamp2.style.display = 'none';
+            }, 10000);
+        });
 
-let pressTimer;
+        // Controle do botão Admin (Compatível com PC e Celular)
+        const adminButton = document.getElementById('admin-bt');
+        const adminPopup = document.getElementById('admin-popup');
+        const admin1Button = document.getElementById('admin-1');
+        const admin2Button = document.getElementById('admin-2');
 
-// Função para iniciar a contagem de SEGURANÇA (20 segundos pressionado)
-function startPress() {
-    pressTimer = setTimeout(() => {
-        adminPopup.style.display = 'flex'; // Abre o painel secreto após 20s
-    }, 20000); // Mantém os 20 segundos exatos que você quer
-}
+        let pressTimer;
 
-// Função para cancelar se soltar o botão antes do tempo
-function cancelPress() {
-    clearTimeout(pressTimer);
-}
+        function startPress() {
+            pressTimer = setTimeout(() => {
+                adminPopup.style.display = 'flex'; 
+            }, 20000); 
+        }
 
-// Eventos para Computador (Mouse) - Mantém a segurança do clique longo
-adminButton.addEventListener('mousedown', startPress);
-adminButton.addEventListener('mouseup', cancelPress);
-adminButton.addEventListener('mouseleave', cancelPress);
+        function cancelPress() {
+            clearTimeout(pressTimer);
+        }
 
-// Eventos para Celular (Toque na tela) - Mantém a segurança do toque longo
-adminButton.addEventListener('touchstart', (e) => {
-    e.preventDefault(); // Evita zoom ou comportamentos estranhos no celular
-    startPress();
-});
-adminButton.addEventListener('touchend', cancelPress);
-adminButton.addEventListener('touchcancel', cancelPress);
+        // Eventos de clique longo (Mouse)
+        adminButton.addEventListener('mousedown', startPress);
+        adminButton.addEventListener('mouseup', cancelPress);
+        adminButton.addEventListener('mouseleave', cancelPress);
 
+        // Eventos de clique longo (Toque Celular)
+        adminButton.addEventListener('touchstart', (e) => {
+            e.preventDefault(); 
+            startPress();
+        });
+        adminButton.addEventListener('touchend', cancelPress);
+        adminButton.addEventListener('touchcancel', cancelPress);
 
-// CLIQUE DOS BOTÕES DE DENTRO DO POPUP (Garantindo funcionamento no celular)
+        // Redirecionamentos do Painel Admin
+        admin1Button.addEventListener('click', () => {
+            adminPopup.style.display = 'none';
+            window.location.href = './tela-admin1.html'; 
+        });
 
-admin1Button.addEventListener('click', () => {
-    adminPopup.style.display = 'none';
-    // Abre na mesma aba para o navegador do celular não bloquear de jeito nenhum
-    window.location.href = './tela-admin1.html'; 
-});
-
-admin2Button.addEventListener('click', () => {
-    adminPopup.style.display = 'none';
-    // Abre na mesma aba para o navegador do celular não bloquear de jeito nenhum
-    window.location.href = './tela-admin2.html'; 
-});
+        admin2Button.addEventListener('click', () => {
+            adminPopup.style.display = 'none';
+            window.location.href = './tela-admin2.html'; 
+        });
     </script>
 </body>
 

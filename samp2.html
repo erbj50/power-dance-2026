@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LAUNCHPAD - POWERDANCE</title>
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> 
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/omggif/1.0.10/omggif.min.js"></script>
+
+    <link rel="stylesheet prefetch" href="https://fonts.googleapis.com/css?family=Oswald" />
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            background-color: #0a090900;
+            height: 1000px;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: 'Oswald', sans-serif;
+        }
+
+        h1 {
+            color: rgb(3, 2, 2);
+            font-size: 6vw;
+            letter-spacing: 3px;
+        }
+
+
+        h2 {
+            color: rgb(37, 31, 31);
+            font-size: 5vw;
+            font-weight: bold;
+            letter-spacing: 25px;
+           position: absolute;
+            top: 10px;
+            left: 5PX;
+            width: 100%;
+            text-align: center;
+            margin-top: 500px;
+        }
+
+        h3 {
+            color: rgb(42, 43, 35);
+            font-size: 4vw;
+            font-weight: bold;
+            letter-spacing: 15px;
+           position: absolute;
+            top: 10px;
+            left: 5PX;
+            width: 100%;
+            text-align: center;
+            margin-top:10px;
+        }
+
+
+        #pdd1 {
+            width: 895px;
+            height: 580px;
+            background-color: rgb(0, 0, 0);
+            margin: 2px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 10px solid rgba(233, 250, 2, 0.342);
+            display: none;
+        }
+
+
+
+        #pdd2 {
+            width: 895px;
+            height: 580px;
+            background-color: rgb(0, 0, 0);
+            margin: 2px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 10px solid rgba(233, 250, 2, 0.342);
+        }
+
+
+
+
+
+
+        .pad {
+            width: 875px;
+            height: 405px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            background-color: rgba(241, 170, 5, 0.045);
+            padding: 0;
+        }
+
+
+
+
+
+
+
+
+
+
+
+        .box {
+            width: 180px;
+            height: 180px;
+            margin: 6px;
+            box-shadow: 0 8px 6px -6px black;
+            background-color: rgb(0, 0, 0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: rgba(228, 225, 225, 0.997);
+            user-select: none;
+        }
+
+        .box:hover {
+            background-color: #5e5e5e;
+            cursor: pointer;
+        }
+
+        .box:active {
+            background-color: #2b2b2b;
+            transform: scale(1.1);
+            transition: all .2s;
+        }
+
+        .active {
+            background-color: #2b2b2b;
+            transform: scale(1.1);
+            transition: all .2s;
+        }
+
+        .pad-1,
+        .pad-2,
+        .pad-3,
+        .pad-4 {
+            border: 3px solid #2ecc71;
+        }
+
+        .pad-5,
+        .pad-6,
+        .pad-7,
+        .pad-8 {
+            border: 3px solid #07b8ee;
+        }
+
+        .pad-1 {
+            background-color: rgb(242, 172, 10);
+            font-weight: bold;
+            font-size: 60px;
+            color: rgba(0, 0, 255, 0.45);
+        }
+
+        .pad-2 {
+            background-color: rgba(18, 36, 237, 0.45);
+            font-weight: bold;
+            font-size: 40px;
+        }
+
+        .pad-3 {
+            background-color: rgb(240, 8, 8);
+            font-weight: bold;
+            font-size: 40px;
+        }
+
+        .pad-4 {
+            background-color: rgba(167, 21, 21, 0.523);
+            color: rgba(7, 188, 243, 0.966);
+            font-weight: bold;
+            font-size: 40px;
+        }
+
+        .pad-5 {
+            background-color: rgb(18, 237, 80);
+            color: rgba(255, 8, 140, 0.86);
+            font-weight: bold;
+            font-size: 40px;
+        }
+
+        .pad-6 {
+            background-color: rgb(18, 175, 237);
+            color: rgb(236, 53, 7);
+            font-weight: bold;
+            font-size: 40px;
+        }
+
+        .pad-7 {
+            background-color: rgba(199, 6, 247, 0.945);
+            color: rgb(4, 227, 243);
+            font-weight: bold;
+            font-size: 40px;
+        }
+
+        .pad-8 {
+            background-color: rgb(240, 217, 8);
+            color: rgba(28, 9, 237, 0.668);
+            font-weight: bold;
+            font-size: 40px;
+        }
+
+
+
+
+
+
+
+        
+    </style>
+</head>
+
+<body>
+    <div id="pdd1">
+        <div class="pad">
+            <div class="box pad-1" data-code="82">DJ</div>
+            <div class="box pad-2" data-code="84">POWER</div>
+            <div class="box pad-3" data-code="89">SUSSU</div>
+            <div class="box pad-4" data-code="85">ATÔMICO</div>
+            <div class="box pad-5" data-code="70">DJRBJ</div>
+            <div class="box pad-6" data-code="71">PWD</div>
+            <div class="box pad-7" data-code="72">DJBJ</div>
+            <div class="box pad-8" data-code="74">SIRENE</div>
+        </div>
+       <h2>POWER SAMPLE PADS</h2>
+       <h3>HIGH POWER AUDIO  BANK</h3>
+    </div>
+    
+    <div id="pdd2">
+        <div class="pad">
+            <div class="box pad-1" data-code="82">BRAS</div>
+            <div class="box pad-2" data-code="84">BR</div>
+            <div class="box pad-3" data-code="89">BRASIL</div>
+            <div class="box pad-4" data-code="85">TURN</div>
+            <div class="box pad-5" data-code="70">DJRBJ</div>
+            <div class="box pad-6" data-code="71">PWD</div>
+            <div class="box pad-7" data-code="72">SOM</div>
+            <div class="box pad-8" data-code="74">SIRENE</div>
+        </div>
+       <h2>POWER SAMPLE PADS</h2>
+       <h3>HIGH POWER AUDIO  BANK</h3>
+    </div>
+
+
+
+
+
+
+
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var padOne = new Audio('./audio/Brasil-zil.mp3');
+            $('.pad-1').mousedown(function() {
+                padOne.load();
+                padOne.play();
+                padOne.onended = function() {
+                    $('.pad-1').removeClass("active");
+                };
+            });
+
+            var padTwo = new Audio('./audio/brasil.mp3');
+            $('.pad-2').mousedown(function() {
+                padTwo.load();
+                padTwo.play();
+                padTwo.onended = function() {
+                    $('.pad-2').removeClass("active");
+                };
+            });
+
+            var padThree = new Audio('./audio/Brasil1.mp3');
+            $('.pad-3').mousedown(function() {
+                padThree.load();
+                padThree.play();
+                padThree.onended = function() {
+                    $('.pad-3').removeClass("active");
+                };
+            });
+
+            var padFour = new Audio('./audio/turnup.mp3');
+            $('.pad-4').mousedown(function() {
+                padFour.load();
+                padFour.play();
+                padFour.onended = function() {
+                    $('.pad-4').removeClass("active");
+                };
+            });
+
+            var padFive = new Audio('./audio/dj erbj.mp3');
+            $('.pad-5').mousedown(function() {
+                padFive.load();
+                padFive.play();
+                padFive.onended = function() {
+                    $('.pad-5').removeClass("active");
+                };
+            });
+
+            var padSix = new Audio('./audio/pwd.mp3');
+            $('.pad-6').mousedown(function() {
+                padSix.load();
+                padSix.play();
+                padSix.onended = function() {
+                    $('.pad-6').removeClass("active");
+                };
+            });
+
+            var padSeven = new Audio('./audio/Cash box.mp3');
+            $('.pad-7').mousedown(function() {
+                padSeven.load();
+                padSeven.play();
+                padSeven.onended = function() {
+                    $('.pad-7').removeClass("active");
+                };
+            });
+
+            var padEight = new Audio('./audio/sirene.mp3');
+            $('.pad-8').mousedown(function() {
+                padEight.load();
+                padEight.play();
+                padEight.onended = function() {
+                    $('.pad-8').removeClass("active");
+                };
+            });
+
+            $(window).keydown(function(e) {
+                var code = e.keyCode;
+                var kc = String.fromCharCode(e.keyCode);
+                $("div[data-code='" + code + "']").addClass("active");
+
+                switch (kc) {
+                    case "R":
+                        padOne.load();
+                        padOne.play();
+                        break;
+                    case "T":
+                        padTwo.load();
+                        padTwo.play();
+                        break;
+                    case "Y":
+                        padThree.load();
+                        padThree.play();
+                        break;
+                    case "U":
+                        padFour.load();
+                        padFour.play();
+                        break;
+                    case "F":
+                        padFive.load();
+                        padFive.play();
+                        break;
+                    case "G":
+                        padSix.load();
+                        padSix.play();
+                        break;
+                    case "H":
+                        padSeven.load();
+                        padSeven.play();
+                        break;
+                    case "J":
+                        padEight.load();
+                        padEight.play();
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+            $(window).keyup(function(e) {
+                var code = e.keyCode;
+                $("div[data-code='" + code + "']").removeClass("active");
+            });
+        });
+    </script>
+</body>
+
+</html>
