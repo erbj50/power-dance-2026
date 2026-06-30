@@ -79,5 +79,21 @@
         window.addEventListener('resize', ajustarZoomInstantaneo);
         window.addEventListener('orientationchange', ajustarZoomInstantaneo);
     </script>
+
+
+
+
+    <script>
+        document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+
+
+
 </body>
 </html>

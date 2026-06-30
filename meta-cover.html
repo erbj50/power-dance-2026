@@ -75,7 +75,7 @@
             }
         }
 
-        @media (max-width: 400px) {
+        @media (max-width: 450px) {
             .album-box {
                 max-width: 100%;
                 height: auto;
@@ -148,19 +148,19 @@
                     if (isValidUrl(capa)) {
                         const img = new Image();
                         img.onload = () => {
-                            $('#coverImage').fadeOut(200, function() { $(this).attr('src', capa).fadeIn(200); });
+                            $('#coverImage').fadeOut(450, function() { $(this).attr('src', capa).fadeIn(450); });
                         };
                         img.onerror = () => {
-                            $('#coverImage').fadeOut(200, function() { $(this).attr('src', './logodj.gif').fadeIn(200); });
+                            $('#coverImage').fadeOut(450, function() { $(this).attr('src', './logodj.gif').fadeIn(450); });
                         };
                         img.src = capa;
                     } else {
-                        $('#coverImage').fadeOut(200, function() { $(this).attr('src', './logodj.gif').fadeIn(200); });
+                        $('#coverImage').fadeOut(450, function() { $(this).attr('src', './logodj.gif').fadeIn(450); });
                     }
                 })
                 .fail(function() {
                     $('#infoText').html(`<i class="fa-solid fa-exclamation-triangle"></i> Conexão indisponível ou erro no Proxy API.`);
-                    $('#coverImage').fadeOut(200, function() { $(this).attr('src', './logodj.gif').fadeIn(200); });
+                    $('#coverImage').fadeOut(450, function() { $(this).attr('src', './logodj.gif').fadeIn(450); });
                 });
         }
 
