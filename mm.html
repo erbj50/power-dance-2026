@@ -5,15 +5,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Chat de Recados & Bot - Power Dance</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
       display: flex;
       flex-direction: column;
-      height: 94vh;
+      height: 100vh;
       background-color: rgba(0, 0, 0, 0);
+      overflow: hidden;
+      position: relative;
     }
+
+    /* TELA DE LOGIN ESTILO AZUL NEON TRANSPARENTE */
+    .login-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(5, 12, 35, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: rgba(10, 25, 50, 0.65);
+      border: 2px solid #00d4ff;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4), inset 0 0 15px rgba(0, 212, 255, 0.2);
+      border-radius: 15px;
+      padding: 30px 25px;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      color: #ffffff;
+    }
+
+    .login-card h2 {
+      margin: 0 0 10px 0;
+      color: #00d4ff;
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.7);
+      font-size: 26px;
+    }
+
+    .login-card p {
+      margin-bottom: 25px;
+      font-size: 16px;
+      color: #d0e8ff;
+    }
+
+    .google-btn {
+      width: 100%;
+      padding: 14px 20px;
+      background-color: #ffffff;
+      color: #333333;
+      border: 2px solid #00d4ff;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+    }
+
+    .google-btn:hover {
+      background-color: #f0f8ff;
+      box-shadow: 0 0 18px rgba(0, 212, 255, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .google-btn svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    /* ESTRUTURA DO CHAT */
     .container {
       flex: 1;
       display: flex;
@@ -22,6 +100,7 @@
       padding: 15px;
       background-color: rgba(15, 15, 118, 0.188);
     }
+
     .messagesContainer {
       flex: 1;
       overflow-y: auto;
@@ -29,52 +108,63 @@
       display: flex;
       flex-direction: column-reverse;
     }
+
     .message {
       border: 1px solid rgba(253, 253, 253, 0);
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      color: rgba(240, 248, 255, 0.85);
-      background-color: rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      color: rgba(240, 248, 255, 0.95);
+      background-color: rgba(0, 0, 0, 0.3);
       position: relative;
-      animation: marqueeUp 60s linear infinite;
       opacity: 0;
       display: none;
     }
+
     .message.active {
       display: block;
       opacity: 1;
     }
+
     .message img {
-      width: 120px;
-      height: 120px;
+      width: 130px;
+      height: 130px;
       border-radius: 50%;
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 15px;
+      left: 15px;
       object-fit: cover;
     }
+
+    /* TEXTO E EMOJIS DAS MENSAGENS EXIBIDAS BEM MAIORES (56px) */
     .message .content {
-      margin-left: 150px;
-      font-size: 32px;
+      margin-left: 160px;
+      font-size: 56px;
+      line-height: 1.2;
       word-wrap: break-word;
       white-space: pre-wrap;
     }
+
     .message .name {
       font-weight: bold;
-      color: #007BFF;
+      color: #00d4ff;
+      font-size: 32px;
       margin: 0 0 5px 0;
+      text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
     }
+
     .message .email {
       color: #d4d117;
-      font-size: 24px;
-      margin: 0 0 5px 0;
+      font-size: 26px;
+      margin: 0 0 8px 0;
     }
+
     .message .timestamp {
-      font-size: 0.6em;
+      font-size: 20px;
       color: #aaa;
-      margin-top: 5px;
+      margin-top: 10px;
     }
+
     .footer {
       display: flex;
       align-items: center;
@@ -82,171 +172,197 @@
       background-color: rgb(161, 155, 155);
       border-top: 1px solid #a9dae2;
       position: relative;
+      z-index: 100;
     }
+
     .input-row {
       display: flex;
       align-items: center;
       width: 100%;
-      gap: 8px;
+      gap: 10px;
     }
+
     .emoji-trigger-btn {
       background: none;
       border: none;
-      font-size: 36px;
+      font-size: 45px;
       cursor: pointer;
       padding: 5px;
       line-height: 1;
       transition: transform 0.2s;
     }
+
     .emoji-trigger-btn:hover {
       transform: scale(1.15);
     }
+
+    /* CAIXA DE TEXTO COM EMOJIS E FONTE BEM MAIORES (48px) */
     .footer textarea {
       flex: 1;
-      height: 70px;
-      padding: 10px;
+      height: 100px;
+      padding: 10px 15px;
       border: 3px solid #d80808;
-      border-radius: 5px;
-      font-size: 28px;
+      border-radius: 8px;
+      font-size: 48px;
       font-family: Impact, sans-serif;
       resize: none;
+      line-height: 1.1;
     }
+
     .footer button.send-btn {
-      padding: 16px 20px;
+      padding: 20px 25px;
+      height: 100px;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       background-color: #007BFF;
       color: white;
-      font-size: 24px;
+      font-size: 28px;
       font-weight: bold;
       cursor: pointer;
     }
+
     .footer button.send-btn:disabled {
       background-color: #666;
       cursor: not-allowed;
     }
 
-    /* MODAL DE EMOJIS ESTILO WHATSAPP */
+    /* MOSTRUÁRIO DE EMOJIS POSICIONADO ACIMA DO INPUT */
     .emoji-picker-modal {
       display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(5px);
-      z-index: 9999;
-      flex-direction: column;
-      justify-content: flex-end;
+      position: absolute;
+      bottom: 120px;
+      left: 10px;
+      right: 10px;
+      max-width: 650px;
+      margin: 0 auto;
+      z-index: 99;
     }
+
     .emoji-picker-modal.active {
       display: flex;
     }
+
     .emoji-picker-content {
-      background: rgba(18, 28, 36, 0.92);
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      height: 70vh;
+      width: 100%;
+      background: rgba(10, 25, 50, 0.95);
+      border-radius: 15px;
+      height: 340px;
       display: flex;
       flex-direction: column;
-      border-top: 2px solid #00a884;
-      box-shadow: 0 -5px 25px rgba(0,0,0,0.5);
+      border: 2px solid #00d4ff;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
     }
+
     .emoji-picker-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 20px;
-      background: rgba(11, 20, 26, 0.95);
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 10px 15px;
+      background: rgba(5, 12, 35, 0.9);
+      border-top-left-radius: 13px;
+      border-top-right-radius: 13px;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.2);
     }
+
     .emoji-picker-header h3 {
       margin: 0;
-      color: #e9edef;
+      color: #00d4ff;
       font-size: 20px;
     }
+
     .close-emoji-btn {
       background: none;
       border: none;
-      color: #8696a0;
+      color: #d0e8ff;
       font-size: 28px;
       font-weight: bold;
       cursor: pointer;
     }
+
     .emoji-tabs {
       display: flex;
       overflow-x: auto;
-      background: rgba(11, 20, 26, 0.8);
-      padding: 8px 10px;
+      background: rgba(5, 12, 35, 0.8);
+      padding: 6px 10px;
       border-bottom: 1px solid rgba(255,255,255,0.05);
-      gap: 15px;
+      gap: 12px;
     }
+
     .emoji-tab-btn {
       background: none;
       border: none;
-      font-size: 22px;
+      font-size: 28px;
       cursor: pointer;
       opacity: 0.6;
       transition: opacity 0.2s;
     }
+
     .emoji-tab-btn.active {
       opacity: 1;
-      border-bottom: 2px solid #00a884;
+      border-bottom: 3px solid #00d4ff;
     }
+
     .emoji-grid-container {
       flex: 1;
       overflow-y: auto;
-      padding: 15px;
+      padding: 12px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      gap: 10px;
     }
+
     .emoji-item {
-      font-size: 32px;
+      font-size: 46px;
       text-align: center;
       cursor: pointer;
       user-select: none;
       transition: transform 0.1s;
     }
+
     .emoji-item:hover {
       transform: scale(1.3);
     }
+
     .notification {
       position: absolute;
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background-color: #007BFF;
-      color: white;
+      background-color: #00d4ff;
+      color: #000;
       padding: 10px 20px;
       border-radius: 5px;
-      z-index: 10;
-      font-size: 18px;
+      z-index: 1001;
+      font-size: 20px;
       font-weight: bold;
-    }
-    @keyframes marqueeUp {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-980%); }
+      box-shadow: 0 0 10px rgba(0,212,255,0.8);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="messagesContainer" id="messagesContainer"></div>
-  </div>
-  
-  <div class="footer">
-    <div class="input-row">
-      <button type="button" class="emoji-trigger-btn" id="openEmojiModal" title="Escolher Emoji">😀</button>
-      <textarea id="messageInput" placeholder="Ex: !Double You - Please Don't Go" maxlength="150" disabled></textarea>
-      <button id="submitMessage" class="send-btn" disabled>Enviar</button>
+
+  <!-- TELA DE LOGIN AZUL NEON TRANSPARENTE -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+      <h2>Web Rádio Power Dance</h2>
+      <p>Faça login com sua conta do Google para enviar recados e pedir músicas no Chat!</p>
+      <button class="google-btn" id="googleLoginBtn">
+        <svg viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        Entrar com o Google
+      </button>
     </div>
   </div>
 
-  <!-- POP-UP DE EMOJIS COMPLETO ESTILO WHATSAPP -->
+  <div class="container">
+    <div class="messagesContainer" id="messagesContainer"></div>
+  </div>
+
+  <!-- MOSTRUÁRIO DE EMOJIS POSICIONADO ACIMA DO TEXTBOX -->
   <div class="emoji-picker-modal" id="emojiModal">
     <div class="emoji-picker-content">
       <div class="emoji-picker-header">
@@ -258,11 +374,19 @@
     </div>
   </div>
 
+  <div class="footer">
+    <div class="input-row">
+      <button type="button" class="emoji-trigger-btn" id="openEmojiModal" title="Escolher Emoji">😀</button>
+      <textarea id="messageInput" placeholder="Ex: !Double You - Please Don't Go" maxlength="150" disabled></textarea>
+      <button id="submitMessage" class="send-btn" disabled>Enviar</button>
+    </div>
+  </div>
+
   <div id="notificationContainer"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getDatabase, ref, push, onChildAdded, query, limitToLast, get, remove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
     const firebaseConfig = {
@@ -279,6 +403,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const database = getDatabase(app);
+    const provider = new GoogleAuthProvider();
 
     const bannedWords = [
       "seu negro", "mito", "MITO", "prostituta", "viado", "boiola", "bolsonaro", "ladrao", "talarico", "ruim", "pessimo", "péssimo", "paia", "bosta", "rola", "pica", "lixo", "zona", "sertanejo", "forró", "axé", "pagode", "baile", "funk", "foda", "buceta", "piroca", "jeba", "bonde", "roubo", "roubar", "assaltar", "estrupar", "estrupador", "traficante", "petista", "safado", "invasor", "traveco", "piranha", "biscate", "satanas", "diabo", "ateo", "atoa", "vagal", "cú", "cu", "bunda", "rabo", "rabão", "boasuda", "pix", "92", "93", "9", "67", "22", "refrigeração", "ar", "serviços", "mao", "mão", "pé", "salão", "mecanica",
@@ -288,12 +413,12 @@
 
     const emojiCategories = {
       "😀": ["😀","😃","😄","😁","😆","😅","😂","🤣","🥲","☺️","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","🤐","🥴","🤢","🤮","🤧","😷","🤒","🤕"],
-      "👋": ["👋","🤚","🖐️","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","☝️","👍","👎","✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦾","🦵","🦿","🦶","👂","🦻","👃","🧠","🫀","🫁","🦷","🦴","👀","👁️","👅","👄"],
+      "👋": ["👋","🤚","🖐️","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","☝️","👍","👎","✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦾","🦵","🦿","🦶","👂","🦻","👃","🧠","🫀","🫁","🦷","🦴","👀","👁️","舌","👄"],
       "❤️": ["❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💔","❣️","💕","💞","💓","💗","💖","💘","💝","💟","☮️","✝️","☪️","🕉️","☸️","✡️","🔯","🕎","☯️","☦️","🛐","⛎","♈️","♉️","♊️","♋️","♌️","♍️","♎️","♏️","🏹","♑️","♒️","♓️","🆔","⚛️"],
-      "🚗": ["🚗","🚕","🚙","🚌","🏣","🛻","🚚","🚛","🚜","🏎️","🏎","🏍️","🛵","🛺","🚲","🛴","🚏","🛣️","🛤️","🛢️","⛽","🚨","🚥","🚦","🛑","🚧","⚓","⛵","canoe","🚤","🛳️","⚙️","🚁","🛸","🚀","🛰️","💺"],
+      "🚗": ["🚗","🚕","🚙","🚌","🏣","🛻","🚚","🚛","🚜","🏎️","🏎","🏍️","🛵","🛺","🚲","🛴","🚏","🛣️","🛤️","🛢️","⛽","🚨","🚥","🚦","🛑","🚧","⚓","⛵","🚤","🛳️","⚙️","🚁","🛸","🚀","🛰️","💺"],
       "🏠": ["🏠","🏡","🏫","🏢","🏣","🏥","🏦","🏨","🏪","🏫","🏬","🏭","🏰","🏯","💒","🗼","🗽","⛪","🕌","🛕","🕍","⛩️","🕋","⛲","⛺","🌁","🌃","🏙️","🌄","🌅","🌆","🌇","🌉","♨️"],
-      "🛏️": ["🛏️","🛋️","🚿","🛁","toilet","🔑","🗝️","🚪","🪑","💡","🔦","🏮","🧱","🗿","🧳","⌛","⏳","⌚","⏰","🎈","🎉","🎊","🎋","🎍","🎎","🎏","🎐","🎑","🎟️","🎫","🎖️","🏆","🏅","🥇","🥈","🥉","⚽","🏀","🏈","⚾","🥎","tennis","🏐","rugby","🥏","🎱","🪀","pingpong","badminton","hockey","fieldhockey","lacrosse","cricket","boomerang","goal","golf","kite","bow","fishing","scuba","boxing","martialarts","running","skate","roller","sled","iceSkate","curling","ski","snowboard"],
-      "🎵": ["🎵","🎶","🎼","🎹","🥁","🎷","🎺","🎸","🪕","violin","🎲","darts","bowling","game","slot","puzzle","headphones","mic","studio","radio","tv","camera","flash","video","tape","search","search2","candle","light","torch"]
+      "🛏️": ["🛏️","🛋️","🚿","🛁","🔑","🗝️","🚪","🪑","💡","🔦","🏮","🧱","🗿","🧳","⌛","⏳","⌚","⏰","🎈","🎉","🎊","🎋","🎍","🎎","🎏","🎐","🎑","🎟️","🎫","🎖️","🏆","🏅","🥇","🥈","🥉","⚽","🏀","🏈","⚾","🥎","🏐","rugby","🥏","🎱","🪀","🏓","🏸","🏒","🏏","🪃","🥅","⛳","🪁","🏹","🎣","🥽","🥊","🥋","🏃","🛹","🛼","🛷","⛸️","🥌","🎿","🏂"],
+      "🎵": ["🎵","🎶","🎼","🎹","🥁","🎷","🎺","🎸","🪕","🎻","🎲","🎯"," bowling","🎮","🎰","🧩","🎧","🎤","🎙️","📻","📺","📷","📸","📹","📼","🔍","🔎","🕯️","💡","🔦"]
     };
 
     let messages = [];
@@ -311,12 +436,21 @@
         .replace(/onerror/gi, "");
     }
 
+    const loginOverlay = document.getElementById('loginOverlay');
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
     const emojiModal = document.getElementById('emojiModal');
     const openEmojiModal = document.getElementById('openEmojiModal');
     const closeEmojiModal = document.getElementById('closeEmojiModal');
     const emojiTabs = document.getElementById('emojiTabs');
     const emojiGrid = document.getElementById('emojiGrid');
     const messageInput = document.getElementById('messageInput');
+    const submitBtn = document.getElementById('submitMessage');
+
+    googleLoginBtn.addEventListener('click', () => {
+      signInWithPopup(auth, provider).catch(error => {
+        alert("Erro no Login Google: " + error.message);
+      });
+    });
 
     Object.keys(emojiCategories).forEach((catIcon, index) => {
       const tabBtn = document.createElement('button');
@@ -341,6 +475,7 @@
           if (!messageInput.disabled) {
             messageInput.value += emoji;
             messageInput.focus();
+            emojiModal.classList.remove('active');
           }
         });
         emojiGrid.appendChild(item);
@@ -350,29 +485,27 @@
     carregarEmojisCategoria("😀");
 
     openEmojiModal.addEventListener('click', () => {
-      emojiModal.classList.add('active');
+      emojiModal.classList.toggle('active');
     });
 
     closeEmojiModal.addEventListener('click', () => {
       emojiModal.classList.remove('active');
     });
 
-    emojiModal.addEventListener('click', (e) => {
-      if (e.target === emojiModal) {
-        emojiModal.classList.remove('active');
-      }
-    });
-
     onAuthStateChanged(auth, user => {
-      const btn = document.getElementById('submitMessage');
-      messageInput.disabled = !user;
-      btn.disabled = !user;
       if (user) {
-        showNotification(`${user.displayName} está online`);
+        loginOverlay.style.display = 'none';
+        messageInput.disabled = false;
+        submitBtn.disabled = false;
+        showNotification(`${user.displayName} está online!`);
+      } else {
+        loginOverlay.style.display = 'flex';
+        messageInput.disabled = true;
+        submitBtn.disabled = true;
       }
     });
 
-    document.getElementById('submitMessage').addEventListener('click', async () => {
+    submitBtn.addEventListener('click', async () => {
       let text = messageInput.value.trim();
       const user = auth.currentUser;
 
@@ -383,6 +516,17 @@
 
       if (!user) return;
 
+      if (text.includes('!')) {
+        const pedidoRef = ref(database, `pedidos/${user.uid}`);
+        const snapshotPedido = await get(pedidoRef);
+
+        if (snapshotPedido.exists()) {
+          alert("Você já realizou um pedido de música nesta sessão! Apenas 1 pedido por ouvinte.");
+          messageInput.value = text.replace(/!/g, "");
+          return;
+        }
+      }
+
       text = sanitizarTexto(text);
 
       const words = text.toLowerCase().split(/\s+/);
@@ -391,7 +535,6 @@
         return;
       }
 
-      // Publica no nó 'messages' para o bot processar automaticamente
       const message = {
         name: sanitizarTexto(user.displayName),
         email: user.email,
@@ -399,6 +542,10 @@
         message: text,
         timestamp: new Date().toISOString()
       };
+
+      if (text.includes('!')) {
+        await push(ref(database, `pedidos/${user.uid}`), { pedido: text, data: new Date().toISOString() });
+      }
 
       push(ref(database, 'messages'), message)
         .then(() => {
