@@ -7,16 +7,16 @@
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
       display: flex;
       flex-direction: column;
       height: 100vh;
-      background-color: rgba(0, 0, 0, 0);
+      background-color: transparent;
       overflow: hidden;
       position: relative;
     }
@@ -28,7 +28,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(5, 12, 35, 0.75);
+      background: rgba(5, 12, 35, 0.85);
       backdrop-filter: blur(8px);
       z-index: 1000;
       display: flex;
@@ -38,7 +38,7 @@
     }
 
     .login-card {
-      background: rgba(10, 25, 50, 0.65);
+      background: rgba(10, 25, 50, 0.85);
       border: 2px solid #00d4ff;
       box-shadow: 0 0 20px rgba(0, 212, 255, 0.4), inset 0 0 15px rgba(0, 212, 255, 0.2);
       border-radius: 15px;
@@ -50,26 +50,26 @@
     }
 
     .login-card h2 {
-      margin: 0 0 10px 0;
+      margin-bottom: 10px;
       color: #00d4ff;
       text-shadow: 0 0 10px rgba(0, 212, 255, 0.7);
-      font-size: 26px;
+      font-size: 24px;
     }
 
     .login-card p {
       margin-bottom: 25px;
-      font-size: 16px;
+      font-size: 14px;
       color: #d0e8ff;
     }
 
     .google-btn {
       width: 100%;
-      padding: 14px 20px;
+      padding: 12px 20px;
       background-color: #ffffff;
       color: #333333;
       border: 2px solid #00d4ff;
       border-radius: 8px;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
       display: flex;
@@ -87,8 +87,8 @@
     }
 
     .google-btn svg {
-      width: 26px;
-      height: 26px;
+      width: 24px;
+      height: 24px;
     }
 
     /* ESTRUTURA DO CHAT */
@@ -97,80 +97,116 @@
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      padding: 15px;
-      background-color: rgba(15, 15, 118, 0.188);
+      padding: 10px;
+      background-color: rgba(15, 15, 118, 0.15);
     }
 
     .messagesContainer {
       flex: 1;
       overflow-y: auto;
-      position: relative;
       display: flex;
-      flex-direction: column-reverse;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .message {
-      border: 1px solid rgba(253, 253, 253, 0);
-      padding: 15px;
-      margin-bottom: 15px;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      padding: 12px;
       border-radius: 8px;
-      color: rgba(240, 248, 255, 0.95);
-      background-color: rgba(0, 0, 0, 0.3);
+      color: #f0f8ff;
+      background-color: rgba(0, 0, 0, 0.55);
       position: relative;
-      opacity: 0;
-      display: none;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      transition: opacity 0.3s ease;
     }
 
-    .message.active {
-      display: block;
-      opacity: 1;
+    .message.bot-msg {
+      border-color: #00ff88;
+      background-color: rgba(0, 40, 20, 0.7);
     }
 
-    .message img {
-      width: 130px;
-      height: 130px;
+    .message img.avatar {
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
-      position: absolute;
-      top: 15px;
-      left: 15px;
       object-fit: cover;
+      border: 2px solid #00d4ff;
+      flex-shrink: 0;
     }
 
-    /* TEXTO E EMOJIS DAS MENSAGENS EXIBIDAS BEM MAIORES (56px) */
     .message .content {
-      margin-left: 160px;
-      font-size: 56px;
-      line-height: 1.2;
-      word-wrap: break-word;
-      white-space: pre-wrap;
+      flex: 1;
+      font-size: 18px;
+      line-height: 1.3;
     }
 
     .message .name {
       font-weight: bold;
       color: #00d4ff;
-      font-size: 32px;
-      margin: 0 0 5px 0;
+      font-size: 16px;
+      margin-bottom: 2px;
       text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
     }
 
     .message .email {
       color: #d4d117;
-      font-size: 26px;
-      margin: 0 0 8px 0;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .message .text {
+      font-size: 20px;
+      font-weight: 500;
+      color: #ffffff;
     }
 
     .message .timestamp {
-      font-size: 20px;
+      font-size: 11px;
       color: #aaa;
-      margin-top: 10px;
+      margin-top: 6px;
+      text-align: right;
     }
 
+    .admin-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .admin-btn {
+      background: rgba(255, 0, 0, 0.3);
+      border: 1px solid #ff4444;
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .admin-btn:hover {
+      background: rgba(255, 0, 0, 0.7);
+    }
+
+    .admin-btn.edit {
+      background: rgba(255, 170, 0, 0.3);
+      border-color: #ffaa00;
+    }
+
+    .admin-btn.edit:hover {
+      background: rgba(255, 170, 0, 0.7);
+    }
+
+    /* RODAPÉ DO CHAT */
     .footer {
       display: flex;
       align-items: center;
-      padding: 10px;
-      background-color: rgb(161, 155, 155);
-      border-top: 1px solid #a9dae2;
+      padding: 8px;
+      background-color: rgba(10, 20, 40, 0.9);
+      border-top: 1px solid #00d4ff;
       position: relative;
       z-index: 100;
     }
@@ -179,15 +215,14 @@
       display: flex;
       align-items: center;
       width: 100%;
-      gap: 10px;
+      gap: 8px;
     }
 
     .emoji-trigger-btn {
       background: none;
       border: none;
-      font-size: 45px;
+      font-size: 28px;
       cursor: pointer;
-      padding: 5px;
       line-height: 1;
       transition: transform 0.2s;
     }
@@ -196,44 +231,51 @@
       transform: scale(1.15);
     }
 
-    /* CAIXA DE TEXTO COM EMOJIS E FONTE BEM MAIORES (48px) */
     .footer textarea {
       flex: 1;
-      height: 100px;
-      padding: 10px 15px;
-      border: 3px solid #d80808;
+      height: 48px;
+      padding: 8px 12px;
+      border: 2px solid #00d4ff;
       border-radius: 8px;
-      font-size: 48px;
-      font-family: Impact, sans-serif;
+      font-size: 16px;
+      font-family: Arial, sans-serif;
       resize: none;
-      line-height: 1.1;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      outline: none;
     }
 
     .footer button.send-btn {
-      padding: 20px 25px;
-      height: 100px;
+      padding: 0 18px;
+      height: 48px;
       border: none;
       border-radius: 8px;
-      background-color: #007BFF;
-      color: white;
-      font-size: 28px;
+      background-color: #00d4ff;
+      color: #000;
+      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .footer button.send-btn:hover {
+      background-color: #0099cc;
     }
 
     .footer button.send-btn:disabled {
-      background-color: #666;
+      background-color: #444;
+      color: #888;
       cursor: not-allowed;
     }
 
-    /* MOSTRUÁRIO DE EMOJIS POSICIONADO ACIMA DO INPUT */
+    /* MOSTRUÁRIO DE EMOJIS */
     .emoji-picker-modal {
       display: none;
       position: absolute;
-      bottom: 120px;
+      bottom: 65px;
       left: 10px;
       right: 10px;
-      max-width: 650px;
+      max-width: 500px;
       margin: 0 auto;
       z-index: 99;
     }
@@ -245,8 +287,8 @@
     .emoji-picker-content {
       width: 100%;
       background: rgba(10, 25, 50, 0.95);
-      border-radius: 15px;
-      height: 340px;
+      border-radius: 12px;
+      height: 250px;
       display: flex;
       flex-direction: column;
       border: 2px solid #00d4ff;
@@ -257,24 +299,23 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 15px;
+      padding: 8px 12px;
       background: rgba(5, 12, 35, 0.9);
-      border-top-left-radius: 13px;
-      border-top-right-radius: 13px;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
       border-bottom: 1px solid rgba(0, 212, 255, 0.2);
     }
 
     .emoji-picker-header h3 {
-      margin: 0;
       color: #00d4ff;
-      font-size: 20px;
+      font-size: 14px;
     }
 
     .close-emoji-btn {
       background: none;
       border: none;
       color: #d0e8ff;
-      font-size: 28px;
+      font-size: 20px;
       font-weight: bold;
       cursor: pointer;
     }
@@ -283,63 +324,146 @@
       display: flex;
       overflow-x: auto;
       background: rgba(5, 12, 35, 0.8);
-      padding: 6px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      gap: 12px;
+      padding: 4px 8px;
+      gap: 8px;
     }
 
     .emoji-tab-btn {
       background: none;
       border: none;
-      font-size: 28px;
+      font-size: 20px;
       cursor: pointer;
       opacity: 0.6;
-      transition: opacity 0.2s;
     }
 
     .emoji-tab-btn.active {
       opacity: 1;
-      border-bottom: 3px solid #00d4ff;
+      border-bottom: 2px solid #00d4ff;
     }
 
     .emoji-grid-container {
       flex: 1;
       overflow-y: auto;
-      padding: 12px;
+      padding: 8px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+      gap: 6px;
     }
 
     .emoji-item {
-      font-size: 46px;
+      font-size: 24px;
       text-align: center;
       cursor: pointer;
-      user-select: none;
       transition: transform 0.1s;
     }
 
     .emoji-item:hover {
-      transform: scale(1.3);
+      transform: scale(1.2);
     }
 
     .notification {
       position: absolute;
-      top: 20px;
+      top: 10px;
       left: 50%;
       transform: translateX(-50%);
       background-color: #00d4ff;
       color: #000;
-      padding: 10px 20px;
-      border-radius: 5px;
+      padding: 6px 16px;
+      border-radius: 20px;
       z-index: 1001;
-      font-size: 20px;
+      font-size: 13px;
       font-weight: bold;
       box-shadow: 0 0 10px rgba(0,212,255,0.8);
+    }
+
+    /* PAINEL ADMIN E HISTÓRICO DE PEDIDOS */
+    .admin-bar {
+      display: none;
+      background: #050c23;
+      border-bottom: 1px solid #00d4ff;
+      padding: 6px 12px;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      font-size: 12px;
+    }
+
+    .admin-bar-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .admin-bar-btn {
+      background: #00d4ff;
+      color: #000;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #0a1932;
+      border: 2px solid #00d4ff;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      color: #fff;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-item {
+      background: rgba(255,255,255,0.05);
+      border-left: 3px solid #00d4ff;
+      padding: 8px;
+      font-size: 13px;
     }
   </style>
 </head>
 <body>
+
+  <!-- BARRA ADMIN DE NAVEGAÇÃO -->
+  <div class="admin-bar" id="adminBar">
+    <span>Painel Admin Activo</span>
+    <div class="admin-bar-btns">
+      <button class="admin-bar-btn" id="btnOpenOnline">Usuários Online (<span id="onlineCount">0</span>)</button>
+      <button class="admin-bar-btn" id="btnOpenHistory">Histórico de Pedidos</button>
+    </div>
+  </div>
 
   <!-- TELA DE LOGIN AZUL NEON TRANSPARENTE -->
   <div class="login-overlay" id="loginOverlay">
@@ -362,7 +486,7 @@
     <div class="messagesContainer" id="messagesContainer"></div>
   </div>
 
-  <!-- MOSTRUÁRIO DE EMOJIS POSICIONADO ACIMA DO TEXTBOX -->
+  <!-- EMOJIS PICKER -->
   <div class="emoji-picker-modal" id="emojiModal">
     <div class="emoji-picker-content">
       <div class="emoji-picker-header">
@@ -374,6 +498,7 @@
     </div>
   </div>
 
+  <!-- RODAPÉ -->
   <div class="footer">
     <div class="input-row">
       <button type="button" class="emoji-trigger-btn" id="openEmojiModal" title="Escolher Emoji">😀</button>
@@ -382,12 +507,35 @@
     </div>
   </div>
 
+  <!-- MODAL DE HISTÓRICO DE PEDIDOS E RELATÓRIO TXT -->
+  <div class="modal-overlay" id="modalHistory">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Histórico Auditável de Pedidos</h3>
+        <button class="admin-bar-btn" id="btnExportTxt">Baixar Relatório (.txt)</button>
+        <button class="close-emoji-btn" id="closeHistoryModal">&times;</button>
+      </div>
+      <div class="modal-body" id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- MODAL DE USUÁRIOS ONLINE -->
+  <div class="modal-overlay" id="modalOnline">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Usuários Conectados Agora</h3>
+        <button class="close-emoji-btn" id="closeOnlineModal">&times;</button>
+      </div>
+      <div class="modal-body" id="onlineList"></div>
+    </div>
+  </div>
+
   <div id="notificationContainer"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getDatabase, ref, push, onChildAdded, query, limitToLast, get, remove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getDatabase, ref, push, onChildAdded, onChildRemoved, onChildChanged, query, limitToLast, get, remove, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDDMNEQL0Cj6eXtAISqtBpYiYbkEOoLkqM",
@@ -400,10 +548,15 @@
       measurementId: "G-ZE733KFTMF"
     };
 
+    const ADMIN_EMAIL = "edsonporfiriodarocha12345@gmail.com";
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const database = getDatabase(app);
     const provider = new GoogleAuthProvider();
+
+    let isAdmin = false;
+    let pedidosCache = [];
 
     const bannedWords = [
       "seu negro", "mito", "MITO", "prostituta", "viado", "boiola", "bolsonaro", "ladrao", "talarico", "ruim", "pessimo", "péssimo", "paia", "bosta", "rola", "pica", "lixo", "zona", "sertanejo", "forró", "axé", "pagode", "baile", "funk", "foda", "buceta", "piroca", "jeba", "bonde", "roubo", "roubar", "assaltar", "estrupar", "estrupador", "traficante", "petista", "safado", "invasor", "traveco", "piranha", "biscate", "satanas", "diabo", "ateo", "atoa", "vagal", "cú", "cu", "bunda", "rabo", "rabão", "boasuda", "pix", "92", "93", "9", "67", "22", "refrigeração", "ar", "serviços", "mao", "mão", "pé", "salão", "mecanica",
@@ -413,18 +566,15 @@
 
     const emojiCategories = {
       "😀": ["😀","😃","😄","😁","😆","😅","😂","🤣","🥲","☺️","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😮","😲","🥱","😴","🤤","😪","😵","🤐","🥴","🤢","🤮","🤧","😷","🤒","🤕"],
-      "👋": ["👋","🤚","🖐️","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","☝️","👍","👎","✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦾","🦵","🦿","🦶","👂","🦻","👃","🧠","🫀","🫁","🦷","🦴","👀","👁️","舌","👄"],
+      "👋": ["👋","🤚","🖐️","✋","🖖","👌","🤌","🤏","✌️","🤞","🤟","🤘","🤙","👈","👉","👆","🖕","👇","☝️","👍","👎","✊","👊","🤛","🤜","👏","🙌","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦾","🦵","🦿","🦶","👂","🦻","👃","🧠","🫀","🫁","齿","骨","👀","👁️","舌","👄"],
       "❤️": ["❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💔","❣️","💕","💞","💓","💗","💖","💘","💝","💟","☮️","✝️","☪️","🕉️","☸️","✡️","🔯","🕎","☯️","☦️","🛐","⛎","♈️","♉️","♊️","♋️","♌️","♍️","♎️","♏️","🏹","♑️","♒️","♓️","🆔","⚛️"],
       "🚗": ["🚗","🚕","🚙","🚌","🏣","🛻","🚚","🚛","🚜","🏎️","🏎","🏍️","🛵","🛺","🚲","🛴","🚏","🛣️","🛤️","🛢️","⛽","🚨","🚥","🚦","🛑","🚧","⚓","⛵","🚤","🛳️","⚙️","🚁","🛸","🚀","🛰️","💺"],
-      "🏠": ["🏠","🏡","🏫","🏢","🏣","🏥","🏦","🏨","🏪","🏫","🏬","🏭","🏰","🏯","💒","🗼","🗽","⛪","🕌","🛕","🕍","⛩️","🕋","⛲","⛺","🌁","🌃","🏙️","🌄","🌅","🌆","🌇","🌉","♨️"],
-      "🛏️": ["🛏️","🛋️","🚿","🛁","🔑","🗝️","🚪","🪑","💡","🔦","🏮","🧱","🗿","🧳","⌛","⏳","⌚","⏰","🎈","🎉","🎊","🎋","🎍","🎎","🎏","🎐","🎑","🎟️","🎫","🎖️","🏆","🏅","🥇","🥈","🥉","⚽","🏀","🏈","⚾","🥎","🏐","rugby","🥏","🎱","🪀","🏓","🏸","🏒","🏏","🪃","🥅","⛳","🪁","🏹","🎣","🥽","🥊","🥋","🏃","🛹","🛼","🛷","⛸️","🥌","🎿","🏂"],
-      "🎵": ["🎵","🎶","🎼","🎹","🥁","🎷","🎺","🎸","🪕","🎻","🎲","🎯"," bowling","🎮","🎰","🧩","🎧","🎤","🎙️","📻","📺","📷","📸","📹","📼","🔍","🔎","🕯️","💡","🔦"]
+      "🏠": ["🏠","🏡","🏫","🏢","🏣","🏥","🏦","🏨","🏪","🏫","🏬","🏭"," castles","🏯","💒","🗼","🗽","⛪","🕌","🛕","🕍","⛩️","🕋"," fountain","⛺","🌁","🌃","🏙️","🌄","🌅","🌆","🌇","🌉","♨️"],
+      "🎵": ["🎵","🎶","🎼","🎹","🥁","🎷","🎺","🎸","🪕","🎻","🎲","🎯","🎮","🎰","🧩","🎧","🎤","🎙️","📻","📺","📷","📸","📹","📼","🔍","🔎","🕯️","💡","🔦"]
     };
 
-    let messages = [];
-    let currentIndex = 0;
-
     function sanitizarTexto(str) {
+      if (!str) return "";
       return str
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -445,6 +595,8 @@
     const emojiGrid = document.getElementById('emojiGrid');
     const messageInput = document.getElementById('messageInput');
     const submitBtn = document.getElementById('submitMessage');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const adminBar = document.getElementById('adminBar');
 
     googleLoginBtn.addEventListener('click', () => {
       signInWithPopup(auth, provider).catch(error => {
@@ -481,7 +633,6 @@
         emojiGrid.appendChild(item);
       });
     }
-
     carregarEmojisCategoria("😀");
 
     openEmojiModal.addEventListener('click', () => {
@@ -492,126 +643,252 @@
       emojiModal.classList.remove('active');
     });
 
+    // SISTEMA DE AUTENTICAÇÃO E REGISTRO DE PRESENÇA (ONLINE)
     onAuthStateChanged(auth, user => {
       if (user) {
         loginOverlay.style.display = 'none';
         messageInput.disabled = false;
         submitBtn.disabled = false;
-        showNotification(`${user.displayName} está online!`);
+        showNotification(`${user.displayName} entrou no chat!`);
+
+        // REGISTRA PRESENÇA USANDO O UID FIXO COMO CHAVE (SEM DUPLICAR)
+        const userPresenceRef = ref(database, `online_users/${user.uid}`);
+        set(userPresenceRef, {
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          loginAt: new Date().toISOString()
+        });
+        onDisconnect(userPresenceRef).remove();
+
+        // VALIDA ACESSO ADMINISTRATIVO
+        if (user.email === ADMIN_EMAIL) {
+          isAdmin = true;
+          adminBar.style.display = 'flex';
+          carregarMonitoresAdmin();
+        } else {
+          isAdmin = false;
+          adminBar.style.display = 'none';
+        }
       } else {
         loginOverlay.style.display = 'flex';
         messageInput.disabled = true;
         submitBtn.disabled = true;
+        adminBar.style.display = 'none';
       }
     });
 
+    // ENVIO DE MENSAGENS E PEDIDOS
     submitBtn.addEventListener('click', async () => {
       let text = messageInput.value.trim();
       const user = auth.currentUser;
 
-      if (!text) {
-        alert("Por favor, insira um recado ou pedido.");
-        return;
-      }
+      if (!text || !user) return;
 
-      if (!user) return;
-
-      if (text.includes('!')) {
+      // VERIFICA SE É UM PEDIDO DE MÚSICA (COMEÇA COM !)
+      if (text.startsWith('!')) {
         const pedidoRef = ref(database, `pedidos/${user.uid}`);
         const snapshotPedido = await get(pedidoRef);
 
-        if (snapshotPedido.exists()) {
-          alert("Você já realizou um pedido de música nesta sessão! Apenas 1 pedido por ouvinte.");
-          messageInput.value = text.replace(/!/g, "");
+        if (snapshotPedido.exists() && !isAdmin) {
+          alert("Você já tem um pedido em processamento! Aguarde o atendimento.");
+          messageInput.value = text.replace(/^!/, "");
           return;
         }
       }
 
       text = sanitizarTexto(text);
+      const lowerText = text.toLowerCase();
 
-      const words = text.toLowerCase().split(/\s+/);
-      if (words.some(word => bannedWords.includes(word))) {
-        alert("PALAVRA PROIBIDA! Comentários ofensivos, políticos ou comerciais são proibidos.");
+      if (bannedWords.some(word => lowerText.includes(word))) {
+        alert("PALAVRA PROIBIDA! Mensagens contendo palavras inadequadas não são permitidas.");
         return;
       }
 
-      const message = {
+      const messageObj = {
         name: sanitizarTexto(user.displayName),
         email: user.email,
         photoURL: user.photoURL || "https://via.placeholder.com/150",
         message: text,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        uid: user.uid
       };
 
-      if (text.includes('!')) {
-        await push(ref(database, `pedidos/${user.uid}`), { pedido: text, data: new Date().toISOString() });
+      // SE FOR PEDIDO DE MÚSICA, ENVIA PARA O NÓ QUE O BOT ESCUTA
+      if (text.startsWith('!')) {
+        const newPedidoRef = push(ref(database, 'pedidos'));
+        await set(newPedidoRef, {
+          id: newPedidoRef.key,
+          uid: user.uid,
+          name: user.displayName,
+          email: user.email,
+          pedido: text.substring(1).trim(),
+          data: new Date().toISOString()
+        });
       }
 
-      push(ref(database, 'messages'), message)
+      // PUBLICA NO CHAT GERAL
+      push(ref(database, 'messages'), messageObj)
         .then(() => {
           messageInput.value = "";
-          messageInput.blur();
           emojiModal.classList.remove('active');
         })
         .catch(console.error);
     });
 
-    const messagesContainer = document.getElementById('messagesContainer');
+    // ESCUTA DE MENSAGENS EM TEMPO REAL
     const messagesRef = ref(database, 'messages');
+    const messagesQuery = query(messagesRef, limitToLast(20));
 
-    onChildAdded(messagesRef, async (snapshot) => {
-      const msg = snapshot.val();
-      messages.push(msg);
+    onChildAdded(messagesQuery, (snapshot) => {
+      renderMessage(snapshot.key, snapshot.val());
+    });
 
-      if (messages.length === 1) {
-        displayMessage(0);
-      }
+    onChildRemoved(messagesRef, (snapshot) => {
+      const msgEl = document.getElementById(`msg-${snapshot.key}`);
+      if (msgEl) msgEl.remove();
+    });
 
-      const q = query(messagesRef, limitToLast(10));
-      const snapshotLast10 = await get(q);
-      if (snapshotLast10.exists()) {
-        const validKeys = new Set(Object.keys(snapshotLast10.val()));
-        const allSnapshot = await get(messagesRef);
-        if (allSnapshot.exists()) {
-          Object.entries(allSnapshot.val()).forEach(([key]) => {
-            if (!validKeys.has(key)) {
-              remove(ref(database, `messages/${key}`));
-            }
-          });
-        }
+    onChildChanged(messagesRef, (snapshot) => {
+      const msgEl = document.getElementById(`msg-${snapshot.key}`);
+      if (msgEl) {
+        const textEl = msgEl.querySelector('.text');
+        if (textEl) textEl.textContent = snapshot.val().message;
       }
     });
 
-    function displayMessage(index) {
-      if (!messages[index]) return;
-      
-      const msg = messages[index];
-      const el = document.createElement('div');
-      el.className = 'message active';
-      el.innerHTML = `
-        <img src="${msg.photoURL}" alt="${msg.name}">
-        <div class="content">
-          <p class="name">${msg.name}</p>
-          <p class="email">${msg.email}</p>
-          <p>${msg.message}</p>
-          <p class="timestamp"><small>${new Date(msg.timestamp).toLocaleTimeString()}</small></p>
-        </div>`;
-      
-      messagesContainer.appendChild(el);
+    function renderMessage(key, msg) {
+      if (document.getElementById(`msg-${key}`)) return;
 
-      setTimeout(() => {
-        el.classList.remove('active');
-        setTimeout(() => {
-          if (messagesContainer.contains(el)) {
-            messagesContainer.removeChild(el);
-          }
-          currentIndex = (currentIndex + 1) % messages.length;
-          if (messages.length > 1) {
-            displayMessage(currentIndex);
-          }
-        }, 990);
-      }, 15000);
+      const isBot = msg.name === "Bot Power Dance" || msg.email === "bot@powerdance.com";
+      const div = document.createElement('div');
+      div.id = `msg-${key}`;
+      div.className = `message ${isBot ? 'bot-msg' : ''}`;
+
+      let adminControls = '';
+      if (isAdmin) {
+        adminControls = `
+          <div class="admin-actions">
+            <button class="admin-btn edit" onclick="window.editarMensagem('${key}', '${sanitizarTexto(msg.message)}')">Editar</button>
+            <button class="admin-btn" onclick="window.apagarMensagem('${key}')">Apagar</button>
+          </div>
+        `;
+      }
+
+      div.innerHTML = `
+        <img class="avatar" src="${msg.photoURL}" alt="${msg.name}">
+        <div class="content">
+          <div class="name">${msg.name}</div>
+          <div class="email">${msg.email}</div>
+          <div class="text">${msg.message}</div>
+          <div class="timestamp">${new Date(msg.timestamp).toLocaleTimeString()}</div>
+          ${adminControls}
+        </div>
+      `;
+
+      messagesContainer.appendChild(div);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
+
+    // MODERAÇÃO ADMIN
+    window.apagarMensagem = (key) => {
+      if (confirm("Deseja realmente apagar esta mensagem?")) {
+        remove(ref(database, `messages/${key}`));
+      }
+    };
+
+    window.editarMensagem = (key, currentText) => {
+      const newText = prompt("Edite o texto da mensagem:", currentText);
+      if (newText !== null && newText.trim() !== "") {
+        set(ref(database, `messages/${key}/message`), sanitizarTexto(newText.trim()));
+      }
+    };
+
+    // PAINEL E HISTÓRICO ADMINISTRATIVO
+    function carregarMonitoresAdmin() {
+      // LISTENER USUÁRIOS ONLINE
+      onValue(ref(database, 'online_users'), (snapshot) => {
+        const data = snapshot.val() || {};
+        const count = Object.keys(data).length;
+        document.getElementById('onlineCount').textContent = count;
+
+        const listEl = document.getElementById('onlineList');
+        listEl.innerHTML = '';
+
+        Object.entries(data).forEach(([uid, u]) => {
+          const item = document.createElement('div');
+          item.className = 'history-item';
+          item.innerHTML = `
+            <strong>${u.name}</strong> (${u.email})<br>
+            <small>Conectado em: ${new Date(u.loginAt).toLocaleString()}</small>
+          `;
+          listEl.appendChild(item);
+        });
+      });
+
+      // LISTENER HISTÓRICO DE PEDIDOS
+      onValue(ref(database, 'pedidos'), (snapshot) => {
+        pedidosCache = [];
+        const data = snapshot.val() || {};
+        const historyEl = document.getElementById('historyList');
+        historyEl.innerHTML = '';
+
+        Object.entries(data).forEach(([key, p]) => {
+          pedidosCache.push(p);
+          const item = document.createElement('div');
+          item.className = 'history-item';
+          item.innerHTML = `
+            <strong>Nome:</strong> ${p.name || 'Anônimo'} | <strong>Email:</strong> ${p.email || 'N/A'}<br>
+            <strong>Pedido:</strong> ${p.pedido || p.message || ''}<br>
+            <small>Data/Hora: ${new Date(p.data || p.timestamp).toLocaleString()}</small>
+          `;
+          historyEl.appendChild(item);
+        });
+      });
+    }
+
+    // EXPORTAÇÃO DO RELATÓRIO DE PEDIDOS EM TXT
+    document.getElementById('btnExportTxt').addEventListener('click', () => {
+      if (pedidosCache.length === 0) {
+        alert("Não há pedidos registrados para exportar!");
+        return;
+      }
+
+      let content = "===== RELATÓRIO DE PEDIDOS - WEB RÁDIO POWER DANCE =====\n";
+      content += `Data do Relatório: ${new Date().toLocaleString()}\n`;
+      content += "========================================================\n\n";
+
+      pedidosCache.forEach((p, idx) => {
+        content += `[#${idx + 1}] - ${new Date(p.data || p.timestamp).toLocaleString()}\n`;
+        content += `Ouvinte: ${p.name || 'Desconhecido'}\n`;
+        content += `E-mail: ${p.email || 'N/A'}\n`;
+        content += `Pedido/Música: ${p.pedido || p.message || ''}\n`;
+        content += "--------------------------------------------------------\n";
+      });
+
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `relatorio_pedidos_powerdance_${Date.now()}.txt`;
+      link.click();
+    });
+
+    // ABERTURA/FECHAMENTO DE MODAIS
+    document.getElementById('btnOpenHistory').addEventListener('click', () => {
+      document.getElementById('modalHistory').classList.add('active');
+    });
+
+    document.getElementById('closeHistoryModal').addEventListener('click', () => {
+      document.getElementById('modalHistory').classList.remove('active');
+    });
+
+    document.getElementById('btnOpenOnline').addEventListener('click', () => {
+      document.getElementById('modalOnline').classList.add('active');
+    });
+
+    document.getElementById('closeOnlineModal').addEventListener('click', () => {
+      document.getElementById('modalOnline').classList.remove('active');
+    });
 
     function showNotification(text) {
       const el = document.createElement('div');
