@@ -462,8 +462,8 @@
       measurementId: "G-ZE733KFTMF"
     };
 
-    const ADMIN_EMAIL = "edsonporfiriodarocha12345@gmail.com";
-    const TEMPO_EXPIRACAO_MS = 30 * 60 * 1000; // 30 Minutos em milissegundos
+    const ADMIN_EMAIL = "erbjbjturbo@gmail.com";
+    const TEMPO_EXPIRACAO_MS = 30 * 60 * 1000; // 30 Minutos
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -509,7 +509,6 @@
       }
     }
 
-    // Executa a limpeza imediatamente ao carregar e depois a cada 30 segundos
     limparMensagensAntigas();
     setInterval(limparMensagensAntigas, 30000);
 
@@ -589,7 +588,6 @@
           document.getElementById('adminBar').style.display = 'flex';
         }
 
-        // REGISTRA STATUS ONLINE NO FIREBASE
         const userStatusRef = ref(database, `onlineUsers/${user.uid}`);
         set(userStatusRef, {
           name: user.displayName || "Usuário Anônimo",
@@ -606,7 +604,6 @@
       }
     });
 
-    // CONTADOR DE USUÁRIOS ONLINE (ADMIN)
     onValue(ref(database, 'onlineUsers'), (snapshot) => {
       const data = snapshot.val() || {};
       const count = Object.keys(data).length;
@@ -622,7 +619,7 @@
       });
     });
 
-    /* ENVIO DE MENSAGENS COM AUTO-BOT & HISTÓRICO */
+    /* ENVIO DE MENSAGENS PARA O FIREBASE (O BOT DA VPS VAI LER DAQUI) */
     async function sendMessage() {
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
@@ -646,25 +643,11 @@
         timestamp: Date.now()
       };
 
-      // 1. Grava a Mensagem Normal no Realtime Database
+      // 1. Grava a Mensagem Normal no Realtime Database (O bot da VPS lê daqui)
       await push(ref(database, 'messages'), msgData);
 
       // 2. Grava no Histórico Permanente (Auditável)
       await push(ref(database, 'pedidos_historico'), msgData);
-
-      // 3. AUTO-BOT DE RESPOSTA AUTOMÁTICA
-      setTimeout(async () => {
-        const botReply = {
-          uid: "bot-system",
-          name: "🤖 DJ Power Bot",
-          email: "bot@powerdance.com",
-          photoURL: "https://cdn-icons-png.flaticon.com/512/4712/4712109.png",
-          text: `Olá ${msgData.name}, seu recado foi recebido! O DJ Robert BJ já colocou seu pedido na lista de programação. Valeu pela audiência! 🎧🎶`,
-          timestamp: Date.now(),
-          isBot: true
-        };
-        await push(ref(database, 'messages'), botReply);
-      }, 1500);
     }
 
     document.getElementById('submitMessage').onclick = sendMessage;
