@@ -102,35 +102,6 @@
       text-align: right;
     }
 
-    .admin-actions {
-      display: flex;
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    .admin-btn {
-      background: rgba(255, 0, 0, 0.3);
-      border: 1px solid #ff4444;
-      color: #fff;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      cursor: pointer;
-    }
-
-    .admin-btn:hover {
-      background: rgba(255, 0, 0, 0.7);
-    }
-
-    .admin-btn.edit {
-      background: rgba(255, 170, 0, 0.3);
-      border-color: #ffaa00;
-    }
-
-    .admin-btn.edit:hover {
-      background: rgba(255, 170, 0, 0.7);
-    }
-
     /* RODAPÉ DO CHAT */
     .footer {
       display: flex;
@@ -619,7 +590,7 @@
       });
     });
 
-    /* ENVIO DE MENSAGENS PARA O FIREBASE (O BOT DA VPS VAI LER DAQUI) */
+    /* ENVIO DE MENSAGENS PARA O FIREBASE */
     async function sendMessage() {
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
@@ -643,10 +614,7 @@
         timestamp: Date.now()
       };
 
-      // 1. Grava a Mensagem Normal no Realtime Database (O bot da VPS lê daqui)
       await push(ref(database, 'messages'), msgData);
-
-      // 2. Grava no Histórico Permanente (Auditável)
       await push(ref(database, 'pedidos_historico'), msgData);
     }
 
@@ -658,7 +626,7 @@
       }
     };
 
-    /* RENDERIZAÇÃO DAS MENSAGENS NO CHAT */
+    /* RENDERIZAÇÃO DAS MENSAGENS NO CHAT (SEM BOTÕES DE ADMIN) */
     const messagesRef = query(ref(database, 'messages'), limitToLast(50));
 
     onChildAdded(messagesRef, (snapshot) => {
@@ -672,16 +640,6 @@
 
       const dateStr = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      let adminBtns = '';
-      if (isAdmin && !data.isBot) {
-        adminBtns = `
-          <div class="admin-actions">
-            <button class="admin-btn edit" onclick="window.editMsg('${id}', '${data.text.replace(/'/g, "\\'")}')">Editar</button>
-            <button class="admin-btn" onclick="window.deleteMsg('${id}')">Apagar</button>
-          </div>
-        `;
-      }
-
       msgDiv.innerHTML = `
         <img class="avatar" src="${data.photoURL}" alt="Avatar">
         <div class="content">
@@ -689,7 +647,6 @@
           <div class="email">${data.email || ''}</div>
           <div class="text" id="text-${id}">${data.text}</div>
           <div class="timestamp">${dateStr}</div>
-          ${adminBtns}
         </div>
       `;
 
@@ -709,20 +666,6 @@
       const textEl = document.getElementById(`text-${id}`);
       if (textEl) textEl.innerText = data.text;
     });
-
-    /* FUNÇÕES GLOBAIS DE ADMIN DELETAR E EDITAR */
-    window.deleteMsg = (id) => {
-      if (confirm("Deseja apagar este recado?")) {
-        remove(ref(database, `messages/${id}`));
-      }
-    };
-
-    window.editMsg = (id, oldText) => {
-      const newText = prompt("Edite a mensagem:", oldText);
-      if (newText && newText.trim() !== "") {
-        set(ref(database, `messages/${id}/text`), newText.trim());
-      }
-    };
 
     /* CARREGAR HISTÓRICO PARA EXPORTAR .TXT */
     onValue(ref(database, 'pedidos_historico'), (snapshot) => {
