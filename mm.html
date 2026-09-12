@@ -631,16 +631,21 @@
         email: user.email,
         photoURL: user.photoURL || "https://via.placeholder.com/75",
         text: text,
+        message: text, // campo espelho, usado pelo bot (index.js) pra ler o pedido
         timestamp: Date.now()
       };
+
+      // IMPORTANTE: TODA mensagem (inclusive pedidos com "!") precisa ir pra
+      // 'messages', porque é o ÚNICO nó que o bot escuta. Sem isso o bot
+      // nunca vê o pedido de música.
+      await push(ref(database, 'messages'), msgData);
 
       const ehPedidoMusical = text.startsWith('!') || text.includes('-');
 
       if (ehPedidoMusical) {
+        // cópia extra só para o painel administrativo de histórico/export .txt
         await push(ref(database, 'pedidos'), msgData);
         showNotification("Pedido musical enviado com sucesso!");
-      } else {
-        await push(ref(database, 'messages'), msgData);
       }
     }
 
