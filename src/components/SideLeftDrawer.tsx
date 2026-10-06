@@ -226,7 +226,7 @@ const handleDownload = async () => {
 
     try {
       // aponta para o Render em vez do Netlify
-      const RENDER_BOT_URL = process.env.NEXT_PUBLIC_RENDER_BOT_URL || 'https://seu-bot-download.onrender.com';
+      const RENDER_BOT_URL = process.env.NEXT_PUBLIC_RENDER_BOT_URL || 'https://power-dance-bot.onrender.com';
       const response = await fetch(`${RENDER_BOT_URL}/api/download-yt?query=${encodeURIComponent(cleanQuery)}`);
 
       if (!response.ok) {
