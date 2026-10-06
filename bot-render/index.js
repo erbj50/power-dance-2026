@@ -22,18 +22,24 @@ app.get('/api/download-yt', async (req, res) => {
     const sanitizedQuery = query.replace(/["'\\]/g, '').trim();
     const tempFile = path.join(os.tmpdir(), `audio_${Date.now()}.m4a`);
 
-    // Comando do yt-dlp simplificado e compatível com servidores em nuvem
-    const command = `yt-dlp "ytsearch1:${sanitizedQuery}" -f "ba[ext=m4a]/ba/b" -o "${tempFile}" --no-playlist --no-warnings`;
+    // Clientes de evasão de bot para IP de servidor (mweb/android/ios)
+    const command = [
+      'yt-dlp',
+      `"ytsearch1:${sanitizedQuery}"`,
+      '-f "ba[ext=m4a]/ba/b"',
+      `-o "${tempFile}"`,
+      '--no-playlist',
+      '--no-warnings',
+      '--extractor-args "youtube:player_client=mweb,android_creator,ios"',
+      '--user-agent "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1"'
+    ].join(' ');
 
-    console.log(`[INFO] Executando comando: ${command}`);
+    console.log(`[INFO] Processando: ${sanitizedQuery}`);
 
-    const { stdout, stderr } = await execAsync(command);
-    if (stdout) console.log('[yt-dlp stdout]:', stdout);
-    if (stderr) console.warn('[yt-dlp stderr]:', stderr);
+    await execAsync(command);
 
     if (!fs.existsSync(tempFile)) {
-      console.error('[ERRO] Arquivo temporário não foi criado no caminho:', tempFile);
-      return res.status(500).json({ error: 'Erro ao gerar arquivo de áudio.' });
+      throw new Error('Arquivo temporário de áudio não foi gerado.');
     }
 
     res.setHeader('Content-Type', 'audio/mp4');
@@ -49,16 +55,10 @@ app.get('/api/download-yt', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('================ ERRO NO SERVIDOR ================');
-    console.error('Mensagem:', error.message);
-    if (error.stdout) console.error('STDOUT:', error.stdout);
-    if (error.stderr) console.error('STDERR:', error.stderr);
-    console.error('==================================================');
-
+    console.error('Erro no processamento:', error.message);
     res.status(500).json({ 
       error: 'Falha ao processar download do YouTube', 
-      details: error.message,
-      stderr: error.stderr || null 
+      details: error.message 
     });
   }
 });
