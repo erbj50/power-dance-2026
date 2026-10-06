@@ -11,12 +11,14 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /usr/src/app
 
-# Copia e instala as dependências do Node.js
-COPY package*.json ./
+# Copia os ficheiros de dependências da subpasta bot-render
+COPY bot-render/package*.json ./
+
+# Instala apenas as dependências do bot
 RUN npm install
 
-# Copia o restante código do bot
-COPY . .
+# Copia todo o código da subpasta bot-render
+COPY bot-render/ .
 
 EXPOSE 10000
 
