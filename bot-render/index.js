@@ -9,7 +9,6 @@ const { promisify } = require('util');
 const execAsync = promisify(exec);
 const app = express();
 
-// Libera requisições vindas do Netlify/Browser
 app.use(cors());
 
 app.get('/api/download-yt', async (req, res) => {
@@ -21,44 +20,46 @@ app.get('/api/download-yt', async (req, res) => {
     }
 
     const sanitizedQuery = query.replace(/["'\\]/g, '').trim();
-    const tempPrefix = path.join(os.tmpdir(), `temp_${Date.now()}_${Math.random().toString(36).substring(7)}`);
-    const tempOutputFile = `${tempPrefix}.m4a`;
+    const tempFile = path.join(os.tmpdir(), `audio_${Date.now()}.m4a`);
 
-    // Flags antibloqueio (User-Agent real + iOS/Android client fallbacks)
-    const ytdlFlags = [
-      `"ytsearch1:${sanitizedQuery}"`,
-      `-x`,
-      `--audio-format m4a`,
-      `-o "${tempPrefix}.%(ext)s"`,
-      `--no-playlist`,
-      `--no-warnings`,
-      `--user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"`,
-      `--extractor-args "youtube:player_client=ios,android,web"`,
-      `--no-check-certificates`
-    ].join(' ');
+    // Comando do yt-dlp simplificado e compatível com servidores em nuvem
+    const command = `yt-dlp "ytsearch1:${sanitizedQuery}" -f "ba[ext=m4a]/ba/b" -o "${tempFile}" --no-playlist --no-warnings`;
 
-    const command = `yt-dlp ${ytdlFlags}`;
+    console.log(`[INFO] Executando comando: ${command}`);
 
-    await execAsync(command);
+    const { stdout, stderr } = await execAsync(command);
+    if (stdout) console.log('[yt-dlp stdout]:', stdout);
+    if (stderr) console.warn('[yt-dlp stderr]:', stderr);
 
-    if (!fs.existsSync(tempOutputFile)) {
-      return res.status(500).json({ error: 'Erro ao gerar arquivo temporário M4A.' });
+    if (!fs.existsSync(tempFile)) {
+      console.error('[ERRO] Arquivo temporário não foi criado no caminho:', tempFile);
+      return res.status(500).json({ error: 'Erro ao gerar arquivo de áudio.' });
     }
 
     res.setHeader('Content-Type', 'audio/mp4');
     res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(sanitizedQuery)}.m4a"`);
 
-    const stream = fs.createReadStream(tempOutputFile);
+    const stream = fs.createReadStream(tempFile);
     stream.pipe(res);
 
     stream.on('end', () => {
-      if (fs.existsSync(tempOutputFile)) {
-        fs.unlinkSync(tempOutputFile);
+      if (fs.existsSync(tempFile)) {
+        fs.unlinkSync(tempFile);
       }
     });
+
   } catch (error) {
-    console.error('Erro no processamento do Bot YouTube:', error);
-    res.status(500).json({ error: 'Falha ao processar download do YouTube', details: error.message });
+    console.error('================ ERRO NO SERVIDOR ================');
+    console.error('Mensagem:', error.message);
+    if (error.stdout) console.error('STDOUT:', error.stdout);
+    if (error.stderr) console.error('STDERR:', error.stderr);
+    console.error('==================================================');
+
+    res.status(500).json({ 
+      error: 'Falha ao processar download do YouTube', 
+      details: error.message,
+      stderr: error.stderr || null 
+    });
   }
 });
 
