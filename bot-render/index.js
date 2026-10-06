@@ -21,10 +21,23 @@ app.get('/api/download-yt', async (req, res) => {
     }
 
     const sanitizedQuery = query.replace(/["'\\]/g, '').trim();
-    const tempOutputFile = path.join(os.tmpdir(), `temp_${Date.now()}_${Math.random().toString(36).substring(7)}.m4a`);
+    const tempPrefix = path.join(os.tmpdir(), `temp_${Date.now()}_${Math.random().toString(36).substring(7)}`);
+    const tempOutputFile = `${tempPrefix}.m4a`;
 
-    // No Render/Linux os executáveis yt-dlp e ffmpeg já estão no PATH do sistema
-    const command = `yt-dlp "ytsearch1:${sanitizedQuery}" -x --audio-format m4a -o "${tempOutputFile}" --no-playlist --no-warnings`;
+    // Flags antibloqueio (User-Agent real + iOS/Android client fallbacks)
+    const ytdlFlags = [
+      `"ytsearch1:${sanitizedQuery}"`,
+      `-x`,
+      `--audio-format m4a`,
+      `-o "${tempPrefix}.%(ext)s"`,
+      `--no-playlist`,
+      `--no-warnings`,
+      `--user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"`,
+      `--extractor-args "youtube:player_client=ios,android,web"`,
+      `--no-check-certificates`
+    ].join(' ');
+
+    const command = `yt-dlp ${ytdlFlags}`;
 
     await execAsync(command);
 
