@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fonte Digital */
+@font-face {
+  font-family: 'digital-clock-font';
+  src: url('/ds-digital/DS-DIGI.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Reset Global */
+* {
+  box-sizing: border-box;
+  -webkit-touch-callout: none;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #000;
+  user-select: none;
+}
+
+/* Equalizador Sliders Verticais */
+.eq-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 300px;
+  height: 50px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #6f759970, #5f5b86b7);
+  outline: none;
+  transform: rotate(-90deg);
+}
+
+.eq-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 60px;
+  height: 60px;
+  background: url('/image/vol-bg.gif') no-repeat center, #070f3317;
+  background-size: contain;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 15px #ffffff;
+}
+
+.eq-slider::-moz-range-thumb {
+  width: 60px;
+  height: 60px;
+  background: url('/image/vol-bg.gif') no-repeat center, #070f3317;
+  background-size: contain;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 15px #ffffff;
+}
+
+/* 3D Carousel Preserves */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+@keyframes rotar {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+.animate-rotar-3d {
+  animation: rotar 60s infinite linear;
+}
+
+.animate-rotar-3d:hover {
+  animation-play-state: paused;
+}
+
+/* --- ANIMAÇÕES DA FITA K7 E METADADOS DO PLAYER --- */
+
+/* Rotação Suave dos Rolos do Cassete */
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 4s linear infinite;
+}
+
+/* Marquise / Letreiro Corrente para Nomes Longos na Fita K7 */
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 12s linear infinite;
+}

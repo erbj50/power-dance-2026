@@ -1,0 +1,21 @@
+# Dependências e Builds
+node_modules/
+.next/
+out/
+build/
+
+# Executáveis binários e locais (Windows/Linux)
+*.exe
+yt-dlp
+ffmpeg
+ffprobe
+
+# Arquivos de ambiente e logs
+.env
+.env*.local
+*.log
+npm-debug.log*
+
+# Sistema
+.DS_Store
+Thumbs.db

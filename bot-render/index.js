@@ -1,0 +1,55 @@
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+const { exec } = require('child_process');
+const { promisify } = require('util');
+
+const execAsync = promisify(exec);
+const app = express();
+
+// Libera requisições vindas do Netlify/Browser
+app.use(cors());
+
+app.get('/api/download-yt', async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || query.trim() === '') {
+      return res.status(400).json({ error: 'Parâmetro query é obrigatório.' });
+    }
+
+    const sanitizedQuery = query.replace(/["'\\]/g, '').trim();
+    const tempOutputFile = path.join(os.tmpdir(), `temp_${Date.now()}_${Math.random().toString(36).substring(7)}.m4a`);
+
+    // No Render/Linux os executáveis yt-dlp e ffmpeg já estão no PATH do sistema
+    const command = `yt-dlp "ytsearch1:${sanitizedQuery}" -x --audio-format m4a -o "${tempOutputFile}" --no-playlist --no-warnings`;
+
+    await execAsync(command);
+
+    if (!fs.existsSync(tempOutputFile)) {
+      return res.status(500).json({ error: 'Erro ao gerar arquivo temporário M4A.' });
+    }
+
+    res.setHeader('Content-Type', 'audio/mp4');
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(sanitizedQuery)}.m4a"`);
+
+    const stream = fs.createReadStream(tempOutputFile);
+    stream.pipe(res);
+
+    stream.on('end', () => {
+      if (fs.existsSync(tempOutputFile)) {
+        fs.unlinkSync(tempOutputFile);
+      }
+    });
+  } catch (error) {
+    console.error('Erro no processamento do Bot YouTube:', error);
+    res.status(500).json({ error: 'Falha ao processar download do YouTube', details: error.message });
+  }
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`Servidor de download rodando na porta ${PORT}`);
+});
