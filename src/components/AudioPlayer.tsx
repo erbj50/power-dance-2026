@@ -330,30 +330,40 @@ export default function AudioPlayer() {
       splitter.connect(analyserR, 1); // Canal Direito (R)
 
       let lastStereoState = false;
-      const renderVU = () => {
-        requestAnimationFrame(renderVU);
 
-        const dataL = new Uint8Array(analyserL.frequencyBinCount);
-        const dataR = new Uint8Array(analyserR.frequencyBinCount);
+const renderVU = () => {
+  requestAnimationFrame(renderVU);
 
-        analyserL.getByteFrequencyData(dataL);
-        analyserR.getByteFrequencyData(dataR);
+  const dataL = new Uint8Array(analyserL.frequencyBinCount);
+  const dataR = new Uint8Array(analyserR.frequencyBinCount);
 
-        const avgL = dataL.reduce((a, b) => a + b, 0) / dataL.length;
-        const avgR = dataR.reduce((a, b) => a + b, 0) / dataR.length;
+  analyserL.getByteFrequencyData(dataL);
+  analyserR.getByteFrequencyData(dataR);
 
-        // Renderiza os ponteiros do canal Esquerdo e Direito
-        drawPointer(canvasLRef.current, (avgL / 255) * 180 * 2.5);
-        drawPointer(canvasRRef.current, (avgR / 255) * 180 * 2.5);
+  const avgL = dataL.reduce((a, b) => a + b, 0) / dataL.length;
+  const avgR = dataR.reduce((a, b) => a + b, 0) / dataR.length;
 
-        // Identifica estéreo REAL baseado na variação entre os 2 canais
-        const isStereo = Math.abs(avgL - avgR) > 3;
+  // Normaliza e converte a amplitude (0 a 255) numa escala de ângulo (-45° a +40°)
+  // O divisor por 128 com Math.pow ajusta a sensibilidade para resposta de pico dinâmica
+  const normL = Math.min(1, avgL / 140);
+  const normR = Math.min(1, avgR / 140);
 
-        if (isStereo !== lastStereoState) {
-          lastStereoState = isStereo;
-          setStereoOn(isStereo);
-        }
-      };
+  // Mapeia o valor de 0..1 para o intervalo de -45 graus a +40 graus
+  const angleL = 30 + normL * 190;
+  const angleR = 30+ normR * 190;
+
+  // Renderiza os ponteiros dentro dos limites exatos do mostrador
+  drawPointer(canvasLRef.current, angleL);
+  drawPointer(canvasRRef.current, angleR);
+
+  // Identifica estéreo REAL sem interferir na reprodução do áudio
+  const isStereo = Math.abs(avgL - avgR) > 3;
+
+  if (isStereo !== lastStereoState) {
+    lastStereoState = isStereo;
+    setStereoOn(isStereo);
+  }
+};
 
       renderVU();
     }
@@ -463,7 +473,7 @@ export default function AudioPlayer() {
     holdTimerRef.current = setTimeout(() => {
       isHoldActionRef.current = true;
       switchMode();
-    }, 1500);
+    }, 1600);
   };
 
   const handleLeftVUTouchEnd = () => {
@@ -526,9 +536,9 @@ export default function AudioPlayer() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 1.1);
-    ctx.rotate(((value - 100) * Math.PI) / 200);
+    ctx.rotate(((value - 90) * Math.PI) / 180);
     ctx.fillStyle = '#a8fe13';
-    ctx.fillRect(-1.5, -99, 2.5, 87);
+    ctx.fillRect(-1.5, -99, 3, 87);
     ctx.restore();
   };
 
@@ -570,8 +580,6 @@ export default function AudioPlayer() {
         preload="none"
         onEnded={handleAudioEnded}
       />
-
-
 
       <input
         type="file"
