@@ -8,11 +8,13 @@ const CILINDROS_LIST = [
   '/image/cilindro.webp',
   '/image/cilindro1.webp',
   '/image/cilindro2.webp',
+  '/image/cilindro2.webp',
   '/image/cilindro3.webp',
   '/image/cilindro4.webp',
   '/image/cilindro5.webp',
   '/image/cilindro6.webp',
   '/image/cilindro7.webp',
+  '/image/cilindro8.webp',
   '/image/cilindro8.webp',
   '/image/cilindro9.webp',
   '/image/cilindro10.webp',
@@ -54,7 +56,6 @@ export default function AudioPlayer() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const mediaSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const filtersRef = useRef<BiquadFilterNode[]>([]);
-  const analyserRef = useRef<AnalyserNode | null>(null);
   const isPlayingRef = useRef(false);
 
   const currentObjectUrlRef = useRef<string | null>(null);
@@ -275,7 +276,7 @@ export default function AudioPlayer() {
     };
   }, [mode]);
 
-  // Inicializa o Web Audio
+  // Inicializa o Web Audio sem perda do sinal Estéreo e sem perda de volume
   const initWebAudio = () => {
     if (!audioRef.current) return;
 
@@ -291,16 +292,11 @@ export default function AudioPlayer() {
     }
 
     if (filtersRef.current.length === 0) {
-      const analyser = ctx.createAnalyser();
-      analyser.fftSize = 256;
-      analyserRef.current = analyser;
-
+      // 1. Ganho Master de Volume (100% sem atenuar)
       const volumeNode = ctx.createGain();
-      volumeNode.gain.value = 0.87;
+      volumeNode.gain.value = 1.0;
 
-      const vuMeterGain = ctx.createGain();
-      vuMeterGain.gain.value = 0.02;
-
+      // 2. Filtros do Equalizador de 6 frequências
       const filters = FREQUENCIES.map((freq, index) => {
         const f = ctx.createBiquadFilter();
         f.type = 'peaking';
@@ -311,32 +307,47 @@ export default function AudioPlayer() {
       });
       filtersRef.current = filters;
 
+      // Encadeamento do sinal pelos filtros de equalização
       let currentNode: AudioNode = mediaSourceRef.current;
       filters.forEach((filter) => {
         currentNode.connect(filter);
         currentNode = filter;
       });
 
+      // 3. Conecta no Volume e manda DIRETAMENTE para a saída do som (Preserva Estéreo L/R Puro)
       currentNode.connect(volumeNode);
       volumeNode.connect(ctx.destination);
-      volumeNode.connect(vuMeterGain);
-      vuMeterGain.connect(analyser);
+
+      // 4. Divisor de Canais (ChannelSplitter) Exclusivo para L/R nos VU Meters (Sem afetar os alto-falantes)
+      const splitter = ctx.createChannelSplitter(2);
+      const analyserL = ctx.createAnalyser();
+      const analyserR = ctx.createAnalyser();
+      analyserL.fftSize = 256;
+      analyserR.fftSize = 256;
+
+      volumeNode.connect(splitter);
+      splitter.connect(analyserL, 0); // Canal Esquerdo (L)
+      splitter.connect(analyserR, 1); // Canal Direito (R)
 
       let lastStereoState = false;
       const renderVU = () => {
         requestAnimationFrame(renderVU);
-        if (!analyserRef.current) return;
 
-        const bufferLength = analyserRef.current.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        analyserRef.current.getByteFrequencyData(dataArray);
+        const dataL = new Uint8Array(analyserL.frequencyBinCount);
+        const dataR = new Uint8Array(analyserR.frequencyBinCount);
 
-        drawPointer(canvasLRef.current, (dataArray[0] / 255) * 180);
-        drawPointer(canvasRRef.current, (dataArray[0] / 255) * 180);
+        analyserL.getByteFrequencyData(dataL);
+        analyserR.getByteFrequencyData(dataR);
 
-        const leftAvg = dataArray.slice(0, dataArray.length / 2).reduce((a, b) => a + b, 0);
-        const rightAvg = dataArray.slice(dataArray.length / 2).reduce((a, b) => a + b, 0);
-        const isStereo = Math.abs(leftAvg - rightAvg) > 500;
+        const avgL = dataL.reduce((a, b) => a + b, 0) / dataL.length;
+        const avgR = dataR.reduce((a, b) => a + b, 0) / dataR.length;
+
+        // Renderiza os ponteiros do canal Esquerdo e Direito
+        drawPointer(canvasLRef.current, (avgL / 255) * 180 * 2.5);
+        drawPointer(canvasRRef.current, (avgR / 255) * 180 * 2.5);
+
+        // Identifica estéreo REAL baseado na variação entre os 2 canais
+        const isStereo = Math.abs(avgL - avgR) > 3;
 
         if (isStereo !== lastStereoState) {
           lastStereoState = isStereo;
