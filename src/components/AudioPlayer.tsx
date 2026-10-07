@@ -526,9 +526,9 @@ export default function AudioPlayer() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 1.1);
-    ctx.rotate(((value - 90) * Math.PI) / 180);
+    ctx.rotate(((value - 100) * Math.PI) / 200);
     ctx.fillStyle = '#a8fe13';
-    ctx.fillRect(-1.5, -99, 3, 87);
+    ctx.fillRect(-1.5, -99, 2.5, 87);
     ctx.restore();
   };
 
