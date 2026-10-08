@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { getTracksFromDB, saveTracksToDB, clearTracksFromDB, Track } from '@/lib/db';
 
-// Array flexível de imagens de cilindro. Você pode adicionar ou remover à vontade!
 const CILINDROS_LIST = [
   '/image/cilindro.webp',
   '/image/cilindro1.webp',
@@ -25,7 +24,6 @@ const CILINDROS_LIST = [
   '/image/cilindro17.webp',
 ];
 
-// Frequências alinhadas com as Labels
 const FREQUENCIES = [60, 250, 800, 2000, 4000, 10000];
 const LABELS = ['60Hz', '250Hz', '800Hz', '2kHz', '4kHz', '10kHz'];
 const STREAM_URL = process.env.NEXT_PUBLIC_STREAM_URL || 'https://erbj.com.br/listen/power_dance/radio.mp3';
@@ -49,7 +47,6 @@ export default function AudioPlayer() {
 
   const [currentTrackLabel, setCurrentTrackLabel] = useState<string>('POWER DANCE');
 
-  // Estado do Cilindro/Rolo Ativo
   const [cylinderIndex, setCylinderIndex] = useState<number>(0);
   const lastTrackRef = useRef<string>('');
 
@@ -64,12 +61,10 @@ export default function AudioPlayer() {
   const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isHoldActionRef = useRef<boolean>(false);
 
-  // Função para rotacionar o cilindro para o próximo da lista (Loop infinito)
   const advanceCylinder = () => {
     setCylinderIndex((prev) => (prev + 1) % CILINDROS_LIST.length);
   };
 
-  // Extração de Capa Otimizada
   const extractAndEmitCover = (fileBlob: Blob) => {
     if (typeof window === 'undefined') return;
 
@@ -204,7 +199,6 @@ export default function AudioPlayer() {
     }
   };
 
-  // Polling Otimizado de Metadados (2 segundos)
   useEffect(() => {
     if (mode !== 'RADIO') return;
 
@@ -224,7 +218,6 @@ export default function AudioPlayer() {
 
         const fullTrack = artist !== 'WEB RADIO POWER DANCE' ? `${artist} - ${title}` : 'POWER DANCE';
 
-        // Detecta a mudança de faixa e troca o cilindro ANTES do áudio tocar
         if (fullTrack !== lastTrackRef.current) {
           lastTrackRef.current = fullTrack;
           advanceCylinder();
@@ -244,7 +237,7 @@ export default function AudioPlayer() {
     };
 
     fetchNowPlaying();
-    const interval = setInterval(fetchNowPlaying, 2000); // Verificação rápida a cada 2s
+    const interval = setInterval(fetchNowPlaying, 2000);
     return () => clearInterval(interval);
   }, [mode]);
 
@@ -276,7 +269,6 @@ export default function AudioPlayer() {
     };
   }, [mode]);
 
-  // Inicializa o Web Audio sem perda do sinal Estéreo e sem perda de volume
   const initWebAudio = () => {
     if (!audioRef.current) return;
 
@@ -292,11 +284,9 @@ export default function AudioPlayer() {
     }
 
     if (filtersRef.current.length === 0) {
-      // 1. Ganho Master de Volume (100% sem atenuar)
       const volumeNode = ctx.createGain();
       volumeNode.gain.value = 1.0;
 
-      // 2. Filtros do Equalizador de 6 frequências
       const filters = FREQUENCIES.map((freq, index) => {
         const f = ctx.createBiquadFilter();
         f.type = 'peaking';
@@ -307,18 +297,15 @@ export default function AudioPlayer() {
       });
       filtersRef.current = filters;
 
-      // Encadeamento do sinal pelos filtros de equalização
       let currentNode: AudioNode = mediaSourceRef.current;
       filters.forEach((filter) => {
         currentNode.connect(filter);
         currentNode = filter;
       });
 
-      // 3. Conecta no Volume e manda DIRETAMENTE para a saída do som (Preserva Estéreo L/R Puro)
       currentNode.connect(volumeNode);
       volumeNode.connect(ctx.destination);
 
-      // 4. Divisor de Canais (ChannelSplitter) Exclusivo para L/R nos VU Meters (Sem afetar os alto-falantes)
       const splitter = ctx.createChannelSplitter(2);
       const analyserL = ctx.createAnalyser();
       const analyserR = ctx.createAnalyser();
@@ -326,44 +313,51 @@ export default function AudioPlayer() {
       analyserR.fftSize = 256;
 
       volumeNode.connect(splitter);
-      splitter.connect(analyserL, 0); // Canal Esquerdo (L)
-      splitter.connect(analyserR, 1); // Canal Direito (R)
+      splitter.connect(analyserL, 0);
+      splitter.connect(analyserR, 1);
 
       let lastStereoState = false;
 
-const renderVU = () => {
-  requestAnimationFrame(renderVU);
 
-  const dataL = new Uint8Array(analyserL.frequencyBinCount);
-  const dataR = new Uint8Array(analyserR.frequencyBinCount);
 
-  analyserL.getByteFrequencyData(dataL);
-  analyserR.getByteFrequencyData(dataR);
 
-  const avgL = dataL.reduce((a, b) => a + b, 0) / dataL.length;
-  const avgR = dataR.reduce((a, b) => a + b, 0) / dataR.length;
 
-  // Normaliza e converte a amplitude (0 a 255) numa escala de ângulo (-45° a +40°)
-  // O divisor por 128 com Math.pow ajusta a sensibilidade para resposta de pico dinâmica
-  const normL = Math.min(1, avgL / 140);
-  const normR = Math.min(1, avgR / 140);
 
-  // Mapeia o valor de 0..1 para o intervalo de -45 graus a +40 graus
-  const angleL = 30 + normL * 190;
-  const angleR = 30+ normR * 190;
+     const renderVU = () => {
+        requestAnimationFrame(renderVU);
 
-  // Renderiza os ponteiros dentro dos limites exatos do mostrador
-  drawPointer(canvasLRef.current, angleL);
-  drawPointer(canvasRRef.current, angleR);
+        const dataL = new Uint8Array(analyserL.frequencyBinCount);
+        const dataR = new Uint8Array(analyserR.frequencyBinCount);
 
-  // Identifica estéreo REAL sem interferir na reprodução do áudio
-  const isStereo = Math.abs(avgL - avgR) > 3;
+        analyserL.getByteFrequencyData(dataL);
+        analyserR.getByteFrequencyData(dataR);
 
-  if (isStereo !== lastStereoState) {
-    lastStereoState = isStereo;
-    setStereoOn(isStereo);
-  }
-};
+        const avgL = dataL.reduce((a, b) => a + b, 0) / dataL.length;
+        const avgR = dataR.reduce((a, b) => a + b, 0) / dataR.length;
+
+        // VERSÃO 2: Dinâmica Agressiva / Batidas Ágeis
+        const normL = Math.min(1, Math.pow(avgL / 65, 1.20));
+        const normR = Math.min(1, Math.pow(avgR / 65, 1.20));
+
+        const rawAngleL = -68 + normL * 120;
+        const rawAngleR = -68 + normR * 120;
+
+        const angleL = Math.max(-58, Math.min(80, rawAngleL));
+        const angleR = Math.max(-58, Math.min(80, rawAngleR));
+
+        drawPointer(canvasLRef.current, angleL);
+        drawPointer(canvasRRef.current, angleR);
+
+        const isStereo = Math.abs(avgL - avgR) > 2;
+        if (isStereo !== lastStereoState) {
+          lastStereoState = isStereo;
+          setStereoOn(isStereo);
+        }
+      };
+
+
+
+
 
       renderVU();
     }
@@ -447,7 +441,6 @@ const renderVU = () => {
     const streamUrl = URL.createObjectURL(track.blob);
     currentObjectUrlRef.current = streamUrl;
 
-    // Troca o cilindro também no modo Player local
     advanceCylinder();
 
     setMode('PLAYER');
@@ -528,17 +521,20 @@ const renderVU = () => {
     }
   };
 
-  const drawPointer = (canvas: HTMLCanvasElement | null, value: number) => {
+  const drawPointer = (canvas: HTMLCanvasElement | null, angleDegrees: number) => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const clampedAngle = Math.max(-48, Math.min(48, angleDegrees));
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
-    ctx.translate(canvas.width / 2, canvas.height / 1.1);
-    ctx.rotate(((value - 90) * Math.PI) / 180);
+    ctx.translate(canvas.width / 2, canvas.height / 1.15);
+    ctx.rotate((clampedAngle * Math.PI) / 150);
+    
     ctx.fillStyle = '#a8fe13';
-    ctx.fillRect(-1.5, -99, 3, 87);
+    ctx.fillRect(-1.5, -95, 3, 85);
     ctx.restore();
   };
 
@@ -740,7 +736,6 @@ const renderVU = () => {
           )}
         </div>
 
-        {/* 4 Cilindros com dinamismo de imagem trocando a cada faixa */}
         <div
           style={{ backgroundImage: `url('${activeCylinderUrl}')` }}
           className={`absolute top-[10px] left-[1.5px] w-[476px] h-[476px] bg-cover transition-all duration-300 ${isPlaying ? 'animate-spin-slow' : ''}`}
