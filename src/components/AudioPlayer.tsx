@@ -285,7 +285,7 @@ export default function AudioPlayer() {
 
     if (filtersRef.current.length === 0) {
       const volumeNode = ctx.createGain();
-      volumeNode.gain.value = 1.8;
+      volumeNode.gain.value = 1.3;
 
       const filters = FREQUENCIES.map((freq, index) => {
         const f = ctx.createBiquadFilter();
