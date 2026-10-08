@@ -285,7 +285,7 @@ export default function AudioPlayer() {
 
     if (filtersRef.current.length === 0) {
       const volumeNode = ctx.createGain();
-      volumeNode.gain.value = 1.0;
+      volumeNode.gain.value = 1.8;
 
       const filters = FREQUENCIES.map((freq, index) => {
         const f = ctx.createBiquadFilter();
@@ -333,8 +333,8 @@ export default function AudioPlayer() {
         const normL = Math.min(1, Math.pow(avgL / 150, 1.20));
         const normR = Math.min(1, Math.pow(avgR / 150, 1.20));
 
-        const rawAngleL = -68 + normL * 120;
-        const rawAngleR = -68 + normR * 120;
+        const rawAngleL = -68 + normL * 150;
+        const rawAngleR = -68 + normR * 150;
 
         const angleL = Math.max(-58, Math.min(80, rawAngleL));
         const angleR = Math.max(-58, Math.min(80, rawAngleR));
