@@ -330,11 +330,11 @@ export default function AudioPlayer() {
         const avgL = dataL.reduce((a, b) => a + b, 0) / dataL.length;
         const avgR = dataR.reduce((a, b) => a + b, 0) / dataR.length;
 
-        const normL = Math.min(1, Math.pow(avgL / 150, 1.20));
-        const normR = Math.min(1, Math.pow(avgR / 150, 1.20));
+        const normL = Math.min(1, Math.pow(avgL / 170, 1.20));
+        const normR = Math.min(1, Math.pow(avgR / 170, 1.20));
 
-        const rawAngleL = -68 + normL * 150;
-        const rawAngleR = -68 + normR * 150;
+        const rawAngleL = -68 + normL * 170;
+        const rawAngleR = -68 + normR * 170;
 
         const angleL = Math.max(-58, Math.min(80, rawAngleL));
         const angleR = Math.max(-58, Math.min(80, rawAngleR));
