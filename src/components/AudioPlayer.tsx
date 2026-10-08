@@ -336,11 +336,11 @@ export default function AudioPlayer() {
         const avgR = dataR.reduce((a, b) => a + b, 0) / dataR.length;
 
         // VERSÃO 2: Dinâmica Agressiva / Batidas Ágeis
-        const normL = Math.min(1, Math.pow(avgL / 65, 1.20));
-        const normR = Math.min(1, Math.pow(avgR / 65, 1.20));
+        const normL = Math.min(1, Math.pow(avgL / 78, 1.20));
+        const normR = Math.min(1, Math.pow(avgR / 78, 1.20));
 
-        const rawAngleL = -68 + normL * 120;
-        const rawAngleR = -68 + normR * 120;
+        const rawAngleL = -68 + normL * 120;    // Mapeia de -48° até +40° (-48 + 88 = 40)
+        const rawAngleR = -68 + normR * 120;    // Mapeia de -48° até +40° (-48 + 88 = 40)
 
         const angleL = Math.max(-58, Math.min(80, rawAngleL));
         const angleR = Math.max(-58, Math.min(80, rawAngleR));
