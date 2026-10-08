@@ -273,7 +273,7 @@ export default function AudioPlayer() {
     if (!audioRef.current) return;
 
     if (!audioCtxRef.current) {
-      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       audioCtxRef.current = new AudioContextClass();
     }
 
@@ -318,12 +318,7 @@ export default function AudioPlayer() {
 
       let lastStereoState = false;
 
-
-
-
-
-
-     const renderVU = () => {
+      const renderVU = () => {
         requestAnimationFrame(renderVU);
 
         const dataL = new Uint8Array(analyserL.frequencyBinCount);
@@ -335,12 +330,11 @@ export default function AudioPlayer() {
         const avgL = dataL.reduce((a, b) => a + b, 0) / dataL.length;
         const avgR = dataR.reduce((a, b) => a + b, 0) / dataR.length;
 
-        // VERSÃO 2: Dinâmica Agressiva / Batidas Ágeis
         const normL = Math.min(1, Math.pow(avgL / 150, 1.20));
         const normR = Math.min(1, Math.pow(avgR / 150, 1.20));
 
-        const rawAngleL = -68 + normL * 120;    // Mapeia de -48° até +40° (-48 + 88 = 40)
-        const rawAngleR = -68 + normR * 120;    // Mapeia de -48° até +40° (-48 + 88 = 40)
+        const rawAngleL = -68 + normL * 120;
+        const rawAngleR = -68 + normR * 120;
 
         const angleL = Math.max(-58, Math.min(80, rawAngleL));
         const angleR = Math.max(-58, Math.min(80, rawAngleR));
@@ -354,10 +348,6 @@ export default function AudioPlayer() {
           setStereoOn(isStereo);
         }
       };
-
-
-
-
 
       renderVU();
     }
@@ -532,7 +522,7 @@ export default function AudioPlayer() {
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 1.15);
     ctx.rotate((clampedAngle * Math.PI) / 150);
-    
+
     ctx.fillStyle = '#a8fe13';
     ctx.fillRect(-1.5, -95, 3, 85);
     ctx.restore();
