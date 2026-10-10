@@ -11,6 +11,8 @@ const carouselDB = localforage.createInstance({
 });
 
 const BACKGROUND_IMAGES = [
+
+
   'https://i.pinimg.com/originals/dd/dd/22/dddd220b1458dc3124516aa02528eecb.gif',
   'https://i.ibb.co/qMjzt3vq/PIST.webp',
   'https://i.pinimg.com/originals/f9/bf/0b/f9bf0b7d6465eeae7d1062542d5dd9f9.gif',
@@ -34,6 +36,9 @@ const BACKGROUND_IMAGES = [
   'https://i.pinimg.com/originals/9c/6c/1d/9c6c1dd45a8c98dcb78b46f0f30bfc22.gif',
   'https://i.pinimg.com/originals/58/12/f0/5812f097d3933d245e4fe88ad5cf96f8.gif',
   'https://i.pinimg.com/originals/f3/33/3e/f3333e1073af77942239b958e2d46e2e.gif',
+
+  '/image/tunel2.webp',
+  '/image/tunel1.webp',
   'https://i.redd.it/u7549afhg7xe1.gif',
   'https://i.pinimg.com/originals/1e/31/3a/1e313a58c726ed08e116c1607dfe3875.gif',
   'https://i.makeagif.com/media/9-05-2022/Ec7jqz.gif',
