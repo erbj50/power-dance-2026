@@ -11,8 +11,6 @@ const carouselDB = localforage.createInstance({
 });
 
 const BACKGROUND_IMAGES = [
-
-
   'https://i.pinimg.com/originals/dd/dd/22/dddd220b1458dc3124516aa02528eecb.gif',
   'https://i.ibb.co/qMjzt3vq/PIST.webp',
   'https://i.pinimg.com/originals/f9/bf/0b/f9bf0b7d6465eeae7d1062542d5dd9f9.gif',
@@ -36,7 +34,6 @@ const BACKGROUND_IMAGES = [
   'https://i.pinimg.com/originals/9c/6c/1d/9c6c1dd45a8c98dcb78b46f0f30bfc22.gif',
   'https://i.pinimg.com/originals/58/12/f0/5812f097d3933d245e4fe88ad5cf96f8.gif',
   'https://i.pinimg.com/originals/f3/33/3e/f3333e1073af77942239b958e2d46e2e.gif',
-
   '/image/tunel2.webp',
   '/image/tunel1.webp',
   'https://i.redd.it/u7549afhg7xe1.gif',
@@ -62,9 +59,12 @@ const STORAGE_KEY = 'firebase_carousel_data';
 const GLOBAL_INDEX_KEY = 'carousel_global_index';
 const BLOCK_10_INDEX_KEY = 'carousel_block_10_index';
 
+const rotations = ['rotate-right', 'rotate-left', 'rotate-y', 'rotate-inverse-y', 'rotate-z', 'rotate-inverse-z', 'rotate-xy'];
+
 export default function ThreeDCarousel() {
   const [masterBg, setMasterBg] = useState(BACKGROUND_IMAGES[0]);
   const [dimensions, setDimensions] = useState({ width: 899, height: 899 });
+  const [currentRotation, setCurrentRotation] = useState<string>('');
 
   const [iframeSources, setIframeSources] = useState<string[]>(['META_COVER']);
   const [linkSources, setLinkSources] = useState<string[]>(['https://metadapower.vercel.app']);
@@ -75,15 +75,12 @@ export default function ThreeDCarousel() {
   const widthRef = useRef<number>(MAX_SIZE);
   const heightRef = useRef<number>(MAX_SIZE);
   const iframeSourcesRef = useRef<string[]>(iframeSources);
-
-  // Controle de estado da aba lateral para pausar/retomar a animação
   const isDrawerOpenRef = useRef<boolean>(false);
 
   useEffect(() => {
     iframeSourcesRef.current = iframeSources;
   }, [iframeSources]);
 
-  // Escuta o status de abertura/fechamento da aba SideLeftDrawer
   useEffect(() => {
     const handleDrawerStatus = (e: any) => {
       if (e.detail && typeof e.detail.isOpen === 'boolean') {
@@ -97,7 +94,6 @@ export default function ThreeDCarousel() {
     };
   }, []);
 
-  // Carrega e sincroniza dados utilizando o espaço isolado do IndexedDB + Recuperação do Índice
   useEffect(() => {
     const syncData = async () => {
       try {
@@ -109,7 +105,6 @@ export default function ThreeDCarousel() {
         console.error('Erro ao ler do IndexedDB do carrossel:', e);
       }
 
-      // Restaura o último índice salvo no banco local
       try {
         const savedIndex = await carouselDB.getItem<number>(GLOBAL_INDEX_KEY);
         if (typeof savedIndex === 'number') {
@@ -157,7 +152,6 @@ export default function ThreeDCarousel() {
       finalIframes.push(rawIframes[i]);
       finalLinks.push(rawLinks[i]);
 
-      // Intercala a Tela MetaCover a cada 5 imagens
       if ((i + 1) % 5 === 0) {
         finalIframes.push('META_COVER');
         finalLinks.push('https://metadapower.vercel.app');
@@ -173,14 +167,13 @@ export default function ThreeDCarousel() {
     setLinkSources(finalLinks);
   };
 
-  // Animação contínua do Carrossel com Persistência do Índice Global
+  // Animação com recolhimento, expansão e transição 3D integrada
   useEffect(() => {
-    const PAUSE = 10000;
+    const PAUSE = 6000;
     const INTERVAL = 20;
     let timeoutId: NodeJS.Timeout | null = null;
 
     const step = () => {
-      // Se a aba estiver recolhida/fechada, aguarda e verifica novamente em 500ms sem travar a renderização
       if (!isDrawerOpenRef.current) {
         timeoutId = setTimeout(step, 500);
         return;
@@ -197,7 +190,7 @@ export default function ThreeDCarousel() {
         h -= 10;
       }
 
-      // Tela totalmente expandida no centro
+      // Tela totalmente expandida
       if (w >= MAX_SIZE) {
         w = MAX_SIZE;
         h = MAX_SIZE;
@@ -205,11 +198,17 @@ export default function ThreeDCarousel() {
         widthRef.current = w;
         heightRef.current = h;
         setDimensions({ width: w, height: h });
+        
+        // Remove a classe de rotação ao atingir o tamanho máximo
+        setTimeout(() => {
+          setCurrentRotation('');
+        }, 1500);
+
         timeoutId = setTimeout(step, PAUSE);
         return;
       }
 
-      // Tela recuada totalmente a zero: troca de conteúdo e atualização do Índice Global
+      // Tela recolhida a zero: troca o conteúdo e sorteia o efeito 3D
       if (w <= 0) {
         w = 0;
         h = 0;
@@ -218,14 +217,16 @@ export default function ThreeDCarousel() {
         heightRef.current = h;
         setDimensions({ width: w, height: h });
 
+        // Sorteia nova rotação 3D para a expansão
+        const randomRot = rotations[Math.floor(Math.random() * rotations.length)];
+        setCurrentRotation(randomRot);
+
         setCurrentIndex((prev) => {
           const total = iframeSourcesRef.current.length;
           const nextIndex = total > 0 ? (prev + 1) % total : 0;
 
-          // Salva o índice global atualizado no IndexedDB
           carouselDB.setItem(GLOBAL_INDEX_KEY, nextIndex);
 
-          // Controle de bloco de 10 posições
           if (nextIndex % 10 === 0) {
             carouselDB.setItem(BLOCK_10_INDEX_KEY, nextIndex);
           }
@@ -250,7 +251,6 @@ export default function ThreeDCarousel() {
     };
   }, []);
 
-  // Rotação de fundo da Master (troca a imagem a cada 180 segundos)
   useEffect(() => {
     let index = 0;
     const timer = setInterval(() => {
@@ -261,38 +261,45 @@ export default function ThreeDCarousel() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleOpenLink = () => {
-    const link = linkSources[currentIndex];
-    if (!link) return;
+  // O clique só é permitido se a tela estiver totalmente expandida (MAX_SIZE)
+  const isFullyExpanded = dimensions.width >= MAX_SIZE;
+  const currentLink = linkSources[currentIndex];
+  const isClickable = isFullyExpanded && Boolean(currentLink);
 
-    if (link.startsWith('whatsapp:')) {
-      window.open(link, '_blank');
-    } else if (link.startsWith('__whatsapp__')) {
-      const numero = window.atob(link.replace('__whatsapp__', ''));
+  const handleOpenLink = () => {
+    if (!isClickable) return;
+
+    if (currentLink.startsWith('whatsapp:')) {
+      window.open(currentLink, '_blank');
+    } else if (currentLink.startsWith('__whatsapp__')) {
+      const numero = window.atob(currentLink.replace('__whatsapp__', ''));
       window.open(`https://wa.me/${numero}`, '_blank');
     } else {
-      window.open(link.startsWith('http') ? link : `https://${link}`, '_blank');
+      window.open(currentLink.startsWith('http') ? currentLink : `https://${currentLink}`, '_blank');
     }
   };
 
   const currentSource = iframeSources[currentIndex] || 'META_COVER';
 
   return (
-    <div className="relative w-[900px] h-[900px] max-w-full max-h-full bg-[rgba(104,103,51,0.027)] overflow-hidden flex items-center justify-center select-none">
+    <div className="relative w-[900px] h-[900px] max-w-full max-h-full bg-[rgba(104,103,51,0.027)] overflow-hidden flex items-center justify-center select-none" style={{ perspective: '1000px' }}>
       {/* TELA MASTER COM ROTAÇÃO DE PLANO DE FUNDO */}
       <div
         className="relative w-full h-full max-h-[1600px] bg-cover bg-center flex items-center justify-center transition-all duration-700"
         style={{ backgroundImage: `url('${masterBg}')` }}
       >
-        {/* TELA CENTRAL DINÂMICA (ENCOLHE E AMPLIA) */}
+        {/* TELA CENTRAL DINÂMICA COM TRANSIÇÃO 3D */}
         <div
           onClick={handleOpenLink}
-          className="absolute overflow-hidden cursor-pointer flex items-center justify-center bg-transparent"
+          className={`absolute overflow-hidden flex items-center justify-center bg-transparent ${currentRotation}`}
           style={{
             width: `${dimensions.width}px`,
             height: `${dimensions.height}px`,
             left: `${(MAX_SIZE - dimensions.width) / 2}px`,
             top: `${(MAX_SIZE - dimensions.height) / 2}px`,
+            transformStyle: 'preserve-3d',
+            cursor: isClickable ? 'pointer' : 'default',
+            pointerEvents: isClickable ? 'auto' : 'none', // Desativa o clique durante o recolhimento/expansión
           }}
         >
           {currentSource === 'META_COVER' ? (
@@ -314,6 +321,46 @@ export default function ThreeDCarousel() {
           )}
         </div>
       </div>
+
+      {/* Estilos CSS Inline para suportar as animações 3D */}
+      <style jsx global>{`
+        @keyframes rotateRight {
+          from { transform: rotateX(0deg); }
+          to { transform: rotateX(360deg); }
+        }
+        @keyframes rotateLeft {
+          from { transform: rotateX(0deg); }
+          to { transform: rotateX(-360deg); }
+        }
+        @keyframes rotateY {
+          from { transform: rotateY(0deg); }
+          to { transform: rotateY(360deg); }
+        }
+        @keyframes rotateInverseY {
+          from { transform: rotateY(0deg); }
+          to { transform: rotateY(-360deg); }
+        }
+        @keyframes rotateZ {
+          from { transform: rotateZ(0deg); }
+          to { transform: rotateZ(360deg); }
+        }
+        @keyframes rotateInverseZ {
+          from { transform: rotateZ(0deg); }
+          to { transform: rotateZ(-360deg); }
+        }
+        @keyframes rotateXY {
+          from { transform: rotateX(0deg) rotateY(0deg); }
+          to { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        .rotate-right { animation: rotateRight 1.5s linear infinite; }
+        .rotate-left { animation: rotateLeft 1.5s linear infinite; }
+        .rotate-y { animation: rotateY 0.8s linear infinite; }
+        .rotate-inverse-y { animation: rotateInverseY 1.5s linear infinite; }
+        .rotate-z { animation: rotateZ 1.5s linear infinite; }
+        .rotate-inverse-z { animation: rotateInverseZ 1.5s linear infinite; }
+        .rotate-xy { animation: rotateXY 1.5s linear infinite; }
+      `}</style>
     </div>
   );
 }
