@@ -10,7 +10,7 @@ import { ref, get } from 'firebase/database';
 import { saveTracksToDB, getTracksFromDB } from '@/lib/db';
 
 const MadrugadaLove = dynamic(() => import('./MadrugadaLove'), { ssr: false });
-const ThreeDCarousel = dynamic(() => import('./SideLeftDrawer/ThreeDCarousel'), { ssr: false });
+const ThreeDCarousel = dynamic(() => import('./SideLeftDrawer/ThreeDCarousel/index'), { ssr: false });
 
 interface Props {
   isOpen?: boolean;
@@ -26,6 +26,7 @@ export default function SideLeftDrawer({ isOpen: externalIsOpen }: Props) {
   const [showTELA, setShowTELA] = useState<boolean>(true);
 
   const [metaCoverText, setMetaCoverText] = useState<string>('POWER DANCE');
+  const [activePlaylistName, setActivePlaylistName] = useState<string>('dance now');
   const [audioMode, setAudioMode] = useState<'RADIO' | 'PLAYER'>('RADIO');
 
   const [user, setUser] = useState<User | null>(null);
@@ -68,31 +69,37 @@ export default function SideLeftDrawer({ isOpen: externalIsOpen }: Props) {
     return () => unsubscribe();
   }, []);
 
+  // Processa Metadados e Seleciona a Tela / Playlist sem depender do Relógio do Computador
   const processMetadataForViewChange = (text: string) => {
     if (!text) return;
-    const lowerText = text.toLowerCase();
+    const lowerText = text.toLowerCase().trim();
 
+    // 1. CONDIÇÃO MADRUGADA LOVE (MDL)
     const isMDL =
-      lowerText.includes('yara alice') ||
+      lowerText.includes('madrugada love') ||
       lowerText.includes('mdl') ||
       lowerText.includes('abertura mdl') ||
-      lowerText.includes('madrugada love');
-
-    const isTELA =
-      lowerText.includes('top dance') ||
-      lowerText.includes('flash house') ||
-      lowerText.includes('eletro dance');
+      lowerText.includes('yara alice');
 
     if (isMDL) {
       setShowMDL(true);
       setShowTELA(false);
-    } else if (isTELA) {
-      setShowMDL(false);
-      setShowTELA(true);
+      return;
+    }
+
+    // 2. CONDIÇÃO PARA DEMAIS PLAYLISTS (TELA COM THREE D CAROUSEL)
+    setShowMDL(false);
+    setShowTELA(true);
+
+    if (lowerText.includes('hits 80') || lowerText.includes('hits80') || lowerText.includes('anos 80')) {
+      setActivePlaylistName('hits 80');
+    } else {
+      // Padrão: Dance Now
+      setActivePlaylistName('dance now');
     }
   };
 
-  // Eventos de Metadados e Áudio
+  // Eventos de Metadados e Áudio em tempo real
   useEffect(() => {
     const handleTrackUpdate = (e: any) => {
       if (e.detail && e.detail.label) {
@@ -125,36 +132,6 @@ export default function SideLeftDrawer({ isOpen: externalIsOpen }: Props) {
     };
   }, []);
 
-  // Troca de Telas Baseada no Horário
-  useEffect(() => {
-    const updateViewBasedOnTime = () => {
-      const lowerText = metaCoverText.toLowerCase();
-      const hasSpecificKeyword =
-        lowerText.includes('yara alice') ||
-        lowerText.includes('mdl') ||
-        lowerText.includes('abertura mdl') ||
-        lowerText.includes('madrugada love') ||
-        lowerText.includes('top dance') ||
-        lowerText.includes('flash house') ||
-        lowerText.includes('eletro dance');
-
-      if (!hasSpecificKeyword) {
-        const hours = new Date().getHours();
-        if (hours < 6) {
-          setShowMDL(true);
-          setShowTELA(false);
-        } else {
-          setShowMDL(false);
-          setShowTELA(true);
-        }
-      }
-    };
-
-    updateViewBasedOnTime();
-    const interval = setInterval(updateViewBasedOnTime, 60 * 1000);
-    return () => clearInterval(interval);
-  }, [metaCoverText]);
-
   const handleTriggerSamp1 = () => {
     setShowSamp1(true);
     setShowSamp2(false);
@@ -167,20 +144,7 @@ export default function SideLeftDrawer({ isOpen: externalIsOpen }: Props) {
     setTimeout(() => setShowSamp2(false), 10000);
   };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-const handleDownload = async () => {
+  const handleDownload = async () => {
     if (audioMode === 'PLAYER') return;
 
     if (!user) {
@@ -225,7 +189,6 @@ const handleDownload = async () => {
     setDownloadProgress(20);
 
     try {
-      // aponta para o Render em vez do Netlify
       const RENDER_BOT_URL = process.env.NEXT_PUBLIC_RENDER_BOT_URL || 'https://power-dance-bot.onrender.com';
       const response = await fetch(`${RENDER_BOT_URL}/api/download-yt?query=${encodeURIComponent(cleanQuery)}`);
 
@@ -272,12 +235,6 @@ const handleDownload = async () => {
     }
   };
 
-
-
-
-
-
-
   return (
     <div
       className={`absolute top-0 left-0 w-full h-full z-50 transition-all duration-500 ease-in-out overflow-hidden flex flex-col justify-start items-center bg-black ${
@@ -288,18 +245,19 @@ const handleDownload = async () => {
     >
       {isExpanded && (
         <>
-          {/* MODO MADRUGADA LOVE */}
+          {/* MODO MADRUGADA LOVE (Ativado dinamicamente pela Playlist da Rádio) */}
           {showMDL && !showTELA && (
-            <div className="w-full h-full max-h-[1700px]     bg-black flex flex-col justify-center items-center mt-20 relative z-10">
+            <div className="w-full h-full max-h-[1700px] bg-black flex flex-col justify-center items-center mt-20 relative z-10">
               <MadrugadaLove />
             </div>
           )}
 
-          {/* MODO CARROSSEL TELA 3D */}
+          {/* MODO CARROSSEL TELA 3D (Hits 80 / Dance Now) */}
           {showTELA && !showMDL && (
             <div className="relative w-full max-w-[995px] max-h-[1600px] bg-black border-[10px] border-black overflow-hidden flex flex-col justify-between items-center select-none font-['Oswald'] mt-1 z-10">
               <div className="w-full relative z-10 flex justify-center items-center">
-                <ThreeDCarousel />
+                {/* Repassa a playlist ativa para o ThreeDCarousel carregar o Anel 3D Orbital ou as URLs */}
+                <ThreeDCarousel activePlaylist={activePlaylistName} />
               </div>
 
               <div className="relative w-full flex flex-col justify-center items-center z-20 mt-[150px]">
