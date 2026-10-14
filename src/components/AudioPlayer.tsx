@@ -210,6 +210,7 @@ export default function AudioPlayer() {
 
         let artist = 'WEB RADIO POWER DANCE';
         let title = 'Campo Grande MS';
+        let playlistName = data?.now_playing?.playlist || data?.playlist || '';
 
         if (data?.now_playing?.song) {
           artist = data.now_playing.song.artist || artist;
@@ -226,7 +227,7 @@ export default function AudioPlayer() {
           if (typeof window !== 'undefined') {
             window.dispatchEvent(
               new CustomEvent('radio_metadata_updated', {
-                detail: { artist, title, fullTrack },
+                detail: { artist, title, fullTrack, playlist: playlistName },
               })
             );
           }

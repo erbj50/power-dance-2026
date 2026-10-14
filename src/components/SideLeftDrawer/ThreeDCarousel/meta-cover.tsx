@@ -46,6 +46,7 @@ export default function MetaCover({ onMetadataUpdate }: MetaCoverProps) {
       let title = 'Campo Grande MS';
       let genre = 'Dance';
       let art = '';
+      let playlistName = data?.now_playing?.playlist || data?.playlist || '';
 
       if (data?.now_playing?.song) {
         artist = data.now_playing.song.artist || artist;
@@ -61,7 +62,6 @@ export default function MetaCover({ onMetadataUpdate }: MetaCoverProps) {
 
       setSongInfo({ artist, title, genre, artUrl: targetArt });
 
-      // Dispara callback local e evento global de metadado
       if (onMetadataUpdate) {
         onMetadataUpdate(artist, title);
       }
@@ -74,7 +74,7 @@ export default function MetaCover({ onMetadataUpdate }: MetaCoverProps) {
 
         window.dispatchEvent(
           new CustomEvent('radio_metadata_updated', {
-            detail: { artist, title, fullTrack },
+            detail: { artist, title, fullTrack, playlist: playlistName },
           })
         );
       }

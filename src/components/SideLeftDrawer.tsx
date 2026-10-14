@@ -70,12 +70,14 @@ export default function SideLeftDrawer({ isOpen: externalIsOpen }: Props) {
   }, []);
 
   // Processa Metadados e Seleciona a Tela / Playlist sem depender do Relógio do Computador
-  const processMetadataForViewChange = (text: string) => {
-    if (!text) return;
-    const lowerText = text.toLowerCase().trim();
+  const processMetadataForViewChange = (text: string, playlistName?: string) => {
+    const lowerText = text ? text.toLowerCase().trim() : '';
+    const lowerPlaylist = playlistName ? playlistName.toLowerCase().trim() : '';
 
     // 1. CONDIÇÃO MADRUGADA LOVE (MDL)
     const isMDL =
+      lowerPlaylist.includes('madrugada love') ||
+      lowerPlaylist.includes('mdl') ||
       lowerText.includes('madrugada love') ||
       lowerText.includes('mdl') ||
       lowerText.includes('abertura mdl') ||
@@ -91,10 +93,15 @@ export default function SideLeftDrawer({ isOpen: externalIsOpen }: Props) {
     setShowMDL(false);
     setShowTELA(true);
 
-    if (lowerText.includes('hits 80') || lowerText.includes('hits80') || lowerText.includes('anos 80')) {
+    const isHits80 =
+      lowerPlaylist.includes('hits 80') ||
+      lowerPlaylist.includes('hits80') ||
+      lowerPlaylist.includes('hits 80s') ||
+      lowerText.includes('hits 80');
+
+    if (isHits80) {
       setActivePlaylistName('hits 80');
     } else {
-      // Padrão: Dance Now
       setActivePlaylistName('dance now');
     }
   };
@@ -102,16 +109,20 @@ export default function SideLeftDrawer({ isOpen: externalIsOpen }: Props) {
   // Eventos de Metadados e Áudio em tempo real
   useEffect(() => {
     const handleTrackUpdate = (e: any) => {
-      if (e.detail && e.detail.label) {
-        setMetaCoverText(e.detail.label);
-        processMetadataForViewChange(e.detail.label);
+      if (e.detail) {
+        const label = e.detail.label || '';
+        const playlist = e.detail.playlist || '';
+        setMetaCoverText(label);
+        processMetadataForViewChange(label, playlist);
       }
     };
 
     const handleRadioMetaUpdate = (e: any) => {
-      if (e.detail && e.detail.fullTrack) {
-        setMetaCoverText(e.detail.fullTrack);
-        processMetadataForViewChange(e.detail.fullTrack);
+      if (e.detail) {
+        const fullTrack = e.detail.fullTrack || '';
+        const playlist = e.detail.playlist || '';
+        setMetaCoverText(fullTrack);
+        processMetadataForViewChange(fullTrack, playlist);
       }
     };
 
@@ -245,18 +256,17 @@ export default function SideLeftDrawer({ isOpen: externalIsOpen }: Props) {
     >
       {isExpanded && (
         <>
-          {/* MODO MADRUGADA LOVE (Ativado dinamicamente pela Playlist da Rádio) */}
+          {/* MODO MADRUGADA LOVE */}
           {showMDL && !showTELA && (
             <div className="w-full h-full max-h-[1700px] bg-black flex flex-col justify-center items-center mt-20 relative z-10">
               <MadrugadaLove />
             </div>
           )}
 
-          {/* MODO CARROSSEL TELA 3D (Hits 80 / Dance Now) */}
+          {/* MODO CARROSSEL TELA 3D */}
           {showTELA && !showMDL && (
             <div className="relative w-full max-w-[995px] max-h-[1600px] bg-black border-[10px] border-black overflow-hidden flex flex-col justify-between items-center select-none font-['Oswald'] mt-1 z-10">
               <div className="w-full relative z-10 flex justify-center items-center">
-                {/* Repassa a playlist ativa para o ThreeDCarousel carregar o Anel 3D Orbital ou as URLs */}
                 <ThreeDCarousel activePlaylist={activePlaylistName} />
               </div>
 
