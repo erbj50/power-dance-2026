@@ -23,21 +23,21 @@ const BACKGROUND_IMAGES = [
   '/image/tunel1.webp',
 ];
 
-// Lista de fundos da rotação do Hits 80 (3 minutos)
+// Lista de fundos da rotação do Hits 80 (.gif)
 const HITS80_BACKGROUNDS = [
-  '/image/carrosel/bg1.webp',
-  '/image/carrosel/bg2.webp',
-  '/image/carrosel/bg3.webp',
-  '/image/carrosel/bg4.webp',
-  '/image/carrosel/bg5.webp',
-  '/image/carrosel/bg6.webp',
+  '/image/carrosel/bg1.gif',
+  '/image/carrosel/bg2.gif',
+  '/image/carrosel/bg3.gif',
+  '/image/carrosel/bg4.gif',
+  '/image/carrosel/bg5.gif',
+  '/image/carrosel/bg6.gif',
 ];
 
 const STORAGE_KEY = 'firebase_carousel_data';
 const GLOBAL_INDEX_KEY = 'carousel_global_index';
 
 interface ThreeDCarouselProps {
-  activePlaylist?: string; // Nome da playlist ativa vinda do AzuraCast
+  activePlaylist?: string;
 }
 
 export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDCarouselProps) {
@@ -45,13 +45,8 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
 
   // Mapeamento dinâmico das playlists
   const isHits80 = normalizedPlaylist === 'hits 80' || normalizedPlaylist === 'hits80';
-  const isDanceNow =
-    normalizedPlaylist === 'dance now' ||
-    normalizedPlaylist === 'dancenow' ||
-    normalizedPlaylist === 'top 10' ||
-    normalizedPlaylist === 'default';
 
-  // Refs de controle global e gaveta
+  // Refs de controle global
   const isDrawerOpenRef = useRef<boolean>(false);
 
   // Estados do Modo Padrão / Dance Now
@@ -67,11 +62,12 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
   const heightRef = useRef<number>(MAX_SIZE);
   const iframeSourcesRef = useRef<string[]>(iframeSources);
 
-  // Estados do Modo Hits 80 (Anel Orbital 3D)
+  // Estados do Modo Hits 80
   const [hits80BgIndex, setHits80BgIndex] = useState(0);
   const [cardsData, setCardsData] = useState<string[]>([]);
   const [zoomedCardIndex, setZoomedCardIndex] = useState<number | null>(null);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const wheelRef = useRef<HTMLDivElement>(null);
   const currentAngleRef = useRef(0);
@@ -82,8 +78,20 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
 
   const TOTAL_CARDS = 25;
   const MAX_IMAGES = 100;
-  const RADIUS = 1900;
   const LAPS_REQUIRED = 2;
+
+  // Ajusta o Raio do anel orbital conforme o tamanho da tela
+  const currentRadius = isMobile ? 800 : 1900;
+
+  // Detecta se é mobile para otimizar desempenho
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     iframeSourcesRef.current = iframeSources;
@@ -100,17 +108,23 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
     return () => window.removeEventListener('sideDrawerStatus', handleDrawerStatus);
   }, []);
 
-  // =========================================================================
-  // LOGICA MODO HITS 80 (ANEL ORBITAL 3D - LOCAL WEBP)
-  // =========================================================================
+  // Recupera o índice salvo ao montar para manter a posição ao fechar/reabrir a gaveta (Dance Now)
+  useEffect(() => {
+    if (isHits80) return;
+    carouselDB.getItem<number>(GLOBAL_INDEX_KEY).then((savedIndex) => {
+      if (typeof savedIndex === 'number' && !isNaN(savedIndex)) {
+        setCurrentIndex(savedIndex);
+      }
+    });
+  }, [isHits80]);
 
+  // Utiliza .gif para os inputs/imagens do Hits 80
   const getNextHits80Image = () => {
-    const url = `/image/carrosel/${currentImageNumRef.current}.webp`;
+    const url = `/image/carrosel/${currentImageNumRef.current}.gif`;
     currentImageNumRef.current = currentImageNumRef.current >= MAX_IMAGES ? 1 : currentImageNumRef.current + 1;
     return url;
   };
 
-  // Inicializa o carrossel do Hits 80
   useEffect(() => {
     if (!isHits80) return;
 
@@ -128,7 +142,6 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
     setZoomedCardIndex(null);
   }, [isHits80]);
 
-  // Rotação do background pai a cada 3 minutos no Hits 80
   useEffect(() => {
     if (!isHits80) return;
     const bgTimer = setInterval(() => {
@@ -137,7 +150,7 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
     return () => clearInterval(bgTimer);
   }, [isHits80]);
 
-  // Loop de Animação 3D do Hits 80
+  // Loop de Animação 3D Otimizado
   useEffect(() => {
     if (!isHits80) return;
 
@@ -145,7 +158,7 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
 
     const animateWheel = () => {
       if (!isPausedRef.current && isDrawerOpenRef.current) {
-        currentAngleRef.current -= 0.3;
+        currentAngleRef.current -= isMobile ? 0.2 : 0.3;
 
         const wheelEl = wheelRef.current;
         if (wheelEl) {
@@ -158,13 +171,13 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
 
               if (normalized > 90 && normalized < 270) {
                 cardEl.style.zIndex = '10';
-                cardEl.style.opacity = '0.6';
+                cardEl.style.opacity = '0.4';
               } else {
                 cardEl.style.zIndex = '100';
                 cardEl.style.opacity = '1';
               }
 
-              cardEl.style.transform = `rotateY(${totalAngle}deg) translateZ(${RADIUS}px)`;
+              cardEl.style.transform = `rotateY(${totalAngle}deg) translateZ(${currentRadius}px)`;
             }
           });
         }
@@ -174,7 +187,7 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
         const baseAngleTarget = (360 / TOTAL_CARDS) * targetIdx;
         const normalizedAngleTarget = Math.abs((baseAngleTarget + currentAngleRef.current) % 360);
 
-        if (currentLap >= lapCounterRef.current + LAPS_REQUIRED && normalizedAngleTarget < 0.8) {
+        if (currentLap >= lapCounterRef.current + LAPS_REQUIRED && normalizedAngleTarget < 1.0) {
           lapCounterRef.current = currentLap;
           triggerHits80Expand(targetIdx);
         }
@@ -185,7 +198,7 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
 
     animId = requestAnimationFrame(animateWheel);
     return () => cancelAnimationFrame(animId);
-  }, [isHits80, cardsData]);
+  }, [isHits80, cardsData, isMobile, currentRadius]);
 
   const triggerHits80Expand = (targetIdx: number) => {
     isPausedRef.current = true;
@@ -195,11 +208,9 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
       setZoomedCardIndex(targetIdx);
     }, 50);
 
-    // Permanece expandido por 10 segundos
     setTimeout(() => {
       setZoomedCardIndex(null);
 
-      // Troca a imagem para a próxima sequencial (1.webp a 100.webp)
       const nextImg = getNextHits80Image();
       setCardsData((prev) => {
         const next = [...prev];
@@ -207,7 +218,6 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
         return next;
       });
 
-      // Retoma o giro acelerado sem delay
       setTimeout(() => {
         setIsZoomed(false);
         targetCardIndexRef.current = (targetCardIndexRef.current + 1) % TOTAL_CARDS;
@@ -215,10 +225,6 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
       }, 150);
     }, 10000);
   };
-
-  // =========================================================================
-  // LOGICA MODO DANCE NOW / DEMAIS PLAYLISTS (FIREBASE E CLOUDINARY)
-  // =========================================================================
 
   useEffect(() => {
     if (isHits80) return;
@@ -231,7 +237,6 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
         return;
       }
 
-      // Se for Dance Now ou modo padrão com banco Firebase
       try {
         const dadosLocais = await carouselDB.getItem<Record<string, any>>(STORAGE_KEY);
         if (dadosLocais) {
@@ -274,7 +279,6 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
 
     setIframeSources(finalIframes);
     setLinkSources(finalLinks);
-    setCurrentIndex(0);
   };
 
   const montarFontesComFirebase = (dados: Record<string, any>) => {
@@ -313,7 +317,6 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
     setLinkSources(finalLinks);
   };
 
-  // Animação contínua do modo Dance Now
   useEffect(() => {
     if (isHits80) return;
 
@@ -380,7 +383,6 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
     };
   }, [isHits80]);
 
-  // Troca de fundo do Master (Dance Now)
   useEffect(() => {
     if (isHits80) return;
     let index = 0;
@@ -407,37 +409,38 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
   };
 
   // =========================================================================
-  // RENDERIZAÇÃO DA INTERFACE
+  // RENDERIZAÇÃO MODO HITS 80 (DIMENSÕES CORRIGIDAS + LOGO .GIF)
   // =========================================================================
-
   if (isHits80) {
     return (
       <div
-        className={`relative w-[899px] h-[899px] max-w-[95vw] max-h-[95vw] overflow-hidden flex items-center justify-center select-none bg-cover bg-center transition-all duration-1000 ${
+        className={`relative w-full aspect-square max-w-[900px] overflow-hidden flex items-center justify-center select-none bg-cover bg-center transition-all duration-1000 ${
           isZoomed ? 'zoomed' : ''
         }`}
         style={{
           backgroundImage: `url('${HITS80_BACKGROUNDS[hits80BgIndex]}')`,
-          perspective: '2500px',
+          perspective: isMobile ? '1100px' : '2200px',
         }}
       >
         <div className="absolute w-full h-full bg-[radial-gradient(circle_at_50%_45%,rgba(0,0,0,0.22)_0%,transparent_65%)] pointer-events-none z-[1]" />
 
-        {/* LOGO CENTRAL HITS 80 */}
+        {/* LOGO CENTRAL HITS 80 (.GIF) */}
         <div
-          className={`absolute top-[23%] w-[600px] h-[300px] rounded-[24px] border-4 border-[rgba(0,255,255,0)] bg-cover bg-center bg-no-repeat z-[50] pointer-events-none transition-opacity duration-200 ${
+          className={`absolute w-[60%] max-w-[550px] h-[30%] max-h-[280px] bg-contain bg-center bg-no-repeat z-[50] pointer-events-none transition-opacity duration-300 ${
             isZoomed ? 'opacity-0' : 'opacity-100'
           }`}
-          style={{ backgroundImage: "url('/image/h80s.webp')" }}
+          style={{ backgroundImage: "url('/image/h80s.gif')" }}
         />
 
-        {/* ANEL ORBITAL 3D */}
+        {/* ANEL ORBITAL 3D CENTRALIZADO */}
         <div
           ref={wheelRef}
-          className="absolute w-full h-full top-[23%] left-0 flex items-center justify-center z-[20]"
+          className="absolute inset-0 flex items-center justify-center z-[20] will-change-transform"
           style={{
             transformStyle: 'preserve-3d',
-            transform: 'translateY(20px) rotateX(-18deg) translateZ(-1800px)',
+            transform: isMobile
+              ? 'rotateX(-14deg) translateZ(-650px)'
+              : 'rotateX(-16deg) translateZ(-1400px)',
           }}
         >
           {cardsData.map((imgUrl, idx) => {
@@ -445,16 +448,17 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
             return (
               <div
                 key={idx}
-                className={`absolute w-[260px] h-[260px] rounded-[16px] bg-cover bg-center bg-no-repeat border-2 border-[rgba(0,213,255,0.975)] shadow-[0_0_25px_rgba(0,255,255,0.3)] transition-all duration-800 cursor-pointer ${
+                className={`absolute w-[140px] h-[140px] md:w-[250px] md:h-[250px] rounded-[16px] bg-cover bg-center bg-no-repeat border-2 border-[rgba(0,213,255,0.975)] shadow-[0_0_25px_rgba(0,255,255,0.3)] transition-all duration-500 cursor-pointer will-change-transform ${
                   isExpanded
-                    ? 'expanded !fixed !top-[-24%] !left-0 !w-[899px] !h-[899px] !rounded-[20px] !border-[#ff00ff00] !shadow-[0_0_100px_#ff00ff03,inset_0_0_60px_rgba(0,255,255,0)] !z-[999999] !opacity-100'
+                    ? 'expanded !fixed !inset-0 !w-full !h-full !rounded-none md:!rounded-[20px] !border-transparent !shadow-none !z-[999999] !opacity-100'
                     : isZoomed
                     ? '!opacity-0 pointer-events-none'
                     : ''
                 }`}
                 style={{
                   backgroundImage: `url('${imgUrl}')`,
-                  transform: isExpanded ? 'translate3d(0px, 0px, 1800px) rotateY(0deg) rotateX(0deg)' : undefined,
+                  backfaceVisibility: 'hidden',
+                  transform: isExpanded ? 'translate3d(0px, 0px, 1000px) rotateY(0deg) rotateX(0deg)' : undefined,
                 }}
               />
             );
@@ -464,13 +468,15 @@ export default function ThreeDCarousel({ activePlaylist = 'dance now' }: ThreeDC
     );
   }
 
-  // MODO DANCE NOW / DEMAIS PLAYLISTS (Carrossel Padrão com URLs e Links)
+  // =========================================================================
+  // RENDERIZAÇÃO MODO DANCE NOW / PLAYLISTS PADRÃO
+  // =========================================================================
   const currentSource = iframeSources[currentIndex] || 'META_COVER';
 
   return (
-    <div className="relative w-[900px] h-[900px] max-w-full max-h-full bg-[rgba(104,103,51,0.027)] overflow-hidden flex items-center justify-center select-none">
+    <div className="relative w-full aspect-square max-w-[900px] bg-[rgba(104,103,51,0.027)] overflow-hidden flex items-center justify-center select-none">
       <div
-        className="relative w-full h-full max-h-[1600px] bg-cover bg-center flex items-center justify-center transition-all duration-700"
+        className="relative w-full h-full bg-cover bg-center flex items-center justify-center transition-all duration-700"
         style={{ backgroundImage: `url('${masterBg}')` }}
       >
         <div

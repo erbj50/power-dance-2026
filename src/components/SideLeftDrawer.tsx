@@ -263,37 +263,42 @@ export default function SideLeftDrawer({ isOpen: externalIsOpen }: Props) {
             </div>
           )}
 
-          {/* MODO CARROSSEL TELA 3D */}
+{/* MODO CARROSSEL TELA 3D */}
           {showTELA && !showMDL && (
-            <div className="relative w-full max-w-[995px] max-h-[1600px] bg-black border-[10px] border-black overflow-hidden flex flex-col justify-between items-center select-none font-['Oswald'] mt-1 z-10">
+            <div className="relative w-full max-w-[995px] bg-black border-2 md:border-[6px] border-black overflow-hidden flex flex-col justify-start items-center select-none font-['Oswald'] mt-1 z-10">
+              
+              {/* CONTAINER DA TELA / CARROSSEL */}
               <div className="w-full relative z-10 flex justify-center items-center">
                 <ThreeDCarousel activePlaylist={activePlaylistName} />
               </div>
 
-              <div className="relative w-full flex flex-col justify-center items-center z-20 mt-[150px]">
+              {/* MESA DE SOM / DJ - COLADA DIRETAMENTE ABAIXO DA TELA (SEM VÁCUO) */}
+              <div className="relative w-full flex flex-col justify-center items-center z-20 -mt-2 md:-mt-8  ">
                 <img
                   src="/image/djdjdj.webp"
                   alt="DJ Performance"
-                  className="w-[1000px] h-[480px] object-cover z-20"
+                  className="w-full max-w-[1100px] h-auto object-cover z-20 mt-[170px] md:mt-[180px]"
                 />
 
-                <div className="absolute inset-0 w-[800px] h-[140px] z-30 left-[100px] mt-[-146px]">
+                {/* ONDA DE ÁUDIO WAVE */}
+                <div className="absolute top-0 w-full max-w-[800px] h-[30%] z-30 pointer-events-none">
                   <div
-                    className="absolute inset-0 bg-cover bg-center opacity-80"
+                    className="w-full h-full bg-cover bg-center opacity-80"
                     style={{ backgroundImage: "url('/image/wavv.webp')" }}
                   />
                 </div>
 
-                <div className="absolute bottom-[460px] left-0 right-0 flex justify-between items-center px-10 z-40">
+                {/* BOTÕES DE SAMPLE E DOWNLOAD */}
+                <div className="absolute bottom-[22%] left-0 right-0 flex justify-between items-center px-4 md:px-10 z-40">
                   {!showSamp1 ? (
                     <button
                       onClick={handleTriggerSamp1}
-                      className="w-[220px] h-[90px] bg-red-600 font-bold text-white text-sm uppercase rounded shadow-lg transition-opacity duration-300 opacity-0 hover:opacity-100 active:opacity-100 active:scale-95"
+                      className="w-[30%] max-w-[220px] h-10 md:h-[80px] bg-red-600 font-bold text-white text-xs md:text-sm uppercase rounded shadow-lg transition-opacity duration-300 opacity-0 hover:opacity-100 active:opacity-100 active:scale-95"
                     >
-                      Tocar Sample 1
+                      Sample 1
                     </button>
                   ) : (
-                    <div className="w-[220px]" />
+                    <div className="w-[30%] max-w-[220px]" />
                   )}
 
                   {user && audioMode === 'RADIO' ? (
@@ -307,16 +312,16 @@ export default function SideLeftDrawer({ isOpen: externalIsOpen }: Props) {
                             }
                           : {}
                       }
-                      className={`w-[220px] h-[90px] font-extrabold uppercase rounded shadow-lg transition-all duration-300 active:scale-95 disabled:pointer-events-none flex items-center justify-center ${
+                      className={`w-[35%] max-w-[220px] h-10 md:h-[80px] font-extrabold uppercase rounded shadow-lg transition-all duration-300 active:scale-95 disabled:pointer-events-none flex items-center justify-center ${
                         isDownloading
-                          ? 'opacity-100 text-black text-2xl border-2 border-black'
+                          ? 'opacity-100 text-black text-base md:text-2xl border-2 border-black'
                           : isCompleted
-                          ? 'opacity-100 bg-black text-white text-xl border-2 border-green-500'
-                          : 'opacity-0 hover:opacity-100 active:opacity-100 bg-orange-600 hover:bg-orange-500 text-white text-lg'
+                          ? 'opacity-100 bg-black text-white text-xs md:text-xl border-2 border-green-500'
+                          : 'opacity-0 hover:opacity-100 active:opacity-100 bg-orange-600 hover:bg-orange-500 text-white text-xs md:text-lg'
                       }`}
                     >
                       {isDownloading ? (
-                        <span className="font-black text-3xl drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]">
+                        <span className="font-black text-base md:text-3xl drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]">
                           {downloadProgress}%
                         </span>
                       ) : isCompleted ? (
@@ -330,22 +335,22 @@ export default function SideLeftDrawer({ isOpen: externalIsOpen }: Props) {
                       )}
                     </button>
                   ) : (
-                    <div className="w-[220px]" />
+                    <div className="w-[35%] max-w-[220px]" />
                   )}
 
                   {!showSamp2 ? (
                     <button
                       onClick={handleTriggerSamp2}
-                      className="w-[220px] h-[90px] bg-lime-500 font-bold text-white text-sm uppercase rounded shadow-lg transition-opacity duration-300 opacity-0 hover:opacity-100 active:opacity-100 active:scale-95"
+                      className="w-[30%] max-w-[220px] h-10 md:h-[80px] bg-lime-500 font-bold text-white text-xs md:text-sm uppercase rounded shadow-lg transition-opacity duration-300 opacity-0 hover:opacity-100 active:opacity-100 active:scale-95"
                     >
-                      Tocar Sample 2
+                      Sample 2
                     </button>
                   ) : (
-                    <div className="w-[220px]" />
+                    <div className="w-[30%] max-w-[220px]" />
                   )}
                 </div>
 
-                <div className="absolute inset-0 flex justify-center items-center z-50 w-full">
+                <div className="absolute inset-0 flex justify-center items-center z-50 w-full pointer-events-none">
                   {showSamp1 && <Sample1 />}
                   {showSamp2 && <Sample2 />}
                 </div>
